@@ -121,10 +121,10 @@ export default function RSVP() {
           {attending === 'yes' && (
             <>
               <p className="font-sans text-sm text-mauve-400 mb-8">
-                July 5, 2026 · 8:00 AM · Grandion Event Center, Frisco TX
+                July 5, 2026 · 8:00 AM · Grandion Event Venue, Frisco TX
               </p>
               <a
-                href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Avinash+%26+Ananya+%E2%80%94+Engagement+Ceremony&dates=20260705T080000%2F20260705T140000&details=Join+us+to+celebrate+the+engagement+of+Avinash+and+Ananya%21&location=Grandion+Event+Center%2C+1810+Parkwood+Blvd%2C+Frisco%2C+TX+75034"
+                href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Avinash+%26+Ananya+%E2%80%94+Engagement+Ceremony&dates=20260705T080000%2F20260705T140000&details=Join+us+to+celebrate+the+engagement+of+Avinash+and+Ananya%21&location=Grandion+Event+Venue%2C+1810+Parkwood+Blvd%2C+Frisco%2C+TX+75034"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"

@@ -21,7 +21,7 @@ function downloadICS() {
     'DTEND:20260705T140000',
     'SUMMARY:Avinash & Ananya - Engagement Ceremony',
     'DESCRIPTION:Join us to celebrate the engagement of Avinash and Ananya!\\n\\nBreakfast & Lunch will be served.\\n\\nAttire: Indian Traditional',
-    'LOCATION:Grandion Event Center\\, 1810 Parkwood Blvd\\, Frisco\\, TX 75034',
+    'LOCATION:Grandion Event Venue\\, 1810 Parkwood Blvd\\, Frisco\\, TX 75034',
     'STATUS:CONFIRMED',
     'SEQUENCE:0',
     'BEGIN:VALARM',
@@ -51,7 +51,7 @@ function getGoogleCalendarUrl() {
     text:     'Avinash & Ananya — Engagement Ceremony',
     dates:    '20260705T080000/20260705T140000',
     details:  'Join us to celebrate the engagement of Avinash and Ananya!\n\nBreakfast & Lunch will be served.\nAttire: Indian Traditional',
-    location: 'Grandion Event Center, 1810 Parkwood Blvd, Frisco, TX 75034',
+    location: 'Grandion Event Venue, 1810 Parkwood Blvd, Frisco, TX 75034',
   });
   return `${base}?${params.toString()}`;
 }
@@ -104,7 +104,7 @@ export default function Schedule() {
             Schedule
           </h1>
           <p className="font-serif italic text-mauve-500 text-lg">
-            Grandion Event Center &nbsp;·&nbsp; Frisco, TX
+            Grandion Event Venue &nbsp;·&nbsp; Frisco, TX
           </p>
           <div className="mt-4 flex items-center justify-center gap-2 text-mauve-500">
             <MapPin className="w-4 h-4" />
@@ -200,7 +200,7 @@ export default function Schedule() {
             <div className="flex items-start gap-3">
               <MapPin className="w-5 h-5 text-mauve-500 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-serif text-lg text-mauve-800">Grandion Event Center</p>
+                <p className="font-serif text-lg text-mauve-800">Grandion Event Venue</p>
                 <p className="font-sans text-sm text-mauve-600">1810 Parkwood Blvd, Frisco, TX 75034</p>
               </div>
             </div>

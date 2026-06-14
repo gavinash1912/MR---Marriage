@@ -184,7 +184,7 @@ export default function Home() {
           <div className="animate-fade-in-up delay-600 flex items-center gap-3 text-mauve-500 mb-6">
             <MapPin className="w-4 h-4 flex-shrink-0" />
             <span className="font-sans text-sm md:text-base">
-              Grandion Event Center &nbsp;·&nbsp; Frisco, TX
+              Grandion Event Venue &nbsp;·&nbsp; Frisco, TX
             </span>
           </div>
 
@@ -268,7 +268,7 @@ export default function Home() {
               </div>
               <div>
                 <p className="form-label">Venue</p>
-                <p className="font-serif text-xl text-mauve-800">Grandion Event Center</p>
+                <p className="font-serif text-xl text-mauve-800">Grandion Event Venue</p>
                 <p className="font-sans text-sm text-mauve-600 mt-0.5">1810 Parkwood Blvd, Frisco, TX 75034</p>
                 <a
                   href="https://maps.google.com/?q=1810+Parkwood+Blvd+Frisco+TX+75034"
