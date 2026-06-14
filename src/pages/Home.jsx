@@ -147,7 +147,7 @@ export default function Home() {
     <div className="min-h-screen bg-white">
 
       {/* ── Hero section ───────────────────────────────────── */}
-      <section className="relative min-h-screen flex flex-col items-center overflow-hidden">
+      <section className="relative min-h-screen flex flex-col items-center overflow-hidden bg-white">
 
         {/* Floral top banner */}
         <FloralTopBanner className="absolute top-0 left-0 right-0 z-0" />
@@ -161,7 +161,7 @@ export default function Home() {
         </div>
 
         {/* Hero content */}
-        <div className="relative z-10 flex flex-col items-center justify-center flex-1 pt-32 pb-16 px-4 text-center">
+        <div className="relative z-10 flex flex-col items-center justify-center flex-1 pt-6 sm:pt-8 pb-12 px-12 sm:px-24 lg:px-52 text-center">
           <h1 className="animate-fade-in-up delay-200 font-serif text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-widest2 text-mauve-800 uppercase leading-none mb-4">
             Avinash
           </h1>
