@@ -5,8 +5,8 @@ import { Check, ChevronRight, User, Users, Phone, Mail, MessageSquare, CalendarP
 
 // ── Step indicator ──────────────────────────────────────────────────────────
 function StepDot({ step, current, label }) {
-  const done    = step < current;
-  const active  = step === current;
+  const done   = step < current;
+  const active = step === current;
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 font-sans text-xs font-bold
@@ -28,7 +28,7 @@ function StepLine({ done }) {
   );
 }
 
-// ── Radio attendance option ─────────────────────────────────────────────────
+// ── Attend option ───────────────────────────────────────────────────────────
 function AttendOption({ value, label, sub, selected, onClick }) {
   return (
     <button
@@ -51,88 +51,47 @@ function AttendOption({ value, label, sub, selected, onClick }) {
   );
 }
 
-// ── Meal option ─────────────────────────────────────────────────────────────
-function MealOption({ value, label, selected, onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={() => onClick(value)}
-      className={`px-4 py-2.5 rounded-full border-2 font-sans text-sm transition-all duration-200
-        ${selected
-          ? 'border-mauve-500 bg-mauve-600 text-white shadow-sm'
-          : 'border-mauve-200 text-mauve-600 hover:border-mauve-400'}`}
-    >
-      {label}
-    </button>
-  );
-}
-
 // ── Main RSVP page ───────────────────────────────────────────────────────────
-const TOTAL_STEPS = 3;
-
-const blankGuest = () => ({
-  firstName:    '',
-  lastName:     '',
-  attending:    '',  // 'yes' | 'no'
-  meal:         '',
-  dietary:      '',
-});
+const blankGuest = () => ({ firstName: '', lastName: '' });
 
 export default function RSVP() {
-  const [step,          setStep]          = useState(1);
-  const [primaryGuest,  setPrimaryGuest]  = useState(blankGuest());
-  const [additionalNum, setAdditionalNum] = useState(0);
-  const [additionals,   setAdditionals]   = useState([]);
-  const [contact,       setContact]       = useState({ phone: '', email: '', notes: '' });
-  const [submitting,    setSubmitting]     = useState(false);
-  const [submitted,     setSubmitted]      = useState(false);
-  const [error,         setError]          = useState('');
-
-  // ── Helpers ────────────────────────────────────────────────────────────────
-  const updateGuest = (setter, field, value) => {
-    setter(prev => ({ ...prev, [field]: value }));
-  };
-
-  const updateAdditional = (index, field, value) => {
-    setAdditionals(prev =>
-      prev.map((g, i) => i === index ? { ...g, [field]: value } : g)
-    );
-  };
+  const [step,          setStep]         = useState(1);
+  const [firstName,     setFirstName]    = useState('');
+  const [lastName,      setLastName]     = useState('');
+  const [attending,     setAttending]    = useState('');
+  const [additionalNum, setAdditionalNum]= useState(0);
+  const [additionals,   setAdditionals]  = useState([]);
+  const [contact,       setContact]      = useState({ phone: '', email: '', notes: '' });
+  const [submitting,    setSubmitting]   = useState(false);
+  const [submitted,     setSubmitted]    = useState(false);
+  const [error,         setError]        = useState('');
 
   const handleAdditionalNumChange = (n) => {
     const num = Math.max(0, Math.min(8, n));
     setAdditionalNum(num);
-    setAdditionals(
-      Array.from({ length: num }, (_, i) => additionals[i] || blankGuest())
-    );
+    setAdditionals(Array.from({ length: num }, (_, i) => additionals[i] || blankGuest()));
   };
 
-  // ── Validation ─────────────────────────────────────────────────────────────
-  const step1Valid = () =>
-    primaryGuest.firstName.trim() &&
-    primaryGuest.lastName.trim() &&
-    primaryGuest.attending !== '';
-
-  const step2Valid = () => {
-    if (primaryGuest.attending === 'no') return true;
-    if (!primaryGuest.meal) return false;
-    return additionals.every(g => !g.firstName || (g.firstName && g.meal));
+  const updateAdditional = (i, field, value) => {
+    setAdditionals(prev => prev.map((g, idx) => idx === i ? { ...g, [field]: value } : g));
   };
 
-  // ── Submission ─────────────────────────────────────────────────────────────
+  const step1Valid = () => firstName.trim() && lastName.trim() && attending !== '';
+
+  // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
     setSubmitting(true);
     setError('');
     const payload = {
-      primaryGuest: { ...primaryGuest, ...contact },
+      primaryGuest: { firstName, lastName, attending, ...contact },
       additionalGuests: additionals.filter(g => g.firstName.trim()),
       submittedAt: new Date().toISOString(),
     };
     try {
       await axios.post('/api/rsvp', payload);
       setSubmitted(true);
-    } catch (err) {
-      // If the API is not configured yet, fall back to localStorage
+    } catch {
+      // localStorage fallback
       const stored = JSON.parse(localStorage.getItem('rsvps') || '[]');
       stored.push({ ...payload, id: Date.now() });
       localStorage.setItem('rsvps', JSON.stringify(stored));
@@ -142,9 +101,8 @@ export default function RSVP() {
     }
   };
 
-  // ── Success screen ──────────────────────────────────────────────────────────
+  // ── Success ────────────────────────────────────────────────────────────────
   if (submitted) {
-    const attending = primaryGuest.attending === 'yes';
     return (
       <div className="min-h-screen bg-white pt-16 md:pt-20">
         <div className="max-w-lg mx-auto px-4 py-20 text-center">
@@ -152,38 +110,35 @@ export default function RSVP() {
             <Check className="w-10 h-10 text-mauve-600" />
           </div>
           <h1 className="font-serif text-4xl text-mauve-800 mb-3">
-            {attending ? 'See you there!' : 'Thank you!'}
+            {attending === 'yes' ? 'See you there!' : 'Thank you!'}
           </h1>
           <FloralSprig className="my-4" />
           <p className="font-sans text-mauve-600 text-base mb-2">
-            {attending
-              ? `We're so excited to celebrate with you, ${primaryGuest.firstName}!`
-              : `Thank you for letting us know, ${primaryGuest.firstName}. You'll be missed!`}
+            {attending === 'yes'
+              ? `We're so excited to celebrate with you, ${firstName}!`
+              : `Thank you for letting us know, ${firstName}. You'll be missed!`}
           </p>
-          {attending && (
-            <p className="font-sans text-sm text-mauve-400 mb-8">
-              July 8, 2026 · 8:00 AM · Grandion Event Center, Frisco TX
-            </p>
-          )}
-          {attending && (
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+          {attending === 'yes' && (
+            <>
+              <p className="font-sans text-sm text-mauve-400 mb-8">
+                July 8, 2026 · 8:00 AM · Grandion Event Center, Frisco TX
+              </p>
               <a
                 href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Avinash+%26+Ananya+%E2%80%94+Engagement+Ceremony&dates=20260708T080000%2F20260708T140000&details=Join+us+to+celebrate+the+engagement+of+Avinash+and+Ananya%21&location=Grandion+Event+Center%2C+1810+Parkwood+Blvd%2C+Frisco%2C+TX+75034"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 btn-primary text-sm px-5 py-3"
+                className="inline-flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
               >
                 <CalendarPlus className="w-4 h-4" />
                 Add to Google Calendar
               </a>
-            </div>
+            </>
           )}
         </div>
       </div>
     );
   }
 
-  // ── Form wrapper ────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-white">
       {/* Top floral */}
@@ -202,18 +157,16 @@ export default function RSVP() {
         </div>
       </div>
 
-      {/* Step indicator */}
-      <div className="max-w-md mx-auto px-6 mb-8">
+      {/* Step indicator — 2 steps now */}
+      <div className="max-w-xs mx-auto px-6 mb-8">
         <div className="flex items-center">
-          <StepDot step={1} current={step} label="Your Info"  />
+          <StepDot step={1} current={step} label="Your Info" />
           <StepLine done={step > 1} />
-          <StepDot step={2} current={step} label="Meal"       />
-          <StepLine done={step > 2} />
-          <StepDot step={3} current={step} label="Confirm"    />
+          <StepDot step={2} current={step} label="Confirm"   />
         </div>
       </div>
 
-      {/* ── STEP 1: Name + attendance ─────────────────────────────────────────── */}
+      {/* ── STEP 1: Name + attendance + additional guests ─────────────────── */}
       {step === 1 && (
         <div className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up">
           <div className="card">
@@ -228,8 +181,8 @@ export default function RSVP() {
                 <input
                   type="text"
                   className="form-input"
-                  value={primaryGuest.firstName}
-                  onChange={e => updateGuest(setPrimaryGuest, 'firstName', e.target.value)}
+                  value={firstName}
+                  onChange={e => setFirstName(e.target.value)}
                   placeholder="First name"
                 />
               </div>
@@ -238,8 +191,8 @@ export default function RSVP() {
                 <input
                   type="text"
                   className="form-input"
-                  value={primaryGuest.lastName}
-                  onChange={e => updateGuest(setPrimaryGuest, 'lastName', e.target.value)}
+                  value={lastName}
+                  onChange={e => setLastName(e.target.value)}
                   placeholder="Last name"
                 />
               </div>
@@ -252,21 +205,21 @@ export default function RSVP() {
                   value="yes"
                   label="Joyfully accepts"
                   sub="I'll be there to celebrate!"
-                  selected={primaryGuest.attending === 'yes'}
-                  onClick={v => updateGuest(setPrimaryGuest, 'attending', v)}
+                  selected={attending === 'yes'}
+                  onClick={setAttending}
                 />
                 <AttendOption
                   value="no"
                   label="Regretfully declines"
                   sub="I'm unable to make it"
-                  selected={primaryGuest.attending === 'no'}
-                  onClick={v => updateGuest(setPrimaryGuest, 'attending', v)}
+                  selected={attending === 'no'}
+                  onClick={setAttending}
                 />
               </div>
             </div>
 
-            {/* Additional guests */}
-            {primaryGuest.attending === 'yes' && (
+            {/* Additional guests — only if attending */}
+            {attending === 'yes' && (
               <div className="mb-6">
                 <label className="form-label">Additional Guests</label>
                 <p className="font-sans text-xs text-mauve-400 mb-3">
@@ -287,6 +240,38 @@ export default function RSVP() {
                                flex items-center justify-center hover:border-mauve-400 transition-colors"
                   >+</button>
                 </div>
+
+                {/* Name fields for additional guests */}
+                {additionals.length > 0 && (
+                  <div className="mt-4 space-y-3">
+                    {additionals.map((g, i) => (
+                      <div key={i} className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="form-label flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5" /> Guest {i + 1} First
+                          </label>
+                          <input
+                            type="text"
+                            className="form-input text-sm"
+                            placeholder="First name"
+                            value={g.firstName}
+                            onChange={e => updateAdditional(i, 'firstName', e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="form-label">Last Name</label>
+                          <input
+                            type="text"
+                            className="form-input text-sm"
+                            placeholder="Last name"
+                            value={g.lastName}
+                            onChange={e => updateAdditional(i, 'lastName', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -302,122 +287,15 @@ export default function RSVP() {
         </div>
       )}
 
-      {/* ── STEP 2: Meal preferences ──────────────────────────────────────────── */}
+      {/* ── STEP 2: Contact + confirm ─────────────────────────────────────── */}
       {step === 2 && (
-        <div className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up">
-          <div className="card">
-            <h2 className="font-serif text-2xl text-mauve-800 mb-1 text-center">Meal Preferences</h2>
-            <p className="font-sans text-sm text-mauve-400 text-center mb-6">
-              Breakfast &amp; Lunch will be served. Please choose a preference.
-            </p>
-
-            {primaryGuest.attending === 'no' ? (
-              <p className="font-sans text-sm text-mauve-400 text-center py-4">
-                No meal preference needed — we'll miss you!
-              </p>
-            ) : (
-              <>
-                {/* Primary guest meal */}
-                <div className="mb-6">
-                  <label className="form-label flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    {primaryGuest.firstName || 'You'}
-                  </label>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {['Vegetarian', 'Non-Vegetarian', 'Vegan', 'No Preference'].map(m => (
-                      <MealOption
-                        key={m} value={m} label={m}
-                        selected={primaryGuest.meal === m}
-                        onClick={v => updateGuest(setPrimaryGuest, 'meal', v)}
-                      />
-                    ))}
-                  </div>
-                  <div className="mt-3">
-                    <label className="form-label">Dietary restrictions / allergies</label>
-                    <input
-                      type="text"
-                      className="form-input text-sm"
-                      placeholder="e.g. nut allergy, gluten free…"
-                      value={primaryGuest.dietary}
-                      onChange={e => updateGuest(setPrimaryGuest, 'dietary', e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                {/* Additional guests meals */}
-                {additionals.map((g, i) => (
-                  <div key={i} className="mb-5 pt-5 border-t border-mauve-100">
-                    <label className="form-label flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      Guest {i + 1}
-                    </label>
-                    <div className="grid grid-cols-2 gap-3 mt-2 mb-3">
-                      <input
-                        type="text"
-                        className="form-input text-sm"
-                        placeholder="First name"
-                        value={g.firstName}
-                        onChange={e => updateAdditional(i, 'firstName', e.target.value)}
-                      />
-                      <input
-                        type="text"
-                        className="form-input text-sm"
-                        placeholder="Last name"
-                        value={g.lastName}
-                        onChange={e => updateAdditional(i, 'lastName', e.target.value)}
-                      />
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {['Vegetarian', 'Non-Vegetarian', 'Vegan', 'No Preference'].map(m => (
-                        <MealOption
-                          key={m} value={m} label={m}
-                          selected={g.meal === m}
-                          onClick={v => updateAdditional(i, 'meal', v)}
-                        />
-                      ))}
-                    </div>
-                    <input
-                      type="text"
-                      className="form-input text-sm mt-2"
-                      placeholder="Dietary restrictions / allergies"
-                      value={g.dietary}
-                      onChange={e => updateAdditional(i, 'dietary', e.target.value)}
-                    />
-                  </div>
-                ))}
-              </>
-            )}
-
-            <div className="flex gap-3 mt-4">
-              <button
-                onClick={() => setStep(1)}
-                className="btn-secondary flex-1 text-sm"
-              >
-                Back
-              </button>
-              <button
-                disabled={!step2Valid()}
-                onClick={() => setStep(3)}
-                className={`btn-primary flex-1 flex items-center justify-center gap-2 text-sm
-                  ${!step2Valid() ? 'opacity-40 cursor-not-allowed' : ''}`}
-              >
-                Continue <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── STEP 3: Contact + confirm ─────────────────────────────────────────── */}
-      {step === 3 && (
         <div className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up">
           <div className="card">
             <h2 className="font-serif text-2xl text-mauve-800 mb-1 text-center">Confirm RSVP</h2>
             <p className="font-sans text-sm text-mauve-400 text-center mb-6">
-              Almost done! Add your contact info and review your RSVP.
+              Almost done! Add your contact info and review.
             </p>
 
-            {/* Contact info */}
             <div className="space-y-4 mb-6">
               <div>
                 <label className="form-label flex items-center gap-2">
@@ -461,19 +339,15 @@ export default function RSVP() {
             <div className="bg-mauve-100/60 rounded-xl p-4 mb-6 space-y-2">
               <h3 className="font-serif text-base text-mauve-700 mb-2">Your RSVP Summary</h3>
               <p className="font-sans text-sm text-mauve-600">
-                <span className="font-semibold">{primaryGuest.firstName} {primaryGuest.lastName}</span>
+                <span className="font-semibold">{firstName} {lastName}</span>
                 {' — '}
-                <span className={primaryGuest.attending === 'yes' ? 'text-sage-600' : 'text-blush-600'}>
-                  {primaryGuest.attending === 'yes' ? '✓ Attending' : '✗ Not attending'}
+                <span className={attending === 'yes' ? 'text-sage-600' : 'text-blush-600'}>
+                  {attending === 'yes' ? '✓ Attending' : '✗ Not attending'}
                 </span>
               </p>
-              {primaryGuest.meal && (
-                <p className="font-sans text-xs text-mauve-400">Meal: {primaryGuest.meal}</p>
-              )}
               {additionals.filter(g => g.firstName).map((g, i) => (
                 <p key={i} className="font-sans text-sm text-mauve-600">
-                  <span className="font-semibold">{g.firstName} {g.lastName}</span>
-                  {g.meal && <span className="text-mauve-400"> · {g.meal}</span>}
+                  + <span className="font-semibold">{g.firstName} {g.lastName}</span>
                 </p>
               ))}
               <p className="font-sans text-xs text-mauve-400 pt-1 border-t border-mauve-200">
@@ -486,10 +360,7 @@ export default function RSVP() {
             )}
 
             <div className="flex gap-3">
-              <button
-                onClick={() => setStep(2)}
-                className="btn-secondary flex-1 text-sm"
-              >
+              <button onClick={() => setStep(1)} className="btn-secondary flex-1 text-sm">
                 Back
               </button>
               <button

@@ -33,20 +33,35 @@ function CountdownBlock({ value, label }) {
   );
 }
 
-// ── Video player ─────────────────────────────────────────────────────────────
+// ── Video player — autoplay muted, click to unmute/pause ────────────────────
 function WelcomeVideo() {
-  const videoRef = useRef(null);
-  const [playing, setPlaying]   = useState(false);
+  const videoRef             = useRef(null);
+  const [muted,   setMuted]  = useState(true);
+  const [playing, setPlaying]= useState(true);
   const [hasVideo, setHasVideo] = useState(false);
 
-  // Check if a video file exists in /videos/
+  // Check if video file exists
   useEffect(() => {
     fetch('/videos/welcome.mp4', { method: 'HEAD' })
       .then(r => { if (r.ok) setHasVideo(true); })
       .catch(() => {});
   }, []);
 
-  const toggle = () => {
+  // Autoplay once we know video exists
+  useEffect(() => {
+    if (hasVideo && videoRef.current) {
+      videoRef.current.play().catch(() => setPlaying(false));
+    }
+  }, [hasVideo]);
+
+  const toggleMute = (e) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    videoRef.current.muted = !muted;
+    setMuted(m => !m);
+  };
+
+  const togglePlay = () => {
     if (!videoRef.current) return;
     if (playing) { videoRef.current.pause(); setPlaying(false); }
     else         { videoRef.current.play();  setPlaying(true);  }
@@ -58,35 +73,67 @@ function WelcomeVideo() {
         <div className="aspect-video bg-mauve-100 flex flex-col items-center justify-center gap-4">
           <FloralSprig />
           <p className="font-serif text-lg text-mauve-500 italic">Welcome video coming soon…</p>
-          <p className="font-sans text-xs text-mauve-400 text-center px-4">
-            Add your video as <code className="bg-mauve-100 px-1 py-0.5 rounded text-mauve-600">public/videos/welcome.mp4</code>
-          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="video-wrapper group cursor-pointer" onClick={toggle}>
+    <div className="video-wrapper group cursor-pointer" onClick={togglePlay}>
       <video
         ref={videoRef}
         src="/videos/welcome.mp4"
+        autoPlay
+        muted
         loop
         playsInline
         className="w-full block"
-        onEnded={() => setPlaying(false)}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
       />
-      {/* Play / pause overlay */}
-      <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
-        playing ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'
-      }`}>
-        <div className="w-16 h-16 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg">
+
+      {/* Controls overlay — visible on hover */}
+      <div className="absolute inset-0 flex items-end justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-t from-black/20 to-transparent">
+        {/* Play/pause */}
+        <div className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow">
           {playing
-            ? <Pause className="w-6 h-6 text-mauve-700" />
-            : <Play  className="w-6 h-6 text-mauve-700 ml-1" />
+            ? <Pause className="w-4 h-4 text-mauve-700" />
+            : <Play  className="w-4 h-4 text-mauve-700 ml-0.5" />
           }
         </div>
+
+        {/* Mute/unmute button */}
+        <button
+          onClick={toggleMute}
+          className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow text-mauve-700 hover:bg-white transition-colors"
+          aria-label={muted ? 'Unmute' : 'Mute'}
+        >
+          {muted ? (
+            // Muted icon
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+              <line x1="23" y1="9" x2="17" y2="15"/>
+              <line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+          ) : (
+            // Unmuted icon
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+              <path d="M19.07 4.93a10 10 0 010 14.14"/>
+              <path d="M15.54 8.46a5 5 0 010 7.07"/>
+            </svg>
+          )}
+        </button>
       </div>
+
+      {/* Paused overlay */}
+      {!playing && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg">
+            <Play className="w-6 h-6 text-mauve-700 ml-1" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
