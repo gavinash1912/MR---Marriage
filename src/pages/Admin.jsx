@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {
   Users, Check, X, Search, Download, RefreshCw,
-  ChevronDown, ChevronUp, Trash2, Mail, Phone, MessageSquare
+  ChevronDown, ChevronUp, Trash2, Mail, Phone, MessageSquare,
+  Pencil, Save, XCircle, Plus, Minus
 } from 'lucide-react';
 
 // ── Stat card ────────────────────────────────────────────────────────────────
@@ -22,8 +23,171 @@ function StatCard({ label, value, sub, color = 'mauve' }) {
   );
 }
 
+// ── Edit Modal ────────────────────────────────────────────────────────────────
+function EditModal({ rsvp, onSave, onClose }) {
+  const g = rsvp.primaryGuest;
+  const [form, setForm] = useState({
+    firstName: g.firstName || '',
+    lastName:  g.lastName  || '',
+    attending: g.attending || 'yes',
+    phone:     g.phone     || '',
+    email:     g.email     || '',
+    notes:     g.notes     || '',
+  });
+  const [additionals, setAdditionals] = useState(
+    (rsvp.additionalGuests || []).map(ag => ({ ...ag }))
+  );
+  const [saving, setSaving] = useState(false);
+
+  const updateAdditional = (i, field, val) =>
+    setAdditionals(prev => prev.map((a, idx) => idx === i ? { ...a, [field]: val } : a));
+
+  const addGuest    = () => setAdditionals(prev => [...prev, { firstName: '', lastName: '' }]);
+  const removeGuest = (i) => setAdditionals(prev => prev.filter((_, idx) => idx !== i));
+
+  const handleSave = async () => {
+    setSaving(true);
+    const updated = {
+      primaryGuest:    { ...g, ...form },
+      additionalGuests: additionals.filter(a => a.firstName.trim()),
+    };
+    await onSave(rsvp._id || rsvp.id, updated);
+    setSaving(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-mauve-100">
+          <h2 className="font-serif text-2xl text-mauve-800">Edit RSVP</h2>
+          <button onClick={onClose} className="text-mauve-400 hover:text-mauve-700 transition-colors">
+            <XCircle className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="px-6 py-5 space-y-5">
+
+          {/* Name */}
+          <div>
+            <p className="font-sans text-xs tracking-widest uppercase text-mauve-500 mb-3">Primary Guest</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="form-label">First Name</label>
+                <input className="form-input" value={form.firstName}
+                  onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))} />
+              </div>
+              <div>
+                <label className="form-label">Last Name</label>
+                <input className="form-input" value={form.lastName}
+                  onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))} />
+              </div>
+            </div>
+          </div>
+
+          {/* Attending */}
+          <div>
+            <label className="form-label mb-3">Attendance</label>
+            <div className="flex gap-3">
+              {['yes', 'no'].map(val => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, attending: val }))}
+                  className={`flex-1 py-2.5 rounded-lg border-2 font-sans text-sm transition-all ${
+                    form.attending === val
+                      ? val === 'yes'
+                        ? 'border-sage-500 bg-sage-50 text-sage-700'
+                        : 'border-blush-400 bg-blush-50 text-blush-700'
+                      : 'border-mauve-200 text-mauve-500 hover:border-mauve-300'
+                  }`}
+                >
+                  {val === 'yes' ? '✓ Attending' : '✗ Not Attending'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div className="space-y-3">
+            <p className="font-sans text-xs tracking-widest uppercase text-mauve-500">Contact</p>
+            <div>
+              <label className="form-label flex items-center gap-1.5"><Phone className="w-3 h-3" /> Phone</label>
+              <input className="form-input" type="tel" value={form.phone}
+                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(555) 123-4567" />
+            </div>
+            <div>
+              <label className="form-label flex items-center gap-1.5"><Mail className="w-3 h-3" /> Email</label>
+              <input className="form-input" type="email" value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="guest@email.com" />
+            </div>
+            <div>
+              <label className="form-label flex items-center gap-1.5"><MessageSquare className="w-3 h-3" /> Notes</label>
+              <textarea className="form-input resize-none" rows={2} value={form.notes}
+                onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Optional note…" />
+            </div>
+          </div>
+
+          {/* Additional guests */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <p className="font-sans text-xs tracking-widest uppercase text-mauve-500">Additional Guests</p>
+              <button
+                type="button"
+                onClick={addGuest}
+                className="flex items-center gap-1 text-xs font-sans text-mauve-600 hover:text-mauve-800 border border-mauve-200 hover:border-mauve-400 rounded px-2 py-1 transition-colors"
+              >
+                <Plus className="w-3 h-3" /> Add Guest
+              </button>
+            </div>
+            {additionals.length === 0 && (
+              <p className="text-xs text-mauve-300 italic">No additional guests</p>
+            )}
+            {additionals.map((ag, i) => (
+              <div key={i} className="grid grid-cols-2 gap-2 mb-2">
+                <input className="form-input text-sm" placeholder="First name"
+                  value={ag.firstName}
+                  onChange={e => updateAdditional(i, 'firstName', e.target.value)} />
+                <div className="flex gap-2">
+                  <input className="form-input text-sm flex-1" placeholder="Last name"
+                    value={ag.lastName}
+                    onChange={e => updateAdditional(i, 'lastName', e.target.value)} />
+                  <button type="button" onClick={() => removeGuest(i)}
+                    className="text-blush-400 hover:text-blush-600 transition-colors flex-shrink-0">
+                    <Minus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex gap-3 px-6 py-4 border-t border-mauve-100">
+          <button onClick={onClose} className="btn-secondary flex-1 text-sm py-2.5">
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving || !form.firstName.trim() || !form.lastName.trim()}
+            className={`btn-primary flex-1 flex items-center justify-center gap-2 text-sm py-2.5 ${
+              saving || !form.firstName.trim() ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {saving
+              ? <><svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg> Saving…</>
+              : <><Save className="w-4 h-4" /> Save Changes</>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Guest row (expandable) ────────────────────────────────────────────────────
-function GuestRow({ rsvp, onDelete }) {
+function GuestRow({ rsvp, onDelete, onEdit }) {
   const [open, setOpen] = useState(false);
   const g = rsvp.primaryGuest;
   const extras = rsvp.additionalGuests || [];
@@ -48,27 +212,22 @@ function GuestRow({ rsvp, onDelete }) {
         <td className="py-3 px-4 font-sans text-sm text-mauve-500 hidden md:table-cell">
           {extras.length > 0 ? `+${extras.length} guest${extras.length > 1 ? 's' : ''}` : '—'}
         </td>
-        <td className="py-3 px-4 font-sans text-sm text-mauve-500 hidden lg:table-cell">
-          {g.meal || '—'}
-        </td>
         <td className="py-3 px-4 font-sans text-xs text-mauve-400 hidden xl:table-cell">
           {new Date(rsvp.submittedAt).toLocaleDateString('en-US', {
             month: 'short', day: 'numeric', year: 'numeric'
           })}
         </td>
         <td className="py-3 px-4 text-right">
-          <div className="flex items-center justify-end gap-2">
-            <span className="text-mauve-400">
-              {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </span>
-          </div>
+          <span className="text-mauve-400">
+            {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </span>
         </td>
       </tr>
 
       {/* Expanded row */}
       {open && (
         <tr className="bg-mauve-50/60">
-          <td colSpan={6} className="py-4 px-6">
+          <td colSpan={5} className="py-4 px-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
               {/* Contact */}
               <div className="space-y-1">
@@ -90,23 +249,16 @@ function GuestRow({ rsvp, onDelete }) {
                 )}
               </div>
 
-              {/* Dietary + notes */}
+              {/* Notes */}
               <div className="space-y-1">
                 <p className="font-sans text-xs tracking-widest uppercase text-mauve-400 mb-2">Notes</p>
-                {g.dietary && (
-                  <p className="text-mauve-600">
-                    <span className="text-mauve-400">Dietary: </span>{g.dietary}
-                  </p>
-                )}
                 {g.notes && (
                   <p className="flex items-start gap-2 text-mauve-600">
                     <MessageSquare className="w-3.5 h-3.5 text-mauve-400 flex-shrink-0 mt-0.5" />
                     {g.notes}
                   </p>
                 )}
-                {!g.dietary && !g.notes && (
-                  <p className="text-mauve-300 italic">None</p>
-                )}
+                {!g.notes && <p className="text-mauve-300 italic">None</p>}
               </div>
 
               {/* Additional guests */}
@@ -118,16 +270,21 @@ function GuestRow({ rsvp, onDelete }) {
                   {extras.map((eg, i) => (
                     <p key={i} className="text-mauve-600">
                       {eg.firstName} {eg.lastName}
-                      {eg.meal && <span className="text-mauve-400"> · {eg.meal}</span>}
-                      {eg.dietary && <span className="text-mauve-400"> · {eg.dietary}</span>}
                     </p>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Delete */}
-            <div className="mt-4 flex justify-end">
+            {/* Actions */}
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button
+                onClick={(e) => { e.stopPropagation(); onEdit(rsvp); }}
+                className="flex items-center gap-1.5 text-xs font-sans text-mauve-600 hover:text-mauve-800
+                           border border-mauve-200 hover:border-mauve-400 rounded px-3 py-1.5 transition-colors"
+              >
+                <Pencil className="w-3.5 h-3.5" /> Edit entry
+              </button>
               <button
                 onClick={(e) => { e.stopPropagation(); onDelete(rsvp._id || rsvp.id); }}
                 className="flex items-center gap-1.5 text-xs font-sans text-blush-500 hover:text-blush-700
@@ -146,7 +303,7 @@ function GuestRow({ rsvp, onDelete }) {
 // ── CSV export ────────────────────────────────────────────────────────────────
 function exportCSV(rsvps) {
   const rows = [
-    ['First Name', 'Last Name', 'Attending', 'Meal', 'Dietary', 'Email', 'Phone',
+    ['First Name', 'Last Name', 'Attending', 'Email', 'Phone',
      'Additional Guests', 'Notes', 'Submitted'],
   ];
   rsvps.forEach(r => {
@@ -154,7 +311,7 @@ function exportCSV(rsvps) {
     const extras = (r.additionalGuests || []).map(e => `${e.firstName} ${e.lastName}`).join('; ');
     rows.push([
       g.firstName, g.lastName, g.attending === 'yes' ? 'Yes' : 'No',
-      g.meal || '', g.dietary || '', g.email || '', g.phone || '',
+      g.email || '', g.phone || '',
       extras, g.notes || '',
       new Date(r.submittedAt).toLocaleDateString(),
     ]);
@@ -173,12 +330,13 @@ function exportCSV(rsvps) {
 
 // ── Admin page ────────────────────────────────────────────────────────────────
 export default function Admin() {
-  const [rsvps,    setRsvps]    = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState('');
-  const [search,   setSearch]   = useState('');
-  const [filter,   setFilter]   = useState('all'); // all | attending | declined
-  const [sortBy,   setSortBy]   = useState('date_desc');
+  const [rsvps,       setRsvps]       = useState([]);
+  const [loading,     setLoading]     = useState(true);
+  const [error,       setError]       = useState('');
+  const [search,      setSearch]      = useState('');
+  const [filter,      setFilter]      = useState('all');
+  const [sortBy,      setSortBy]      = useState('date_desc');
+  const [editingRsvp, setEditingRsvp] = useState(null);
 
   const fetchRsvps = useCallback(async () => {
     setLoading(true);
@@ -187,7 +345,6 @@ export default function Admin() {
       const res = await axios.get('/api/guests');
       setRsvps(res.data.rsvps || []);
     } catch {
-      // Fallback to localStorage
       const stored = JSON.parse(localStorage.getItem('rsvps') || '[]');
       setRsvps(stored);
     } finally {
@@ -202,20 +359,34 @@ export default function Admin() {
     try {
       await axios.delete(`/api/guests/${id}`);
     } catch {
-      // localStorage fallback
       const stored = JSON.parse(localStorage.getItem('rsvps') || '[]');
       localStorage.setItem('rsvps', JSON.stringify(stored.filter(r => r.id !== id)));
     }
     setRsvps(prev => prev.filter(r => (r._id || r.id) !== id));
   };
 
+  const handleSave = async (id, updatedData) => {
+    try {
+      await axios.patch(`/api/guests/${id}`, updatedData);
+    } catch {
+      // localStorage fallback
+      const stored = JSON.parse(localStorage.getItem('rsvps') || '[]');
+      localStorage.setItem('rsvps', JSON.stringify(
+        stored.map(r => r.id === id ? { ...r, ...updatedData } : r)
+      ));
+    }
+    setRsvps(prev => prev.map(r =>
+      (r._id || r.id) === id ? { ...r, ...updatedData } : r
+    ));
+    setEditingRsvp(null);
+  };
+
   // ── Derived stats ──────────────────────────────────────────────────────────
-  const totalPrimary    = rsvps.length;
-  const attending       = rsvps.filter(r => r.primaryGuest?.attending === 'yes');
-  const declined        = rsvps.filter(r => r.primaryGuest?.attending === 'no');
-  const totalHeadcount  = attending.reduce((acc, r) => {
-    return acc + 1 + (r.additionalGuests?.filter(g => g.firstName)?.length || 0);
-  }, 0);
+  const totalPrimary   = rsvps.length;
+  const attending      = rsvps.filter(r => r.primaryGuest?.attending === 'yes');
+  const declined       = rsvps.filter(r => r.primaryGuest?.attending === 'no');
+  const totalHeadcount = attending.reduce((acc, r) =>
+    acc + 1 + (r.additionalGuests?.filter(g => g.firstName)?.length || 0), 0);
 
   // ── Filtering + sorting ────────────────────────────────────────────────────
   const filtered = rsvps
@@ -246,6 +417,16 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-mauve-50/30 pt-16 md:pt-20">
+
+      {/* Edit modal */}
+      {editingRsvp && (
+        <EditModal
+          rsvp={editingRsvp}
+          onSave={handleSave}
+          onClose={() => setEditingRsvp(null)}
+        />
+      )}
+
       <div className="max-w-6xl mx-auto px-4 py-10">
 
         {/* Header */}
@@ -275,33 +456,11 @@ export default function Admin() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <StatCard label="Total RSVPs"  value={totalPrimary}         color="mauve" />
-          <StatCard label="Attending"    value={attending.length}     color="green" sub={`${totalHeadcount} total guests`} />
-          <StatCard label="Declined"     value={declined.length}      color="red"   />
-          <StatCard label="Head Count"   value={totalHeadcount}       color="yellow" sub="primary + additional" />
+          <StatCard label="Total RSVPs"  value={totalPrimary}     color="mauve" />
+          <StatCard label="Attending"    value={attending.length} color="green" sub={`${totalHeadcount} total guests`} />
+          <StatCard label="Declined"     value={declined.length}  color="red"   />
+          <StatCard label="Head Count"   value={totalHeadcount}   color="yellow" sub="primary + additional" />
         </div>
-
-        {/* Meal breakdown */}
-        {attending.length > 0 && (
-          <div className="bg-white rounded-xl border border-mauve-100 p-5 mb-6">
-            <h2 className="font-serif text-lg text-mauve-700 mb-3">Meal Preferences</h2>
-            <div className="flex flex-wrap gap-3">
-              {['Vegetarian', 'Non-Vegetarian', 'Vegan', 'No Preference'].map(meal => {
-                const count = [
-                  ...attending.map(r => r.primaryGuest),
-                  ...attending.flatMap(r => r.additionalGuests || []),
-                ].filter(g => g.meal === meal).length;
-                if (!count) return null;
-                return (
-                  <div key={meal} className="bg-mauve-50 rounded-lg px-4 py-2 border border-mauve-100">
-                    <span className="font-sans text-sm text-mauve-700">{meal}</span>
-                    <span className="ml-2 font-serif text-xl text-mauve-600">{count}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
         {/* Filters + search */}
         <div className="bg-white rounded-xl border border-mauve-100 overflow-hidden">
@@ -374,20 +533,24 @@ export default function Admin() {
             </div>
           ) : (
             <div className="admin-table-wrap">
-              <table className="w-full min-w-[600px]">
+              <table className="w-full min-w-[560px]">
                 <thead>
                   <tr className="bg-mauve-50 border-b border-mauve-100">
                     <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Name</th>
                     <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Status</th>
                     <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400 hidden md:table-cell">+Guests</th>
-                    <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400 hidden lg:table-cell">Meal</th>
                     <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400 hidden xl:table-cell">Submitted</th>
                     <th className="py-3 px-4" />
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((rsvp, i) => (
-                    <GuestRow key={rsvp._id || rsvp.id || i} rsvp={rsvp} onDelete={handleDelete} />
+                    <GuestRow
+                      key={rsvp._id || rsvp.id || i}
+                      rsvp={rsvp}
+                      onDelete={handleDelete}
+                      onEdit={setEditingRsvp}
+                    />
                   ))}
                 </tbody>
               </table>

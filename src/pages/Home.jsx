@@ -162,15 +162,17 @@ export default function Home() {
 
         {/* Hero content */}
         <div className="relative z-10 flex flex-col items-center justify-center flex-1 pt-6 sm:pt-8 pb-12 px-12 sm:px-24 lg:px-52 text-center">
-          <h1 className="animate-fade-in-up delay-200 font-serif text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-widest2 text-mauve-800 uppercase leading-none mb-4">
+          <h1 className="animate-fade-in-up delay-200 font-serif text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-widest2 text-mauve-800 uppercase leading-none mb-2">
             Avinash
           </h1>
 
-          <p className="animate-fade-in-up delay-300 font-serif text-xl md:text-2xl text-mauve-500 italic my-3">
-            and
-          </p>
+          <div className="animate-fade-in-up delay-300 flex items-center gap-3 my-2">
+            <FloralSprig />
+            <p className="font-serif text-xl md:text-2xl text-mauve-500 italic">and</p>
+            <FloralSprig />
+          </div>
 
-          <h1 className="animate-fade-in-up delay-400 font-serif text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-widest2 text-mauve-800 uppercase leading-none mb-10">
+          <h1 className="animate-fade-in-up delay-400 font-serif text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-widest2 text-mauve-800 uppercase leading-none mb-8">
             Ananya
           </h1>
 
@@ -179,15 +181,20 @@ export default function Home() {
             <span className="font-serif text-lg md:text-xl tracking-wider">July 5, 2026</span>
           </div>
 
-          <div className="animate-fade-in-up delay-600 flex items-center gap-3 text-mauve-500 mb-12">
+          <div className="animate-fade-in-up delay-600 flex items-center gap-3 text-mauve-500 mb-6">
             <MapPin className="w-4 h-4 flex-shrink-0" />
             <span className="font-sans text-sm md:text-base">
               Grandion Event Center &nbsp;·&nbsp; Frisco, TX
             </span>
           </div>
 
+          {/* Floral divider before countdown */}
+          <div className="animate-fade-in-up floral-divider mb-6">
+            <FloralSprig />
+          </div>
+
           {/* Countdown */}
-          <div className="animate-fade-in-up delay-700 flex items-center gap-6 sm:gap-10 mb-12">
+          <div className="animate-fade-in-up delay-700 flex items-center gap-6 sm:gap-10 mb-10">
             <CountdownBlock value={countdown.days}    label="Days"    />
             <span className="text-mauve-300 font-serif text-4xl mb-4">·</span>
             <CountdownBlock value={countdown.hours}   label="Hours"   />
@@ -227,6 +234,9 @@ export default function Home() {
       {/* ── Event details section ───────────────────────────── */}
       <section className="py-20 px-4">
         <div className="max-w-2xl mx-auto text-center">
+          <div className="floral-divider mb-8">
+            <FloralSprig />
+          </div>
           <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">The celebration</p>
           <h2 className="section-title mb-8">Engagement Ceremony</h2>
 

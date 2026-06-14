@@ -141,6 +141,7 @@ export default function Schedule() {
           title="Photography &amp; Celebrations"
           description="Group photos, family portraits, and celebrations"
           icon={Music}
+          accent
         />
         <TimelineEvent
           time="11:30 AM"
