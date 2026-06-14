@@ -17,8 +17,8 @@ function downloadICS() {
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    'DTSTART:20260708T080000',
-    'DTEND:20260708T140000',
+    'DTSTART:20260705T080000',
+    'DTEND:20260705T140000',
     'SUMMARY:Avinash & Ananya - Engagement Ceremony',
     'DESCRIPTION:Join us to celebrate the engagement of Avinash and Ananya!\\n\\nBreakfast & Lunch will be served.\\n\\nAttire: Indian Traditional',
     'LOCATION:Grandion Event Center\\, 1810 Parkwood Blvd\\, Frisco\\, TX 75034',
@@ -49,7 +49,7 @@ function getGoogleCalendarUrl() {
   const params = new URLSearchParams({
     action:   'TEMPLATE',
     text:     'Avinash & Ananya — Engagement Ceremony',
-    dates:    '20260708T080000/20260708T140000',
+    dates:    '20260705T080000/20260705T140000',
     details:  'Join us to celebrate the engagement of Avinash and Ananya!\n\nBreakfast & Lunch will be served.\nAttire: Indian Traditional',
     location: 'Grandion Event Center, 1810 Parkwood Blvd, Frisco, TX 75034',
   });
@@ -99,7 +99,7 @@ export default function Schedule() {
       <div className="pt-16 md:pt-20 relative overflow-hidden">
         <FloralTopBanner className="absolute top-0 left-0 right-0 opacity-60" />
         <div className="relative z-10 py-16 px-4 text-center">
-          <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">July 8, 2026</p>
+          <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">July 5, 2026</p>
           <h1 className="font-serif text-5xl md:text-6xl tracking-widest2 text-mauve-800 uppercase mb-3">
             Schedule
           </h1>
@@ -124,50 +124,30 @@ export default function Schedule() {
       <section className="max-w-2xl mx-auto px-4 pb-12">
         <TimelineEvent
           time="8:00 AM"
-          title="Doors Open"
-          description="Guests arrive & are welcomed"
-          icon={Star}
-          accent
-        />
-        <TimelineEvent
-          time="8:00 AM"
-          title="Breakfast Served"
-          description="Traditional South Indian breakfast spread"
-          icon={Utensils}
-          accent
-        />
-        <TimelineEvent
-          time="9:30 AM"
           title="Engagement Ceremony Begins"
           description="The formal engagement ceremony with family blessings"
           icon={Star}
           accent
         />
         <TimelineEvent
-          time="11:00 AM"
+          time="10:00 AM"
           title="Ring Exchange"
           description="The official exchange of rings by Avinash &amp; Ananya"
           icon={Star}
           accent
         />
         <TimelineEvent
-          time="11:30 AM"
-          title="Photography & Celebrations"
+          time="10:30 AM"
+          title="Photography &amp; Celebrations"
           description="Group photos, family portraits, and celebrations"
           icon={Music}
         />
         <TimelineEvent
-          time="12:30 PM"
+          time="11:30 AM"
           title="Lunch Served"
           description="Buffet lunch with a variety of Indian delicacies"
           icon={Utensils}
           accent
-        />
-        <TimelineEvent
-          time="2:00 PM"
-          title="Farewell"
-          description="Thank you for celebrating with us!"
-          icon={Star}
           last
         />
       </section>
@@ -228,7 +208,6 @@ export default function Schedule() {
               <div>
                 <p className="font-sans text-sm text-mauve-600">
                   <strong className="text-mauve-700">Doors open at 8:00 AM</strong>
-                  <br />Please plan to arrive a few minutes early
                 </p>
               </div>
             </div>
@@ -249,7 +228,7 @@ export default function Schedule() {
       <footer className="py-10 text-center border-t border-mauve-100">
         <FloralSprig className="mb-3" />
         <p className="font-serif italic text-mauve-400 text-sm">
-          Avinash &amp; Ananya &nbsp;·&nbsp; July 8, 2026
+          Avinash &amp; Ananya &nbsp;·&nbsp; July 5, 2026
         </p>
       </footer>
     </div>

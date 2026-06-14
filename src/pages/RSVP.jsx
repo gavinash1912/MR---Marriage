@@ -121,10 +121,10 @@ export default function RSVP() {
           {attending === 'yes' && (
             <>
               <p className="font-sans text-sm text-mauve-400 mb-8">
-                July 8, 2026 · 8:00 AM · Grandion Event Center, Frisco TX
+                July 5, 2026 · 8:00 AM · Grandion Event Center, Frisco TX
               </p>
               <a
-                href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Avinash+%26+Ananya+%E2%80%94+Engagement+Ceremony&dates=20260708T080000%2F20260708T140000&details=Join+us+to+celebrate+the+engagement+of+Avinash+and+Ananya%21&location=Grandion+Event+Center%2C+1810+Parkwood+Blvd%2C+Frisco%2C+TX+75034"
+                href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Avinash+%26+Ananya+%E2%80%94+Engagement+Ceremony&dates=20260705T080000%2F20260705T140000&details=Join+us+to+celebrate+the+engagement+of+Avinash+and+Ananya%21&location=Grandion+Event+Center%2C+1810+Parkwood+Blvd%2C+Frisco%2C+TX+75034"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
@@ -146,13 +146,13 @@ export default function RSVP() {
         <FloralTopBanner className="absolute top-0 left-0 right-0 opacity-50" />
         <div className="relative z-10 py-14 px-4 text-center">
           <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">
-            Engagement Ceremony · July 8, 2026
+            Engagement Ceremony · July 5, 2026
           </p>
           <h1 className="font-serif text-5xl md:text-6xl tracking-widest2 text-mauve-800 uppercase mb-2">
             RSVP
           </h1>
           <p className="font-serif italic text-mauve-500">
-            Please respond by June 28, 2026
+                Please respond by June 25, 2026
           </p>
         </div>
       </div>
@@ -390,7 +390,7 @@ export default function RSVP() {
       <footer className="py-10 text-center border-t border-mauve-100">
         <FloralSprig className="mb-3" />
         <p className="font-serif italic text-mauve-400 text-sm">
-          Avinash &amp; Ananya &nbsp;·&nbsp; July 8, 2026
+          Avinash &amp; Ananya &nbsp;·&nbsp; July 5, 2026
         </p>
       </footer>
     </div>

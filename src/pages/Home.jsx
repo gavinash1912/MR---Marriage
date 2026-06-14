@@ -140,7 +140,7 @@ function WelcomeVideo() {
 
 // ── Main Home page ───────────────────────────────────────────────────────────
 export default function Home() {
-  const ENGAGEMENT_DATE = '2026-07-08T08:00:00';
+  const ENGAGEMENT_DATE = '2026-07-05T08:00:00';
   const countdown = useCountdown(ENGAGEMENT_DATE);
 
   return (
@@ -152,20 +152,16 @@ export default function Home() {
         {/* Floral top banner */}
         <FloralTopBanner className="absolute top-0 left-0 right-0 z-0" />
 
-        {/* Side florals – hidden on small screens */}
-        <div className="hidden lg:block absolute left-0 top-0 w-44 h-full z-0">
+        {/* Side florals – narrow on mobile, full width on desktop */}
+        <div className="absolute left-0 top-0 w-10 sm:w-20 lg:w-44 h-full z-0">
           <FloralLeft className="w-full h-full" />
         </div>
-        <div className="hidden lg:block absolute right-0 top-0 w-44 h-full z-0">
+        <div className="absolute right-0 top-0 w-10 sm:w-20 lg:w-44 h-full z-0">
           <FloralRight className="w-full h-full" />
         </div>
 
         {/* Hero content */}
         <div className="relative z-10 flex flex-col items-center justify-center flex-1 pt-32 pb-16 px-4 text-center">
-          <p className="animate-fade-in-up delay-100 font-sans text-xs tracking-widest3 uppercase text-mauve-500 mb-6">
-            Together with their families
-          </p>
-
           <h1 className="animate-fade-in-up delay-200 font-serif text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-widest2 text-mauve-800 uppercase leading-none mb-4">
             Avinash
           </h1>
@@ -180,7 +176,7 @@ export default function Home() {
 
           <div className="animate-fade-in-up delay-500 flex items-center gap-3 text-mauve-600 mb-2">
             <Calendar className="w-4 h-4" />
-            <span className="font-serif text-lg md:text-xl tracking-wider">July 8, 2026</span>
+            <span className="font-serif text-lg md:text-xl tracking-wider">July 5, 2026</span>
           </div>
 
           <div className="animate-fade-in-up delay-600 flex items-center gap-3 text-mauve-500 mb-12">
@@ -222,7 +218,7 @@ export default function Home() {
             <FloralSprig />
           </div>
           <p className="font-serif italic text-mauve-600 text-lg mb-10 max-w-lg mx-auto">
-            We're so grateful to have you in our lives. Watch our welcome message below.
+            We are so grateful to have you in our lives and celebrate this special moment together. Watch our welcome invitation below.
           </p>
           <WelcomeVideo />
         </div>
@@ -241,7 +237,7 @@ export default function Home() {
               </div>
               <div>
                 <p className="form-label">Date</p>
-                <p className="font-serif text-xl text-mauve-800">Tuesday, July 8, 2026</p>
+                <p className="font-serif text-xl text-mauve-800">Sunday, July 5, 2026</p>
               </div>
             </div>
 
@@ -291,7 +287,7 @@ export default function Home() {
       <footer className="py-12 text-center border-t border-mauve-100">
         <FloralSprig className="mb-4" />
         <p className="font-serif italic text-mauve-500 text-base">
-          Avinash &amp; Ananya &nbsp;·&nbsp; July 8, 2026
+          Avinash &amp; Ananya &nbsp;·&nbsp; July 5, 2026
         </p>
         <p className="font-sans text-xs text-mauve-300 mt-2">Frisco, Texas</p>
       </footer>

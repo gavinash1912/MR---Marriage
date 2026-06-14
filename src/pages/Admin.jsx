@@ -253,7 +253,7 @@ export default function Admin() {
           <div>
             <h1 className="font-serif text-3xl md:text-4xl text-mauve-800">Admin Dashboard</h1>
             <p className="font-sans text-sm text-mauve-400 mt-1">
-              Avinash &amp; Ananya — Engagement · July 8, 2026
+              Avinash &amp; Ananya — Engagement · July 5, 2026
             </p>
           </div>
           <div className="flex items-center gap-3">
