@@ -162,7 +162,7 @@ export default function Home() {
 
         {/* Hero content */}
         <div className="relative z-10 flex flex-col items-center justify-center flex-1 pt-20 sm:pt-28 lg:pt-44 xl:pt-56 pb-12 px-12 sm:px-24 lg:px-52 text-center">
-          <h1 className="animate-fade-in-up delay-200 font-serif text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-widest2 text-mauve-800 uppercase leading-none mb-2">
+          <h1 className="animate-fade-in-up delay-200 font-allura text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-widest2 text-mauve-800 uppercase leading-none mb-2">
             Avinash
           </h1>
 
@@ -172,7 +172,7 @@ export default function Home() {
             <FloralSprig />
           </div>
 
-          <h1 className="animate-fade-in-up delay-400 font-serif text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-widest2 text-mauve-800 uppercase leading-none mb-8">
+          <h1 className="animate-fade-in-up delay-400 font-allura text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-widest2 text-mauve-800 uppercase leading-none mb-8">
             Ananya
           </h1>
 
