@@ -109,7 +109,7 @@ export default function RSVP() {
           <div className="w-20 h-20 rounded-full bg-mauve-100 flex items-center justify-center mx-auto mb-6">
             <Check className="w-10 h-10 text-mauve-600" />
           </div>
-          <h1 className="font-allura text-5xl text-mauve-800 mb-3">
+          <h1 className="font-serif text-4xl text-mauve-800 mb-3">
             {attending === 'yes' ? 'See you there!' : 'Thank you!'}
           </h1>
           <FloralSprig className="my-4" />
@@ -148,7 +148,7 @@ export default function RSVP() {
           <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">
             Engagement Ceremony · July 5, 2026
           </p>
-          <h1 className="font-allura text-6xl md:text-7xl text-mauve-800 mb-2">
+          <h1 className="font-serif text-5xl md:text-6xl tracking-widest2 text-mauve-800 uppercase mb-2">
             RSVP
           </h1>
           <p className="font-serif italic text-mauve-500">

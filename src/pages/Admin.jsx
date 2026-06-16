@@ -358,11 +358,11 @@ export default function Admin() {
     if (!window.confirm('Delete this RSVP entry?')) return;
     try {
       await axios.delete(`/api/guests/${id}`);
-    } catch {
-      const stored = JSON.parse(localStorage.getItem('rsvps') || '[]');
-      localStorage.setItem('rsvps', JSON.stringify(stored.filter(r => r.id !== id)));
+      setRsvps(prev => prev.filter(r => (r._id || r.id) !== id));
+    } catch (err) {
+      console.error('Delete failed:', err);
+      alert('Failed to delete entry. Please try again.');
     }
-    setRsvps(prev => prev.filter(r => (r._id || r.id) !== id));
   };
 
   const handleSave = async (id, updatedData) => {
