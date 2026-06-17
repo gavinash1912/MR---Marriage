@@ -1,51 +1,165 @@
 // api/analytics.js — POST: log analytics events, GET: retrieve analytics
 import { getDb } from './_db.js';
 
+function firstHeaderValue(value) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function normalizeIp(value) {
+  const raw = firstHeaderValue(value);
+  if (!raw) return 'unknown';
+
+  let ip = String(raw).split(',')[0].trim();
+  if (!ip) return 'unknown';
+
+  if (ip.startsWith('::ffff:')) {
+    ip = ip.slice(7);
+  }
+
+  if (ip.startsWith('[')) {
+    const endBracket = ip.indexOf(']');
+    if (endBracket !== -1) {
+      ip = ip.slice(1, endBracket);
+    }
+  } else {
+    const ipv4WithPort = ip.match(/^(\d{1,3}(?:\.\d{1,3}){3}):\d+$/);
+    if (ipv4WithPort) {
+      ip = ipv4WithPort[1];
+    }
+  }
+
+  return ip || 'unknown';
+}
+
 function getClientIp(req) {
+  const candidates = [
+    req.headers['cf-connecting-ip'],
+    req.headers['true-client-ip'],
+    req.headers['x-real-ip'],
+    req.headers['x-vercel-forwarded-for'],
+    req.headers['x-forwarded-for'],
+    req.headers['x-client-ip'],
+    req.socket?.remoteAddress,
+  ];
+
+  for (const candidate of candidates) {
+    const ip = normalizeIp(candidate);
+    if (ip !== 'unknown') return ip;
+  }
+
+  return 'unknown';
+}
+
+function isPrivateIp(ip) {
+  if (!ip || ip === 'unknown') return true;
+
+  const lowerIp = ip.toLowerCase();
+  if (
+    lowerIp === '::1' ||
+    lowerIp.startsWith('fc') ||
+    lowerIp.startsWith('fd') ||
+    lowerIp.startsWith('fe80:')
+  ) {
+    return true;
+  }
+
+  const octets = ip.split('.').map(Number);
+  if (octets.length !== 4 || octets.some(octet => Number.isNaN(octet) || octet < 0 || octet > 255)) {
+    return false;
+  }
+
+  const [a, b] = octets;
   return (
-    req.headers['x-forwarded-for']?.split(',')[0].trim() ||
-    req.headers['cf-connecting-ip'] ||
-    req.headers['x-client-ip'] ||
-    req.socket?.remoteAddress ||
-    'unknown'
+    a === 0 ||
+    a === 10 ||
+    a === 127 ||
+    (a === 100 && b >= 64 && b <= 127) ||
+    (a === 169 && b === 254) ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168) ||
+    (a === 198 && (b === 18 || b === 19)) ||
+    a >= 224
   );
 }
 
+async function fetchJson(url, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3500);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    return response.json();
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function formatLocation(city, country) {
+  return [city, country].filter(Boolean).join(', ') || null;
+}
+
+function getKeyCdnUserAgent() {
+  const siteUrl = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'https://aa-engagement.vercel.app';
+
+  return `keycdn-tools:${siteUrl}`;
+}
+
 async function getLocationFromIP(ip) {
-  // Skip localhost and private IPs
-  if (!ip || ip === 'unknown' || ip === '::1' || ip === '127.0.0.1' ||
-      ip?.startsWith('192.168') || ip?.startsWith('10.') || ip?.startsWith('172.')) {
+  if (isPrivateIp(ip)) {
     console.log('Skipping geolocation for IP:', ip);
     return null;
   }
 
-  try {
-    console.log('Attempting geolocation for IP:', ip);
+  const encodedIp = encodeURIComponent(ip);
+  const providers = [
+    {
+      name: 'ipwho.is',
+      url: `https://ipwho.is/${encodedIp}`,
+      parse: data => data?.success ? formatLocation(data.city, data.country) : null,
+    },
+    {
+      name: 'KeyCDN',
+      url: `https://tools.keycdn.com/geo.json?host=${encodedIp}`,
+      options: {
+        headers: {
+          'User-Agent': getKeyCdnUserAgent(),
+        },
+      },
+      parse: data => {
+        const geo = data?.data?.geo || data?.body?.geo;
+        return data?.status === 'success' ? formatLocation(geo?.city, geo?.country_name) : null;
+      },
+    },
+  ];
 
-    // Use KeyCDN geolocation API
-    const response = await fetch(`https://tools.keycdn.com/geo?host=${ip}`);
+  for (const provider of providers) {
+    try {
+      console.log(`Attempting geolocation with ${provider.name} for IP:`, ip);
+      const data = await fetchJson(provider.url, provider.options);
+      const location = provider.parse(data);
 
-    if (!response.ok) {
-      console.log('KeyCDN API returned status:', response.status);
-      return null;
-    }
-
-    const data = await response.json();
-    console.log('KeyCDN response:', data);
-
-    if (data.status === 'success' && data.body?.geo) {
-      const geo = data.body.geo;
-      if (geo.city && geo.country_name) {
-        const location = `${geo.city}, ${geo.country_name}`;
-        console.log('Resolved location:', location);
+      if (location) {
+        console.log(`Resolved location with ${provider.name}:`, location);
         return location;
       }
+
+      console.log(`${provider.name} did not return a location for IP:`, ip);
+    } catch (err) {
+      console.error(`${provider.name} location lookup error:`, err.message);
     }
-    return null;
-  } catch (err) {
-    console.error('Location lookup error:', err.message);
-    return null;
   }
+
+  return null;
 }
 
 export default async function handler(req, res) {
@@ -68,8 +182,11 @@ export default async function handler(req, res) {
 
       const ipAddress = getClientIp(req);
       console.log('Captured IP:', ipAddress, 'Headers:', {
-        'x-forwarded-for': req.headers['x-forwarded-for'],
         'cf-connecting-ip': req.headers['cf-connecting-ip'],
+        'true-client-ip': req.headers['true-client-ip'],
+        'x-real-ip': req.headers['x-real-ip'],
+        'x-vercel-forwarded-for': req.headers['x-vercel-forwarded-for'],
+        'x-forwarded-for': req.headers['x-forwarded-for'],
         'x-client-ip': req.headers['x-client-ip'],
       });
 

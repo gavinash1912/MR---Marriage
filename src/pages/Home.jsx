@@ -38,15 +38,6 @@ function parseDeviceInfo() {
   return { device, os, browser };
 }
 
-async function getLocationFromIP() {
-  try {
-    const res = await axios.get('https://ip-api.com/json/?fields=country,city,lat,lon');
-    return `${res.data.city}, ${res.data.country}`;
-  } catch {
-    return null;
-  }
-}
-
 async function trackEvent(eventType) {
   const sessionId = getOrCreateSessionId();
   const deviceInfo = parseDeviceInfo();
