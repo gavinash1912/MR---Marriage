@@ -474,54 +474,44 @@ export default function Admin() {
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <StatCard label="Total RSVPs"  value={totalPrimary}     color="mauve" />
-          <StatCard label="Attending"    value={attending.length} color="green" sub={`${totalHeadcount} total guests`} />
-          <StatCard label="Declined"     value={declined.length}  color="red"   />
-          <StatCard label="Head Count"   value={totalHeadcount}   color="yellow" sub="primary + additional" />
+        {/* Tab Menu */}
+        <div className="flex rounded-lg border border-mauve-200 overflow-hidden mb-8 w-fit">
+          <button
+            onClick={() => setActiveTab('rsvp')}
+            className={`px-6 py-3 font-sans text-sm font-medium transition-colors ${
+              activeTab === 'rsvp'
+                ? 'bg-mauve-600 text-white'
+                : 'bg-white text-mauve-600 hover:bg-mauve-50'
+            }`}
+          >
+            RSVPs ({totalPrimary})
+          </button>
+          <button
+            onClick={() => setActiveTab('visitors')}
+            className={`px-6 py-3 font-sans text-sm font-medium transition-colors ${
+              activeTab === 'visitors'
+                ? 'bg-mauve-600 text-white'
+                : 'bg-white text-mauve-600 hover:bg-mauve-50'
+            }`}
+          >
+            Visitors ({visitors.length})
+          </button>
         </div>
 
-        {/* Analytics Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <StatCard label="Website Visits" value={analytics.totalPageViews} color="mauve" />
-          <StatCard label="Unique Visitors" value={analytics.uniqueVisitors} color="green" />
-          <StatCard label="Video Plays" value={analytics.totalVideoPlays} color="yellow" />
-          <StatCard label="Video Viewers (Unique)" value={analytics.uniqueVideoViewers} color="red" />
-        </div>
-
-        {/* Tabs with RSVP and Visitor Details */}
-
-        {/* Filters + search + Table */}
-        <div className="bg-white rounded-xl border border-mauve-100 overflow-hidden">
-          {/* Tab menu */}
-          <div className="flex border-b border-mauve-100">
-            <button
-              onClick={() => setActiveTab('rsvp')}
-              className={`px-6 py-3 font-sans text-sm font-medium transition-colors ${
-                activeTab === 'rsvp'
-                  ? 'border-b-2 border-mauve-600 text-mauve-600'
-                  : 'text-mauve-500 hover:text-mauve-600'
-              }`}
-            >
-              RSVPs ({totalPrimary})
-            </button>
-            <button
-              onClick={() => setActiveTab('visitors')}
-              className={`px-6 py-3 font-sans text-sm font-medium transition-colors ${
-                activeTab === 'visitors'
-                  ? 'border-b-2 border-mauve-600 text-mauve-600'
-                  : 'text-mauve-500 hover:text-mauve-600'
-              }`}
-            >
-              Visitors ({visitors.length})
-            </button>
+        {/* RSVP Tab Content */}
+        {activeTab === 'rsvp' && (
+        <div>
+          {/* RSVP Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <StatCard label="Total RSVPs"  value={totalPrimary}     color="mauve" />
+            <StatCard label="Attending"    value={attending.length} color="green" sub={`${totalHeadcount} total guests`} />
+            <StatCard label="Declined"     value={declined.length}  color="red"   />
+            <StatCard label="Head Count"   value={totalHeadcount}   color="yellow" sub="primary + additional" />
           </div>
 
-          {/* RSVP Tab */}
-          {activeTab === 'rsvp' && (
-          <div>
-          <div className="p-4 border-b border-mauve-100 flex flex-col sm:flex-row gap-3">
+          {/* RSVP Table */}
+          <div className="bg-white rounded-xl border border-mauve-100 overflow-hidden">
+            <div className="p-4 border-b border-mauve-100 flex flex-col sm:flex-row gap-3">
             {/* Search */}
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mauve-300" />
@@ -623,73 +613,84 @@ export default function Admin() {
             </div>
           )}
           </div>
-          )}
-
-          {/* Visitors Tab */}
-          {activeTab === 'visitors' && (
-          <div>
-          {visitors.length === 0 ? (
-            <div className="py-20 text-center">
-              <Eye className="w-10 h-10 text-mauve-200 mx-auto mb-3" />
-              <p className="font-sans text-sm text-mauve-400">No visitor data yet</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px]">
-                <thead>
-                  <tr className="bg-mauve-50 border-b border-mauve-100">
-                    <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Visit Time</th>
-                    <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">IP Address</th>
-                    <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Location</th>
-                    <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Device</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visitors.map((visitor, i) => (
-                    <tr key={i} className="border-b border-mauve-100 hover:bg-mauve-50/40 transition-colors">
-                      <td className="py-3 px-4 font-sans text-sm text-mauve-700">
-                        {new Date(visitor.visitedAt).toLocaleString()}
-                      </td>
-                      <td className="py-3 px-4 font-sans text-sm text-mauve-600">
-                        {visitor.ipAddress || 'Unknown'}
-                      </td>
-                      <td className="py-3 px-4 font-sans text-sm text-mauve-600">
-                        {visitor.location ? (
-                          <span className="inline-flex items-center gap-1.5">
-                            <MapPin className="w-3 h-3 text-mauve-400" />
-                            {visitor.location}
-                          </span>
-                        ) : (
-                          <span className="text-mauve-300 italic">Unknown</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-4 font-sans text-sm text-mauve-600">
-                        {visitor.deviceInfo ? (
-                          <span className="inline-flex items-center gap-1.5">
-                            <Smartphone className="w-3 h-3 text-mauve-400" />
-                            {visitor.deviceInfo}
-                          </span>
-                        ) : (
-                          <span className="text-mauve-300 italic">Unknown</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {visitors.length > 0 && (
-            <div className="px-4 py-3 border-t border-mauve-100 bg-mauve-50/40">
-              <p className="font-sans text-xs text-mauve-400">
-                Showing {visitors.length} unique visitor{visitors.length !== 1 ? 's' : ''}
-              </p>
-            </div>
-          )}
           </div>
-          )}
+        )}
+
+        {/* Visitors Tab Content */}
+        {activeTab === 'visitors' && (
+        <div>
+          {/* Visitor Analytics Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <StatCard label="Website Visits" value={analytics.totalPageViews} color="mauve" />
+            <StatCard label="Unique Visitors" value={analytics.uniqueVisitors} color="green" />
+            <StatCard label="Video Plays" value={analytics.totalVideoPlays} color="yellow" />
+            <StatCard label="Video Viewers (Unique)" value={analytics.uniqueVideoViewers} color="red" />
+          </div>
+
+          {/* Visitors Table */}
+          <div className="bg-white rounded-xl border border-mauve-100 overflow-hidden">
+            {visitors.length === 0 ? (
+              <div className="py-20 text-center">
+                <Eye className="w-10 h-10 text-mauve-200 mx-auto mb-3" />
+                <p className="font-sans text-sm text-mauve-400">No visitor data yet</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[800px]">
+                  <thead>
+                    <tr className="bg-mauve-50 border-b border-mauve-100">
+                      <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Visit Time</th>
+                      <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">IP Address</th>
+                      <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Location</th>
+                      <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Device</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visitors.map((visitor, i) => (
+                      <tr key={i} className="border-b border-mauve-100 hover:bg-mauve-50/40 transition-colors">
+                        <td className="py-3 px-4 font-sans text-sm text-mauve-700">
+                          {new Date(visitor.visitedAt).toLocaleString()}
+                        </td>
+                        <td className="py-3 px-4 font-sans text-sm text-mauve-600">
+                          {visitor.ipAddress || 'Unknown'}
+                        </td>
+                        <td className="py-3 px-4 font-sans text-sm text-mauve-600">
+                          {visitor.location ? (
+                            <span className="inline-flex items-center gap-1.5">
+                              <MapPin className="w-3 h-3 text-mauve-400" />
+                              {visitor.location}
+                            </span>
+                          ) : (
+                            <span className="text-mauve-300 italic">Unknown</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 font-sans text-sm text-mauve-600">
+                          {visitor.deviceInfo ? (
+                            <span className="inline-flex items-center gap-1.5">
+                              <Smartphone className="w-3 h-3 text-mauve-400" />
+                              {visitor.deviceInfo}
+                            </span>
+                          ) : (
+                            <span className="text-mauve-300 italic">Unknown</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {visitors.length > 0 && (
+              <div className="px-4 py-3 border-t border-mauve-100 bg-mauve-50/40">
+                <p className="font-sans text-xs text-mauve-400">
+                  Showing {visitors.length} unique visitor{visitors.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
+        )}
       </div>
     </div>
   );
