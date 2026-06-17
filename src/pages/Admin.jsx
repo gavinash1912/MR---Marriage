@@ -345,6 +345,74 @@ export default function Admin() {
   });
   const [visitors, setVisitors] = useState([]);
   const [activeTab, setActiveTab] = useState('rsvp');
+  const [timeFilter, setTimeFilter] = useState('all'); // all, 15m, 30m, 1h, 6h, 1d
+
+  const getFilteredVisitors = () => {
+    if (timeFilter === 'all') return visitors;
+
+    const now = new Date();
+    let cutoffTime = new Date();
+
+    switch (timeFilter) {
+      case '15m':
+        cutoffTime.setMinutes(now.getMinutes() - 15);
+        break;
+      case '30m':
+        cutoffTime.setMinutes(now.getMinutes() - 30);
+        break;
+      case '1h':
+        cutoffTime.setHours(now.getHours() - 1);
+        break;
+      case '6h':
+        cutoffTime.setHours(now.getHours() - 6);
+        break;
+      case '1d':
+        cutoffTime.setDate(now.getDate() - 1);
+        break;
+      default:
+        return visitors;
+    }
+
+    return visitors.filter(v => new Date(v.visitedAt) >= cutoffTime);
+  };
+
+  const getFilteredAnalytics = () => {
+    const filteredVisitors = getFilteredVisitors();
+    const now = new Date();
+    let cutoffTime = new Date();
+
+    if (timeFilter !== 'all') {
+      switch (timeFilter) {
+        case '15m':
+          cutoffTime.setMinutes(now.getMinutes() - 15);
+          break;
+        case '30m':
+          cutoffTime.setMinutes(now.getMinutes() - 30);
+          break;
+        case '1h':
+          cutoffTime.setHours(now.getHours() - 1);
+          break;
+        case '6h':
+          cutoffTime.setHours(now.getHours() - 6);
+          break;
+        case '1d':
+          cutoffTime.setDate(now.getDate() - 1);
+          break;
+      }
+    }
+
+    const pageViews = analytics.totalPageViews; // From all events
+    const uniqueVisitors = filteredVisitors.length;
+    const videoPlays = analytics.totalVideoPlays; // From all events
+    const uniqueVideoViewers = analytics.uniqueVideoViewers; // From all events
+
+    return {
+      totalPageViews: pageViews,
+      uniqueVisitors: uniqueVisitors,
+      totalVideoPlays: videoPlays,
+      uniqueVideoViewers: uniqueVideoViewers,
+    };
+  };
 
   const fetchRsvps = useCallback(async () => {
     setLoading(true);
@@ -500,6 +568,25 @@ export default function Admin() {
           </button>
         </div>
 
+        {/* Time filter for visitors tab */}
+        {activeTab === 'visitors' && (
+          <div className="mb-6">
+            <label className="font-sans text-xs tracking-widest uppercase text-mauve-500 mr-3">Filter by:</label>
+            <select
+              value={timeFilter}
+              onChange={(e) => setTimeFilter(e.target.value)}
+              className="form-input py-2 text-sm w-auto"
+            >
+              <option value="15m">Past 15 minutes</option>
+              <option value="30m">Past 30 minutes</option>
+              <option value="1h">Past 1 hour</option>
+              <option value="6h">Past 6 hours</option>
+              <option value="1d">Past 1 day</option>
+              <option value="all">All time</option>
+            </select>
+          </div>
+        )}
+
         {/* RSVP Tab Content */}
         {activeTab === 'rsvp' && (
         <div>
@@ -621,20 +708,29 @@ export default function Admin() {
         {/* Visitors Tab Content */}
         {activeTab === 'visitors' && (
         <div>
-          {/* Visitor Analytics Stats */}
+          {/* Visitor Analytics Stats (filtered) */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <StatCard label="Website Visits" value={analytics.totalPageViews} color="mauve" />
-            <StatCard label="Unique Visitors" value={analytics.uniqueVisitors} color="green" />
-            <StatCard label="Video Plays" value={analytics.totalVideoPlays} color="yellow" />
-            <StatCard label="Video Viewers (Unique)" value={analytics.uniqueVideoViewers} color="red" />
+            {(() => {
+              const filtered = getFilteredAnalytics();
+              return (
+                <>
+                  <StatCard label="Website Visits" value={filtered.totalPageViews} color="mauve" />
+                  <StatCard label="Unique Visitors" value={filtered.uniqueVisitors} color="green" />
+                  <StatCard label="Video Plays" value={filtered.totalVideoPlays} color="yellow" />
+                  <StatCard label="Video Viewers (Unique)" value={filtered.uniqueVideoViewers} color="red" />
+                </>
+              );
+            })()}
           </div>
 
           {/* Visitors Table */}
           <div className="bg-white rounded-xl border border-mauve-100 overflow-hidden">
-            {visitors.length === 0 ? (
+            {getFilteredVisitors().length === 0 ? (
               <div className="py-20 text-center">
                 <Eye className="w-10 h-10 text-mauve-200 mx-auto mb-3" />
-                <p className="font-sans text-sm text-mauve-400">No visitor data yet</p>
+                <p className="font-sans text-sm text-mauve-400">
+                  {visitors.length === 0 ? 'No visitor data yet' : 'No visitors in this time range'}
+                </p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -648,7 +744,7 @@ export default function Admin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {visitors.map((visitor, i) => (
+                    {getFilteredVisitors().map((visitor, i) => (
                       <tr key={i} className="border-b border-mauve-100 hover:bg-mauve-50/40 transition-colors">
                         <td className="py-3 px-4 font-sans text-sm text-mauve-700">
                           {new Date(visitor.visitedAt).toLocaleString()}
@@ -683,10 +779,10 @@ export default function Admin() {
               </div>
             )}
 
-            {visitors.length > 0 && (
+            {getFilteredVisitors().length > 0 && (
               <div className="px-4 py-3 border-t border-mauve-100 bg-mauve-50/40">
                 <p className="font-sans text-xs text-mauve-400">
-                  Showing {visitors.length} unique visitor{visitors.length !== 1 ? 's' : ''}
+                  Showing {getFilteredVisitors().length} visitor{getFilteredVisitors().length !== 1 ? 's' : ''} {timeFilter !== 'all' && `(${timeFilter})`}
                 </p>
               </div>
             )}
