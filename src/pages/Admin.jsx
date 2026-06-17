@@ -3,7 +3,7 @@ import axios from 'axios';
 import {
   Users, Check, X, Search, Download, RefreshCw,
   ChevronDown, ChevronUp, Trash2, Mail, Phone, MessageSquare,
-  Pencil, Save, XCircle, Plus, Minus
+  Pencil, Save, XCircle, Plus, Minus, MapPin, Smartphone, Eye
 } from 'lucide-react';
 
 // ── Stat card ────────────────────────────────────────────────────────────────
@@ -337,6 +337,12 @@ export default function Admin() {
   const [filter,      setFilter]      = useState('all');
   const [sortBy,      setSortBy]      = useState('date_desc');
   const [editingRsvp, setEditingRsvp] = useState(null);
+  const [analytics,   setAnalytics]   = useState({
+    totalPageViews: 0,
+    uniqueVisitors: 0,
+    totalVideoPlays: 0,
+    uniqueVideoViewers: 0,
+  });
 
   const fetchRsvps = useCallback(async () => {
     setLoading(true);
@@ -352,7 +358,19 @@ export default function Admin() {
     }
   }, []);
 
-  useEffect(() => { fetchRsvps(); }, [fetchRsvps]);
+  const fetchAnalytics = useCallback(async () => {
+    try {
+      const res = await axios.get('/api/analytics');
+      setAnalytics(res.data);
+    } catch {
+      console.error('Failed to fetch analytics');
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRsvps();
+    fetchAnalytics();
+  }, [fetchRsvps, fetchAnalytics]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this RSVP entry?')) return;
@@ -437,7 +455,7 @@ export default function Admin() {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={fetchRsvps}
+              onClick={() => { fetchRsvps(); fetchAnalytics(); }}
               className="flex items-center gap-1.5 btn-secondary text-xs px-4 py-2"
             >
               <RefreshCw className="w-3.5 h-3.5" /> Refresh
@@ -458,6 +476,14 @@ export default function Admin() {
           <StatCard label="Attending"    value={attending.length} color="green" sub={`${totalHeadcount} total guests`} />
           <StatCard label="Declined"     value={declined.length}  color="red"   />
           <StatCard label="Head Count"   value={totalHeadcount}   color="yellow" sub="primary + additional" />
+        </div>
+
+        {/* Analytics Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <StatCard label="Website Visits" value={analytics.totalPageViews} color="mauve" />
+          <StatCard label="Unique Visitors" value={analytics.uniqueVisitors} color="green" />
+          <StatCard label="Video Plays" value={analytics.totalVideoPlays} color="yellow" />
+          <StatCard label="Video Viewers (Unique)" value={analytics.uniqueVideoViewers} color="red" />
         </div>
 
         {/* Filters + search */}

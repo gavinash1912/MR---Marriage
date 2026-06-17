@@ -1,7 +1,70 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { FloralLeft, FloralRight, FloralTopBanner, FloralSprig } from '../components/FloralDecor';
 import { Calendar, MapPin, Clock, Play, Pause } from 'lucide-react';
+
+// ── Session & Analytics ────────────────────────────────────────────────────
+function getOrCreateSessionId() {
+  let sessionId = localStorage.getItem('sessionId');
+  if (!sessionId) {
+    sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('sessionId', sessionId);
+  }
+  return sessionId;
+}
+
+function parseDeviceInfo() {
+  const ua = navigator.userAgent;
+  let device = 'Unknown';
+  let os = 'Unknown';
+  let browser = 'Unknown';
+
+  if (/mobile/i.test(ua)) device = 'Mobile';
+  else if (/tablet/i.test(ua)) device = 'Tablet';
+  else device = 'Desktop';
+
+  if (/windows/i.test(ua)) os = 'Windows';
+  else if (/mac/i.test(ua)) os = 'macOS';
+  else if (/linux/i.test(ua)) os = 'Linux';
+  else if (/iphone|ios/i.test(ua)) os = 'iOS';
+  else if (/android/i.test(ua)) os = 'Android';
+
+  if (/chrome/i.test(ua) && !/edg/i.test(ua)) browser = 'Chrome';
+  else if (/safari/i.test(ua)) browser = 'Safari';
+  else if (/firefox/i.test(ua)) browser = 'Firefox';
+  else if (/edg/i.test(ua)) browser = 'Edge';
+
+  return { device, os, browser };
+}
+
+async function getLocationFromIP() {
+  try {
+    const res = await axios.get('https://ip-api.com/json/?fields=country,city,lat,lon');
+    return `${res.data.city}, ${res.data.country}`;
+  } catch {
+    return null;
+  }
+}
+
+async function trackEvent(eventType) {
+  const sessionId = getOrCreateSessionId();
+  const deviceInfo = parseDeviceInfo();
+  let location = null;
+
+  try {
+    location = await getLocationFromIP();
+  } catch {
+    location = null;
+  }
+
+  axios.post('/api/analytics', {
+    eventType,
+    sessionId,
+    deviceInfo: `${deviceInfo.device} - ${deviceInfo.os} - ${deviceInfo.browser}`,
+    location,
+  }).catch(() => {});
+}
 
 // ── Countdown hook ──────────────────────────────────────────────────────────
 function useCountdown(targetDate) {
@@ -39,15 +102,14 @@ function WelcomeVideo() {
   const [muted,   setMuted]  = useState(true);
   const [playing, setPlaying]= useState(true);
   const [hasVideo, setHasVideo] = useState(false);
+  const [hasTrackedPlay, setHasTrackedPlay] = useState(false);
 
-  // Check if video file exists
   useEffect(() => {
     fetch('/videos/welcome.mp4', { method: 'HEAD' })
       .then(r => { if (r.ok) setHasVideo(true); })
       .catch(() => {});
   }, []);
 
-  // Autoplay once we know video exists
   useEffect(() => {
     if (hasVideo && videoRef.current) {
       videoRef.current.play().catch(() => setPlaying(false));
@@ -65,6 +127,14 @@ function WelcomeVideo() {
     if (!videoRef.current) return;
     if (playing) { videoRef.current.pause(); setPlaying(false); }
     else         { videoRef.current.play();  setPlaying(true);  }
+  };
+
+  const handleVideoPlay = () => {
+    setPlaying(true);
+    if (!hasTrackedPlay) {
+      trackEvent('video_play');
+      setHasTrackedPlay(true);
+    }
   };
 
   if (!hasVideo) {
@@ -88,7 +158,7 @@ function WelcomeVideo() {
         loop
         playsInline
         className="w-full block"
-        onPlay={() => setPlaying(true)}
+        onPlay={handleVideoPlay}
         onPause={() => setPlaying(false)}
       />
 
@@ -109,14 +179,12 @@ function WelcomeVideo() {
           aria-label={muted ? 'Unmute' : 'Mute'}
         >
           {muted ? (
-            // Muted icon
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M11 5L6 9H2v6h4l5 4V5z"/>
               <line x1="23" y1="9" x2="17" y2="15"/>
               <line x1="17" y1="9" x2="23" y2="15"/>
             </svg>
           ) : (
-            // Unmuted icon
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M11 5L6 9H2v6h4l5 4V5z"/>
               <path d="M19.07 4.93a10 10 0 010 14.14"/>
@@ -142,6 +210,10 @@ function WelcomeVideo() {
 export default function Home() {
   const ENGAGEMENT_DATE = '2026-07-05T08:00:00';
   const countdown = useCountdown(ENGAGEMENT_DATE);
+
+  useEffect(() => {
+    trackEvent('page_view');
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">
