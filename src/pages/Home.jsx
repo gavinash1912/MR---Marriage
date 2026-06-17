@@ -380,7 +380,7 @@ export default function Home() {
       </section>
 
       {/* ── Welcome video section ───────────────────────────── */}
-      <section data-analytics-section="Video" className="pt-8 pb-20 px-4 bg-mauve-50/40">
+      <section data-analytics-section="Video" className="pt-2 pb-20 px-4 bg-mauve-50/40">
         <div className="max-w-3xl mx-auto text-center">
           <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">A message from</p>
           <h2 className="section-title mb-3">Avinash &amp; Ananya</h2>
