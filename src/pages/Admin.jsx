@@ -343,6 +343,8 @@ export default function Admin() {
     totalVideoPlays: 0,
     uniqueVideoViewers: 0,
   });
+  const [visitors, setVisitors] = useState([]);
+  const [activeTab, setActiveTab] = useState('rsvp');
 
   const fetchRsvps = useCallback(async () => {
     setLoading(true);
@@ -362,6 +364,8 @@ export default function Admin() {
     try {
       const res = await axios.get('/api/analytics');
       setAnalytics(res.data);
+      const visitorRes = await axios.get('/api/analytics?details=true');
+      setVisitors(visitorRes.data.visitors || []);
     } catch {
       console.error('Failed to fetch analytics');
     }
@@ -488,8 +492,37 @@ export default function Admin() {
           <StatCard label="Video Viewers (Unique)" value={analytics.uniqueVideoViewers} color="red" />
         </div>
 
-        {/* Filters + search */}
+        {/* Tabs with RSVP and Visitor Details */}
+
+        {/* Filters + search + Table */}
         <div className="bg-white rounded-xl border border-mauve-100 overflow-hidden">
+          {/* Tab menu */}
+          <div className="flex border-b border-mauve-100">
+            <button
+              onClick={() => setActiveTab('rsvp')}
+              className={`px-6 py-3 font-sans text-sm font-medium transition-colors ${
+                activeTab === 'rsvp'
+                  ? 'border-b-2 border-mauve-600 text-mauve-600'
+                  : 'text-mauve-500 hover:text-mauve-600'
+              }`}
+            >
+              RSVPs ({totalPrimary})
+            </button>
+            <button
+              onClick={() => setActiveTab('visitors')}
+              className={`px-6 py-3 font-sans text-sm font-medium transition-colors ${
+                activeTab === 'visitors'
+                  ? 'border-b-2 border-mauve-600 text-mauve-600'
+                  : 'text-mauve-500 hover:text-mauve-600'
+              }`}
+            >
+              Visitors ({visitors.length})
+            </button>
+          </div>
+
+          {/* RSVP Tab */}
+          {activeTab === 'rsvp' && (
+          <div>
           <div className="p-4 border-b border-mauve-100 flex flex-col sm:flex-row gap-3">
             {/* Search */}
             <div className="relative flex-1">
@@ -590,6 +623,73 @@ export default function Admin() {
                 Showing {filtered.length} of {totalPrimary} RSVP{totalPrimary !== 1 ? 's' : ''}
               </p>
             </div>
+          )}
+          </div>
+          )}
+
+          {/* Visitors Tab */}
+          {activeTab === 'visitors' && (
+          <div>
+          {visitors.length === 0 ? (
+            <div className="py-20 text-center">
+              <Eye className="w-10 h-10 text-mauve-200 mx-auto mb-3" />
+              <p className="font-sans text-sm text-mauve-400">No visitor data yet</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[800px]">
+                <thead>
+                  <tr className="bg-mauve-50 border-b border-mauve-100">
+                    <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Visit Time</th>
+                    <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">IP Address</th>
+                    <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Location</th>
+                    <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Device</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visitors.map((visitor, i) => (
+                    <tr key={i} className="border-b border-mauve-100 hover:bg-mauve-50/40 transition-colors">
+                      <td className="py-3 px-4 font-sans text-sm text-mauve-700">
+                        {new Date(visitor.visitedAt).toLocaleString()}
+                      </td>
+                      <td className="py-3 px-4 font-sans text-sm text-mauve-600">
+                        {visitor.ipAddress || 'Unknown'}
+                      </td>
+                      <td className="py-3 px-4 font-sans text-sm text-mauve-600">
+                        {visitor.location ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <MapPin className="w-3 h-3 text-mauve-400" />
+                            {visitor.location}
+                          </span>
+                        ) : (
+                          <span className="text-mauve-300 italic">Unknown</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 font-sans text-sm text-mauve-600">
+                        {visitor.deviceInfo ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Smartphone className="w-3 h-3 text-mauve-400" />
+                            {visitor.deviceInfo}
+                          </span>
+                        ) : (
+                          <span className="text-mauve-300 italic">Unknown</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {visitors.length > 0 && (
+            <div className="px-4 py-3 border-t border-mauve-100 bg-mauve-50/40">
+              <p className="font-sans text-xs text-mauve-400">
+                Showing {visitors.length} unique visitor{visitors.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+          )}
+          </div>
           )}
         </div>
       </div>
