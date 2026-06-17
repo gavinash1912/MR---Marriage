@@ -91,12 +91,15 @@ function CountdownBlock({ value, label }) {
 // ── Video player — autoplay muted, click to unmute/pause ────────────────────
 function WelcomeVideo() {
   const videoRef             = useRef(null);
+  const progressRef          = useRef(null);
   const [muted,   setMuted]  = useState(true);
   const [playing, setPlaying]= useState(true);
   const [hasVideo, setHasVideo] = useState(false);
   const [hasTrackedPlay, setHasTrackedPlay] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [hoverTime, setHoverTime] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     fetch('/videos/welcome.mp4', { method: 'HEAD' })
@@ -111,7 +114,7 @@ function WelcomeVideo() {
   }, [hasVideo]);
 
   const handleTimeUpdate = () => {
-    if (videoRef.current) {
+    if (videoRef.current && !isDragging) {
       setCurrentTime(videoRef.current.currentTime);
       if (!hasTrackedPlay && videoRef.current.currentTime >= 10) {
         trackEvent('video_play');
@@ -126,13 +129,52 @@ function WelcomeVideo() {
     }
   };
 
+  const handleProgressMouseMove = (e) => {
+    if (!duration || !progressRef.current) return;
+    const rect = progressRef.current.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    setHoverTime(percent * duration);
+  };
+
+  const handleProgressMouseLeave = () => {
+    setHoverTime(null);
+  };
+
   const handleSeek = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
+    const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     if (videoRef.current) {
       videoRef.current.currentTime = percent * videoRef.current.duration;
+      setCurrentTime(percent * duration);
     }
   };
+
+  const handleDragStart = (e) => {
+    setIsDragging(true);
+  };
+
+  const handleDragMove = (e) => {
+    if (!isDragging || !videoRef.current) return;
+    const rect = progressRef.current.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    videoRef.current.currentTime = percent * duration;
+    setCurrentTime(percent * duration);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleDragMove);
+      document.addEventListener('mouseup', handleDragEnd);
+      return () => {
+        document.removeEventListener('mousemove', handleDragMove);
+        document.removeEventListener('mouseup', handleDragEnd);
+      };
+    }
+  }, [isDragging, duration]);
 
   const formatTime = (time) => {
     if (!time || isNaN(time)) return '0:00';
@@ -181,19 +223,50 @@ function WelcomeVideo() {
         onLoadedMetadata={handleLoadedMetadata}
       />
 
-      {/* Progress bar */}
+      {/* Modern OTT-style progress bar */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-1 bg-mauve-200 cursor-pointer group-hover:h-2 transition-all"
+        ref={progressRef}
+        className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 cursor-pointer group hover:h-2 transition-all"
         onClick={handleSeek}
+        onMouseMove={handleProgressMouseMove}
+        onMouseLeave={handleProgressMouseLeave}
       >
+        {/* Buffered background (full video) */}
+        <div className="h-full bg-white/40 w-full" />
+
+        {/* Watched progress */}
         <div
-          className="h-full bg-mauve-600 transition-all"
+          className="absolute top-0 left-0 h-full bg-white transition-all"
           style={{ width: duration ? `${(currentTime / duration) * 100}%` : '0%' }}
+        />
+
+        {/* Hover preview indicator */}
+        {hoverTime !== null && (
+          <div
+            className="absolute top-0 h-full w-1 bg-white/60 transition-all"
+            style={{ left: duration ? `${(hoverTime / duration) * 100}%` : '0%' }}
+          />
+        )}
+
+        {/* Draggable scrubber thumb */}
+        <div
+          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+          style={{ left: duration ? `calc(${(currentTime / duration) * 100}% - 6px)` : '0' }}
+          onMouseDown={handleDragStart}
         />
       </div>
 
-      {/* Time display */}
-      <div className="absolute bottom-16 left-4 text-white text-xs bg-black/60 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Time tooltip on hover */}
+      {hoverTime !== null && (
+        <div className="absolute bottom-4 left-0 text-white text-xs bg-black/80 px-2 py-1 rounded pointer-events-none"
+          style={{ left: duration ? `${(hoverTime / duration) * 100}%` : '0', transform: 'translateX(-50%)' }}
+        >
+          {formatTime(hoverTime)}
+        </div>
+      )}
+
+      {/* Current time and duration display */}
+      <div className="absolute bottom-12 left-4 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
         {formatTime(currentTime)} / {formatTime(duration)}
       </div>
 

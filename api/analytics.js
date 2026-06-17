@@ -12,19 +12,33 @@ function getClientIp(req) {
 }
 
 async function getLocationFromIP(ip) {
-  if (ip === 'unknown' || ip === '::1' || ip === '127.0.0.1' || ip?.startsWith('192.168') || ip?.startsWith('10.')) {
+  // Skip localhost and private IPs
+  if (!ip || ip === 'unknown' || ip === '::1' || ip === '127.0.0.1' ||
+      ip?.startsWith('192.168') || ip?.startsWith('10.') || ip?.startsWith('172.')) {
+    console.log('Skipping geolocation for IP:', ip);
     return null;
   }
+
   try {
-    const res = await fetch(`https://ip-api.com/json/${ip}?fields=country,city`);
-    if (!res.ok) return null;
-    const data = await res.json();
+    console.log('Attempting geolocation for IP:', ip);
+    const response = await fetch(`https://ip-api.com/json/${ip}?fields=country,city,status`);
+
+    if (!response.ok) {
+      console.log('Geolocation API returned status:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    console.log('Geolocation response:', data);
+
     if (data.status === 'success' && data.city && data.country) {
       return `${data.city}, ${data.country}`;
+    } else if (data.status === 'fail') {
+      console.log('Geolocation failed:', data.message);
     }
     return null;
   } catch (err) {
-    console.error('Location lookup error:', err);
+    console.error('Location lookup error:', err.message);
     return null;
   }
 }
@@ -48,7 +62,14 @@ export default async function handler(req, res) {
       }
 
       const ipAddress = getClientIp(req);
+      console.log('Captured IP:', ipAddress, 'Headers:', {
+        'x-forwarded-for': req.headers['x-forwarded-for'],
+        'cf-connecting-ip': req.headers['cf-connecting-ip'],
+        'x-client-ip': req.headers['x-client-ip'],
+      });
+
       const location = await getLocationFromIP(ipAddress);
+      console.log('Resolved location:', location);
 
       await col.insertOne({
         eventType,
