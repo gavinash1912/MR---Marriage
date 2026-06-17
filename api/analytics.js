@@ -114,6 +114,31 @@ function getKeyCdnUserAgent() {
   return `keycdn-tools:${siteUrl}`;
 }
 
+function getTimeFilterStart(timeFilter) {
+  const value = Array.isArray(timeFilter) ? timeFilter[0] : timeFilter;
+  const start = new Date();
+
+  switch (value) {
+    case '15m':
+      start.setMinutes(start.getMinutes() - 15);
+      return start;
+    case '30m':
+      start.setMinutes(start.getMinutes() - 30);
+      return start;
+    case '1h':
+      start.setHours(start.getHours() - 1);
+      return start;
+    case '6h':
+      start.setHours(start.getHours() - 6);
+      return start;
+    case '1d':
+      start.setDate(start.getDate() - 1);
+      return start;
+    default:
+      return null;
+  }
+}
+
 async function getLocationFromIP(ip) {
   if (isPrivateIp(ip)) {
     console.log('Skipping geolocation for IP:', ip);
@@ -207,10 +232,13 @@ export default async function handler(req, res) {
 
     // ── GET: retrieve analytics ─────────────────────────────────────────────
     if (req.method === 'GET') {
+      const startTime = getTimeFilterStart(req.query.timeFilter);
+      const timeQuery = startTime ? { timestamp: { $gte: startTime } } : {};
+
       // Check for detailed visitor logs first
       if (req.query.details === 'true') {
         const events = await col
-          .find({ eventType: 'page_view' })
+          .find({ ...timeQuery, eventType: 'page_view' })
           .sort({ timestamp: -1 })
           .toArray();
 
@@ -235,7 +263,7 @@ export default async function handler(req, res) {
       }
 
       // Default: return analytics summary
-      const allEvents = await col.find({}).toArray();
+      const allEvents = await col.find(timeQuery).toArray();
 
       const pageViews = allEvents.filter(e => e.eventType === 'page_view').length;
       const uniquePageViewSessions = new Set(

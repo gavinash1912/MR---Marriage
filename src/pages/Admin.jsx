@@ -376,41 +376,12 @@ export default function Admin() {
     return visitors.filter(v => new Date(v.visitedAt) >= cutoffTime);
   };
 
-  const getFilteredAnalytics = () => {
-    const filteredVisitors = getFilteredVisitors();
-    const now = new Date();
-    let cutoffTime = new Date();
-
-    if (timeFilter !== 'all') {
-      switch (timeFilter) {
-        case '15m':
-          cutoffTime.setMinutes(now.getMinutes() - 15);
-          break;
-        case '30m':
-          cutoffTime.setMinutes(now.getMinutes() - 30);
-          break;
-        case '1h':
-          cutoffTime.setHours(now.getHours() - 1);
-          break;
-        case '6h':
-          cutoffTime.setHours(now.getHours() - 6);
-          break;
-        case '1d':
-          cutoffTime.setDate(now.getDate() - 1);
-          break;
-      }
-    }
-
-    const pageViews = analytics.totalPageViews; // From all events
-    const uniqueVisitors = filteredVisitors.length;
-    const videoPlays = analytics.totalVideoPlays; // From all events
-    const uniqueVideoViewers = analytics.uniqueVideoViewers; // From all events
-
+  const getFilteredAnalytics = (filteredVisitors) => {
     return {
-      totalPageViews: pageViews,
-      uniqueVisitors: uniqueVisitors,
-      totalVideoPlays: videoPlays,
-      uniqueVideoViewers: uniqueVideoViewers,
+      totalPageViews: analytics.totalPageViews,
+      uniqueVisitors: filteredVisitors.length,
+      totalVideoPlays: analytics.totalVideoPlays,
+      uniqueVideoViewers: analytics.uniqueVideoViewers,
     };
   };
 
@@ -430,19 +401,23 @@ export default function Admin() {
 
   const fetchAnalytics = useCallback(async () => {
     try {
-      const res = await axios.get('/api/analytics');
+      const query = timeFilter === 'all' ? '' : `?timeFilter=${encodeURIComponent(timeFilter)}`;
+      const res = await axios.get(`/api/analytics${query}`);
       setAnalytics(res.data);
       const visitorRes = await axios.get('/api/analytics?details=true');
       setVisitors(visitorRes.data.visitors || []);
     } catch {
       console.error('Failed to fetch analytics');
     }
-  }, []);
+  }, [timeFilter]);
 
   useEffect(() => {
     fetchRsvps();
+  }, [fetchRsvps]);
+
+  useEffect(() => {
     fetchAnalytics();
-  }, [fetchRsvps, fetchAnalytics]);
+  }, [fetchAnalytics]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this RSVP entry?')) return;
@@ -503,6 +478,9 @@ export default function Admin() {
       return 0;
     });
 
+  const filteredVisitors = getFilteredVisitors();
+  const filteredAnalytics = getFilteredAnalytics(filteredVisitors);
+
   return (
     <div className="min-h-screen bg-mauve-50/30 pt-16 md:pt-20">
 
@@ -562,7 +540,7 @@ export default function Admin() {
                 : 'bg-white text-mauve-600 hover:bg-mauve-50'
             }`}
           >
-            Visitors ({visitors.length})
+            Visitors ({filteredVisitors.length})
           </button>
         </div>
 
@@ -708,22 +686,15 @@ export default function Admin() {
         <div>
           {/* Visitor Analytics Stats (filtered) */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {(() => {
-              const filtered = getFilteredAnalytics();
-              return (
-                <>
-                  <StatCard label="Website Visits" value={filtered.totalPageViews} color="mauve" />
-                  <StatCard label="Unique Visitors" value={filtered.uniqueVisitors} color="green" />
-                  <StatCard label="Video Plays" value={filtered.totalVideoPlays} color="yellow" />
-                  <StatCard label="Video Viewers (Unique)" value={filtered.uniqueVideoViewers} color="red" />
-                </>
-              );
-            })()}
+            <StatCard label="Website Visits" value={filteredAnalytics.totalPageViews} color="mauve" />
+            <StatCard label="Unique Visitors" value={filteredAnalytics.uniqueVisitors} color="green" />
+            <StatCard label="Video Plays" value={filteredAnalytics.totalVideoPlays} color="yellow" />
+            <StatCard label="Video Viewers (Unique)" value={filteredAnalytics.uniqueVideoViewers} color="red" />
           </div>
 
           {/* Visitors Table */}
           <div className="bg-white rounded-xl border border-mauve-100 overflow-hidden">
-            {getFilteredVisitors().length === 0 ? (
+            {filteredVisitors.length === 0 ? (
               <div className="py-20 text-center">
                 <Eye className="w-10 h-10 text-mauve-200 mx-auto mb-3" />
                 <p className="font-sans text-sm text-mauve-400">
@@ -742,7 +713,7 @@ export default function Admin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {getFilteredVisitors().map((visitor, i) => (
+                    {filteredVisitors.map((visitor, i) => (
                       <tr key={i} className="border-b border-mauve-100 hover:bg-mauve-50/40 transition-colors">
                         <td className="py-3 px-4 font-sans text-sm text-mauve-700">
                           {new Date(visitor.visitedAt).toLocaleString()}
@@ -777,10 +748,10 @@ export default function Admin() {
               </div>
             )}
 
-            {getFilteredVisitors().length > 0 && (
+            {filteredVisitors.length > 0 && (
               <div className="px-4 py-3 border-t border-mauve-100 bg-mauve-50/40">
                 <p className="font-sans text-xs text-mauve-400">
-                  Showing {getFilteredVisitors().length} visitor{getFilteredVisitors().length !== 1 ? 's' : ''} {timeFilter !== 'all' && `(${timeFilter})`}
+                  Showing {filteredVisitors.length} visitor{filteredVisitors.length !== 1 ? 's' : ''} {timeFilter !== 'all' && `(${timeFilter})`}
                 </p>
               </div>
             )}

@@ -132,6 +132,7 @@ function WelcomeVideo() {
   };
 
   const handleSeek = (e) => {
+    e.stopPropagation();
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     if (videoRef.current) {
@@ -141,6 +142,8 @@ function WelcomeVideo() {
   };
 
   const handleDragStart = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
     setIsDragging(true);
   };
 
@@ -214,43 +217,45 @@ function WelcomeVideo() {
         onLoadedMetadata={handleLoadedMetadata}
       />
 
-      {/* Modern OTT-style progress bar */}
+      {/* YouTube-style progress bar */}
       <div
         ref={progressRef}
-        className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 cursor-pointer group hover:h-2 transition-all"
+        className="youtube-seek"
         onClick={handleSeek}
         onMouseMove={handleProgressMouseMove}
         onMouseLeave={handleProgressMouseLeave}
+        aria-label="Seek video"
       >
-        {/* Buffered background (full video) */}
-        <div className="h-full bg-white/40 w-full" />
-
-        {/* Watched progress */}
-        <div
-          className="absolute top-0 left-0 h-full bg-white transition-all"
-          style={{ width: duration ? `${(currentTime / duration) * 100}%` : '0%' }}
-        />
-
-        {/* Hover preview indicator */}
-        {hoverTime !== null && (
+        <div className="youtube-seek__track">
+          <div className="youtube-seek__loaded" />
           <div
-            className="absolute top-0 h-full w-1 bg-white/60 transition-all"
-            style={{ left: duration ? `${(hoverTime / duration) * 100}%` : '0%' }}
+            className="youtube-seek__played"
+            style={{ width: duration ? `${(currentTime / duration) * 100}%` : '0%' }}
           />
-        )}
 
-        {/* Draggable scrubber thumb */}
+          {hoverTime !== null && (
+            <div
+              className="youtube-seek__hover"
+              style={{ left: duration ? `${(hoverTime / duration) * 100}%` : '0%' }}
+            />
+          )}
+        </div>
+
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
-          style={{ left: duration ? `calc(${(currentTime / duration) * 100}% - 6px)` : '0' }}
+          className="youtube-seek__thumb"
+          style={{ left: duration ? `${(currentTime / duration) * 100}%` : '0%' }}
           onMouseDown={handleDragStart}
         />
       </div>
 
       {/* Time tooltip on hover */}
       {hoverTime !== null && (
-        <div className="absolute bottom-4 left-0 text-white text-xs bg-black/80 px-2 py-1 rounded pointer-events-none"
-          style={{ left: duration ? `${(hoverTime / duration) * 100}%` : '0', transform: 'translateX(-50%)' }}
+        <div
+          className="absolute bottom-6 left-0 z-30 text-white text-xs bg-black/90 px-2 py-1 rounded-sm shadow pointer-events-none"
+          style={{
+            left: duration ? `${(hoverTime / duration) * 100}%` : '0',
+            transform: 'translateX(-50%)',
+          }}
         >
           {formatTime(hoverTime)}
         </div>
