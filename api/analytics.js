@@ -139,6 +139,14 @@ function getTimeFilterStart(timeFilter) {
   }
 }
 
+function getVisitorKey(event) {
+  if (event.ipAddress && event.ipAddress !== 'unknown') {
+    return `ip:${event.ipAddress}|device:${event.deviceInfo || 'unknown'}`;
+  }
+
+  return event.sessionId ? `session:${event.sessionId}` : `event:${event._id}`;
+}
+
 async function getLocationFromIP(ip) {
   if (isPrivateIp(ip)) {
     console.log('Skipping geolocation for IP:', ip);
@@ -257,22 +265,17 @@ export default async function handler(req, res) {
 
       // Default: return analytics summary
       const allEvents = await col.find(timeQuery).toArray();
+      const pageViewEvents = allEvents.filter(e => e.eventType === 'page_view');
+      const videoPlayEvents = allEvents.filter(e => e.eventType === 'video_play');
 
-      const pageViews = allEvents.filter(e => e.eventType === 'page_view').length;
-      const uniquePageViewSessions = new Set(
-        allEvents.filter(e => e.eventType === 'page_view').map(e => e.sessionId)
-      ).size;
-
-      const videoPlays = allEvents.filter(e => e.eventType === 'video_play').length;
-      const uniqueVideoSessions = new Set(
-        allEvents.filter(e => e.eventType === 'video_play').map(e => e.sessionId)
-      ).size;
+      const uniquePageViewVisitors = new Set(pageViewEvents.map(getVisitorKey)).size;
+      const uniqueVideoViewers = new Set(videoPlayEvents.map(getVisitorKey)).size;
 
       return res.status(200).json({
-        totalPageViews: pageViews,
-        uniqueVisitors: uniquePageViewSessions,
-        totalVideoPlays: videoPlays,
-        uniqueVideoViewers: uniqueVideoSessions,
+        totalPageViews: pageViewEvents.length,
+        uniqueVisitors: uniquePageViewVisitors,
+        totalVideoPlays: videoPlayEvents.length,
+        uniqueVideoViewers,
       });
     }
 
