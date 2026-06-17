@@ -50,19 +50,11 @@ async function getLocationFromIP() {
 async function trackEvent(eventType) {
   const sessionId = getOrCreateSessionId();
   const deviceInfo = parseDeviceInfo();
-  let location = null;
-
-  try {
-    location = await getLocationFromIP();
-  } catch {
-    location = null;
-  }
 
   axios.post('/api/analytics', {
     eventType,
     sessionId,
     deviceInfo: `${deviceInfo.device} - ${deviceInfo.os} - ${deviceInfo.browser}`,
-    location,
   }).catch(() => {});
 }
 

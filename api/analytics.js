@@ -11,6 +11,22 @@ function getClientIp(req) {
   );
 }
 
+async function getLocationFromIP(ip) {
+  if (ip === 'unknown' || ip === '::1' || ip === '127.0.0.1') {
+    return null;
+  }
+  try {
+    const res = await fetch(`https://ip-api.com/json/${ip}?fields=country,city`);
+    const data = await res.json();
+    if (data.status === 'success') {
+      return `${data.city}, ${data.country}`;
+    }
+  } catch (err) {
+    console.error('Location lookup error:', err);
+  }
+  return null;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -24,19 +40,21 @@ export default async function handler(req, res) {
 
     // ── POST: log an event ───────────────────────────────────────────────────
     if (req.method === 'POST') {
-      const { eventType, sessionId, userId, ipAddress, location, deviceInfo, visitorName } = req.body;
+      const { eventType, sessionId, userId, deviceInfo } = req.body;
       if (!eventType || !sessionId) {
         return res.status(400).json({ error: 'eventType and sessionId required' });
       }
+
+      const ipAddress = getClientIp(req);
+      const location = await getLocationFromIP(ipAddress);
 
       await col.insertOne({
         eventType,
         sessionId,
         userId: userId || null,
-        ipAddress: ipAddress || getClientIp(req),
-        location: location || null,
+        ipAddress,
+        location,
         deviceInfo: deviceInfo || null,
-        visitorName: visitorName || null,
         timestamp: new Date(),
       });
       return res.status(200).json({ success: true });
