@@ -21,20 +21,25 @@ async function getLocationFromIP(ip) {
 
   try {
     console.log('Attempting geolocation for IP:', ip);
-    const response = await fetch(`https://ip-api.com/json/${ip}?fields=country,city,status`);
+
+    // Use KeyCDN geolocation API
+    const response = await fetch(`https://tools.keycdn.com/geo?host=${ip}`);
 
     if (!response.ok) {
-      console.log('Geolocation API returned status:', response.status);
+      console.log('KeyCDN API returned status:', response.status);
       return null;
     }
 
     const data = await response.json();
-    console.log('Geolocation response:', data);
+    console.log('KeyCDN response:', data);
 
-    if (data.status === 'success' && data.city && data.country) {
-      return `${data.city}, ${data.country}`;
-    } else if (data.status === 'fail') {
-      console.log('Geolocation failed:', data.message);
+    if (data.status === 'success' && data.body?.geo) {
+      const geo = data.body.geo;
+      if (geo.city && geo.country_name) {
+        const location = `${geo.city}, ${geo.country_name}`;
+        console.log('Resolved location:', location);
+        return location;
+      }
     }
     return null;
   } catch (err) {
