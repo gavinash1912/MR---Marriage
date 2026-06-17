@@ -377,14 +377,10 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Floral sprig divider */}
-        <div className="relative z-10 pb-8">
-          <FloralSprig />
-        </div>
       </section>
 
       {/* ── Welcome video section ───────────────────────────── */}
-      <section data-analytics-section="Video" className="py-20 px-4 bg-mauve-50/40">
+      <section data-analytics-section="Video" className="pt-8 pb-20 px-4 bg-mauve-50/40">
         <div className="max-w-3xl mx-auto text-center">
           <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">A message from</p>
           <h2 className="section-title mb-3">Avinash &amp; Ananya</h2>
