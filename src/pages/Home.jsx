@@ -328,7 +328,7 @@ export default function Home() {
         </div>
 
         {/* Hero content */}
-        <div className="relative z-10 flex flex-col items-center justify-center flex-1 pt-20 sm:pt-28 lg:pt-44 xl:pt-56 pb-12 px-12 sm:px-24 lg:px-52 text-center">
+        <div className="relative z-10 flex flex-col items-center justify-center flex-1 pt-20 sm:pt-28 lg:pt-44 xl:pt-56 pb-8 px-12 sm:px-24 lg:px-52 text-center">
           <h1 className="animate-fade-in-up delay-200 font-allura text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-widest2 text-mauve-800 uppercase leading-none mb-2">
             Avinash
           </h1>
@@ -377,14 +377,10 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Floral sprig divider */}
-        <div className="relative z-10 pb-8">
-          <FloralSprig />
-        </div>
       </section>
 
       {/* ── Welcome video section ───────────────────────────── */}
-      <section data-analytics-section="Video" className="py-20 px-4 bg-mauve-50/40">
+      <section data-analytics-section="Video" className="pt-8 pb-20 px-4 bg-mauve-50/40">
         <div className="max-w-3xl mx-auto text-center">
           <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">A message from</p>
           <h2 className="section-title mb-3">Avinash &amp; Ananya</h2>
