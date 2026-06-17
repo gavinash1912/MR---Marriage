@@ -147,6 +147,12 @@ function getVisitorKey(event) {
   return event.sessionId ? `session:${event.sessionId}` : `event:${event._id}`;
 }
 
+function sanitizeDurationSeconds(value) {
+  const duration = Number(value);
+  if (!Number.isFinite(duration) || duration < 0) return 0;
+  return Math.min(Math.round(duration), 24 * 60 * 60);
+}
+
 async function getLocationFromIP(ip) {
   if (isPrivateIp(ip)) {
     console.log('Skipping geolocation for IP:', ip);
@@ -208,9 +214,37 @@ export default async function handler(req, res) {
 
     // ── POST: log an event ───────────────────────────────────────────────────
     if (req.method === 'POST') {
-      const { eventType, sessionId, userId, deviceInfo } = req.body;
+      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+      const {
+        eventType,
+        sessionId,
+        userId,
+        deviceInfo,
+        visitId,
+        pagePath,
+        actionName,
+        actionLabel,
+        durationSeconds,
+        metadata,
+      } = body || {};
       if (!eventType || !sessionId) {
         return res.status(400).json({ error: 'eventType and sessionId required' });
+      }
+
+      if (eventType === 'duration_update') {
+        if (!visitId) {
+          return res.status(400).json({ error: 'visitId required for duration_update' });
+        }
+
+        await col.updateOne(
+          { eventType: 'page_view', visitId },
+          {
+            $max: { durationSeconds: sanitizeDurationSeconds(durationSeconds) },
+            $set: { lastActiveAt: new Date() },
+          }
+        );
+
+        return res.status(200).json({ success: true });
       }
 
       const ipAddress = getClientIp(req);
@@ -223,16 +257,23 @@ export default async function handler(req, res) {
         'x-client-ip': req.headers['x-client-ip'],
       });
 
-      const location = await getLocationFromIP(ipAddress);
+      const location = eventType === 'page_view' ? await getLocationFromIP(ipAddress) : null;
       console.log('Resolved location:', location);
 
       await col.insertOne({
         eventType,
         sessionId,
+        visitId: visitId || null,
         userId: userId || null,
         ipAddress,
         location,
         deviceInfo: deviceInfo || null,
+        pagePath: pagePath || null,
+        actionName: actionName || null,
+        actionLabel: actionLabel || null,
+        metadata: metadata || null,
+        durationSeconds: eventType === 'page_view' ? 0 : null,
+        lastActiveAt: eventType === 'page_view' ? new Date() : null,
         timestamp: new Date(),
       });
       return res.status(200).json({ success: true });
@@ -250,13 +291,41 @@ export default async function handler(req, res) {
           .sort({ timestamp: -1 })
           .toArray();
 
+        const visitIds = events.map(event => event.visitId).filter(Boolean);
+        const actionEvents = visitIds.length
+          ? await col
+              .find({ visitId: { $in: visitIds }, eventType: { $ne: 'page_view' } })
+              .sort({ timestamp: 1 })
+              .toArray()
+          : [];
+        const actionsByVisitId = new Map();
+
+        actionEvents.forEach(event => {
+          if (!actionsByVisitId.has(event.visitId)) {
+            actionsByVisitId.set(event.visitId, []);
+          }
+
+          actionsByVisitId.get(event.visitId).push({
+            id: event._id?.toString(),
+            eventType: event.eventType,
+            actionName: event.actionName,
+            actionLabel: event.actionLabel,
+            metadata: event.metadata,
+            timestamp: event.timestamp,
+          });
+        });
+
         const visitors = events.map(event => ({
           id: event._id?.toString(),
+          visitId: event.visitId,
           sessionId: event.sessionId,
           visitorName: event.visitorName || 'Anonymous',
           ipAddress: event.ipAddress,
           location: event.location,
           deviceInfo: event.deviceInfo,
+          pagePath: event.pagePath,
+          durationSeconds: event.durationSeconds || 0,
+          actions: actionsByVisitId.get(event.visitId) || [],
           visitedAt: event.timestamp,
         }));
 

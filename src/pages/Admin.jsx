@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { Fragment, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {
   Users, Check, X, Search, Download, RefreshCw,
@@ -21,6 +21,25 @@ function StatCard({ label, value, sub, color = 'mauve' }) {
       {sub && <p className="font-sans text-xs mt-1 opacity-60">{sub}</p>}
     </div>
   );
+}
+
+function formatDuration(seconds) {
+  const total = Number(seconds) || 0;
+  if (total < 60) return `${total}s`;
+
+  const minutes = Math.floor(total / 60);
+  const remainingSeconds = total % 60;
+  if (minutes < 60) return remainingSeconds ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return remainingMinutes ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+}
+
+function formatActionName(action) {
+  if (action.actionLabel) return action.actionLabel;
+  if (action.actionName) return action.actionName.replace(/_/g, ' ');
+  return (action.eventType || 'action').replace(/_/g, ' ');
 }
 
 // ── Edit Modal ────────────────────────────────────────────────────────────────
@@ -346,6 +365,7 @@ export default function Admin() {
   const [visitors, setVisitors] = useState([]);
   const [activeTab, setActiveTab] = useState('rsvp');
   const [timeFilter, setTimeFilter] = useState('all'); // all, 15m, 30m, 1h, 6h, 1d
+  const [expandedVisits, setExpandedVisits] = useState({});
 
   const getFilteredVisitors = () => {
     if (timeFilter === 'all') return visitors;
@@ -376,7 +396,7 @@ export default function Admin() {
     return visitors.filter(v => new Date(v.visitedAt) >= cutoffTime);
   };
 
-  const getFilteredAnalytics = (filteredVisitors) => {
+  const getFilteredAnalytics = () => {
     return {
       totalPageViews: analytics.totalPageViews,
       uniqueVisitors: analytics.uniqueVisitors,
@@ -402,9 +422,12 @@ export default function Admin() {
   const fetchAnalytics = useCallback(async () => {
     try {
       const query = timeFilter === 'all' ? '' : `?timeFilter=${encodeURIComponent(timeFilter)}`;
+      const detailsQuery = timeFilter === 'all'
+        ? '?details=true'
+        : `?details=true&timeFilter=${encodeURIComponent(timeFilter)}`;
       const res = await axios.get(`/api/analytics${query}`);
       setAnalytics(res.data);
-      const visitorRes = await axios.get('/api/analytics?details=true');
+      const visitorRes = await axios.get(`/api/analytics${detailsQuery}`);
       setVisitors(visitorRes.data.visitors || []);
     } catch {
       console.error('Failed to fetch analytics');
@@ -481,7 +504,10 @@ export default function Admin() {
     });
 
   const filteredVisitors = getFilteredVisitors();
-  const filteredAnalytics = getFilteredAnalytics(filteredVisitors);
+  const filteredAnalytics = getFilteredAnalytics();
+  const toggleVisitExpanded = (id) => {
+    setExpandedVisits(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   return (
     <div className="min-h-screen bg-mauve-50/30 pt-16 md:pt-20">
@@ -705,46 +731,96 @@ export default function Admin() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[800px]">
+                <table className="w-full min-w-[980px]">
                   <thead>
                     <tr className="bg-mauve-50 border-b border-mauve-100">
+                      <th className="py-3 px-4 w-12" />
                       <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Visit Time</th>
                       <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">IP Address</th>
                       <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Location</th>
                       <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Device</th>
+                      <th className="py-3 px-4 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">Time Spent</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredVisitors.map((visitor, i) => (
-                      <tr key={visitor.id || `${visitor.sessionId}-${visitor.visitedAt}-${i}`} className="border-b border-mauve-100 hover:bg-mauve-50/40 transition-colors">
-                        <td className="py-3 px-4 font-sans text-sm text-mauve-700">
-                          {new Date(visitor.visitedAt).toLocaleString()}
-                        </td>
-                        <td className="py-3 px-4 font-sans text-sm text-mauve-600">
-                          {visitor.ipAddress || 'Unknown'}
-                        </td>
-                        <td className="py-3 px-4 font-sans text-sm text-mauve-600">
-                          {visitor.location ? (
-                            <span className="inline-flex items-center gap-1.5">
-                              <MapPin className="w-3 h-3 text-mauve-400" />
-                              {visitor.location}
-                            </span>
-                          ) : (
-                            <span className="text-mauve-300 italic">Unknown</span>
+                    {filteredVisitors.map((visitor, i) => {
+                      const rowId = visitor.id || `${visitor.sessionId}-${visitor.visitedAt}-${i}`;
+                      const expanded = !!expandedVisits[rowId];
+
+                      return (
+                        <Fragment key={rowId}>
+                          <tr className="border-b border-mauve-100 hover:bg-mauve-50/40 transition-colors">
+                            <td className="py-3 px-4">
+                              <button
+                                type="button"
+                                onClick={() => toggleVisitExpanded(rowId)}
+                                className="w-7 h-7 rounded-full border border-mauve-200 flex items-center justify-center text-mauve-500 hover:bg-mauve-50 transition-colors"
+                                aria-label={expanded ? 'Hide visit actions' : 'Show visit actions'}
+                              >
+                                {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                              </button>
+                            </td>
+                            <td className="py-3 px-4 font-sans text-sm text-mauve-700">
+                              {new Date(visitor.visitedAt).toLocaleString()}
+                            </td>
+                            <td className="py-3 px-4 font-sans text-sm text-mauve-600">
+                              {visitor.ipAddress || 'Unknown'}
+                            </td>
+                            <td className="py-3 px-4 font-sans text-sm text-mauve-600">
+                              {visitor.location ? (
+                                <span className="inline-flex items-center gap-1.5">
+                                  <MapPin className="w-3 h-3 text-mauve-400" />
+                                  {visitor.location}
+                                </span>
+                              ) : (
+                                <span className="text-mauve-300 italic">Unknown</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 font-sans text-sm text-mauve-600">
+                              {visitor.deviceInfo ? (
+                                <span className="inline-flex items-center gap-1.5">
+                                  <Smartphone className="w-3 h-3 text-mauve-400" />
+                                  {visitor.deviceInfo}
+                                </span>
+                              ) : (
+                                <span className="text-mauve-300 italic">Unknown</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 font-sans text-sm text-mauve-600">
+                              {formatDuration(visitor.durationSeconds)}
+                            </td>
+                          </tr>
+
+                          {expanded && (
+                            <tr className="border-b border-mauve-100 bg-mauve-50/35">
+                              <td colSpan={6} className="px-6 py-4">
+                                <div className="font-sans text-sm text-mauve-600">
+                                  <div className="flex flex-wrap items-center gap-x-5 gap-y-1 mb-3">
+                                    <span className="font-medium text-mauve-800">Time spent: {formatDuration(visitor.durationSeconds)}</span>
+                                    {visitor.pagePath && <span>Page: {visitor.pagePath}</span>}
+                                  </div>
+
+                                  {visitor.actions?.length ? (
+                                    <ul className="space-y-2">
+                                      {visitor.actions.map(action => (
+                                        <li key={action.id} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                                          <span className="font-mono text-xs text-mauve-400 sm:w-28">
+                                            {new Date(action.timestamp).toLocaleTimeString()}
+                                          </span>
+                                          <span className="text-mauve-700">{formatActionName(action)}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  ) : (
+                                    <p className="text-mauve-400 italic">No actions logged for this visit.</p>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
                           )}
-                        </td>
-                        <td className="py-3 px-4 font-sans text-sm text-mauve-600">
-                          {visitor.deviceInfo ? (
-                            <span className="inline-flex items-center gap-1.5">
-                              <Smartphone className="w-3 h-3 text-mauve-400" />
-                              {visitor.deviceInfo}
-                            </span>
-                          ) : (
-                            <span className="text-mauve-300 italic">Unknown</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                        </Fragment>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

@@ -1,53 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { FloralLeft, FloralRight, FloralTopBanner, FloralSprig } from '../components/FloralDecor';
 import { Calendar, MapPin, Clock, Play, Pause } from 'lucide-react';
-
-// ── Session & Analytics ────────────────────────────────────────────────────
-function getOrCreateSessionId() {
-  let sessionId = localStorage.getItem('sessionId');
-  if (!sessionId) {
-    sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('sessionId', sessionId);
-  }
-  return sessionId;
-}
-
-function parseDeviceInfo() {
-  const ua = navigator.userAgent;
-  let device = 'Unknown';
-  let os = 'Unknown';
-  let browser = 'Unknown';
-
-  if (/mobile/i.test(ua)) device = 'Mobile';
-  else if (/tablet/i.test(ua)) device = 'Tablet';
-  else device = 'Desktop';
-
-  if (/windows/i.test(ua)) os = 'Windows';
-  else if (/mac/i.test(ua)) os = 'macOS';
-  else if (/linux/i.test(ua)) os = 'Linux';
-  else if (/iphone|ios/i.test(ua)) os = 'iOS';
-  else if (/android/i.test(ua)) os = 'Android';
-
-  if (/chrome/i.test(ua) && !/edg/i.test(ua)) browser = 'Chrome';
-  else if (/safari/i.test(ua)) browser = 'Safari';
-  else if (/firefox/i.test(ua)) browser = 'Firefox';
-  else if (/edg/i.test(ua)) browser = 'Edge';
-
-  return { device, os, browser };
-}
-
-async function trackEvent(eventType) {
-  const sessionId = getOrCreateSessionId();
-  const deviceInfo = parseDeviceInfo();
-
-  axios.post('/api/analytics', {
-    eventType,
-    sessionId,
-    deviceInfo: `${deviceInfo.device} - ${deviceInfo.os} - ${deviceInfo.browser}`,
-  }).catch(() => {});
-}
+import { trackEvent, useVisitAnalytics } from '../utils/analytics';
 
 // ── Countdown hook ──────────────────────────────────────────────────────────
 function useCountdown(targetDate) {
@@ -80,7 +35,7 @@ function CountdownBlock({ value, label }) {
 }
 
 // ── Video player — autoplay muted, click to unmute/pause ────────────────────
-function WelcomeVideo() {
+function WelcomeVideo({ visitId, onAction = () => {} }) {
   const videoRef             = useRef(null);
   const progressRef          = useRef(null);
   const [muted,   setMuted]  = useState(true);
@@ -91,6 +46,7 @@ function WelcomeVideo() {
   const [duration, setDuration] = useState(0);
   const [hoverTime, setHoverTime] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const watchedMilestonesRef = useRef(new Set());
 
   useEffect(() => {
     fetch('/videos/welcome.mp4', { method: 'HEAD' })
@@ -107,8 +63,25 @@ function WelcomeVideo() {
   const handleTimeUpdate = () => {
     if (videoRef.current && !isDragging) {
       setCurrentTime(videoRef.current.currentTime);
+      const watchedPercent = videoRef.current.duration
+        ? Math.floor((videoRef.current.currentTime / videoRef.current.duration) * 100)
+        : 0;
+
+      [25, 50, 75, 100].forEach(milestone => {
+        const reachedMilestone = milestone === 100 ? watchedPercent >= 95 : watchedPercent >= milestone;
+        if (reachedMilestone && !watchedMilestonesRef.current.has(milestone)) {
+          watchedMilestonesRef.current.add(milestone);
+          onAction('video_watch_percent', `Watched video ${milestone}%`, { percent: milestone });
+        }
+      });
+
       if (!hasTrackedPlay && videoRef.current.currentTime >= 10) {
-        trackEvent('video_play');
+        trackEvent('video_play', {
+          visitId,
+          actionName: 'video_play',
+          actionLabel: 'Watched welcome video for 10 seconds',
+          metadata: { currentTime: Math.round(videoRef.current.currentTime) },
+        });
         setHasTrackedPlay(true);
       }
     }
@@ -138,6 +111,9 @@ function WelcomeVideo() {
     if (videoRef.current) {
       videoRef.current.currentTime = percent * videoRef.current.duration;
       setCurrentTime(percent * duration);
+      onAction('video_seek', `Seeked video to ${formatTime(percent * duration)}`, {
+        toSeconds: Math.round(percent * duration),
+      });
     }
   };
 
@@ -156,6 +132,11 @@ function WelcomeVideo() {
   };
 
   const handleDragEnd = () => {
+    if (isDragging && videoRef.current) {
+      onAction('video_seek', `Dragged video to ${formatTime(videoRef.current.currentTime)}`, {
+        toSeconds: Math.round(videoRef.current.currentTime),
+      });
+    }
     setIsDragging(false);
   };
 
@@ -181,13 +162,21 @@ function WelcomeVideo() {
     e.stopPropagation();
     if (!videoRef.current) return;
     videoRef.current.muted = !muted;
+    onAction(muted ? 'video_unmute' : 'video_mute', muted ? 'Unmuted welcome video' : 'Muted welcome video');
     setMuted(m => !m);
   };
 
   const togglePlay = () => {
     if (!videoRef.current) return;
-    if (playing) { videoRef.current.pause(); setPlaying(false); }
-    else         { videoRef.current.play();  setPlaying(true);  }
+    if (playing) {
+      onAction('video_pause', 'Paused welcome video');
+      videoRef.current.pause();
+      setPlaying(false);
+    } else {
+      onAction('video_resume', 'Resumed welcome video');
+      videoRef.current.play();
+      setPlaying(true);
+    }
   };
 
   if (!hasVideo) {
@@ -314,16 +303,18 @@ function WelcomeVideo() {
 export default function Home() {
   const ENGAGEMENT_DATE = '2026-07-05T08:00:00';
   const countdown = useCountdown(ENGAGEMENT_DATE);
-
-  useEffect(() => {
-    trackEvent('page_view');
-  }, []);
+  const { visitId, trackAction, handleTrackedClick } = useVisitAnalytics({
+    sections: ['Hero', 'Video', 'Event Details'],
+  });
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" onClickCapture={handleTrackedClick}>
 
       {/* ── Hero section ───────────────────────────────────── */}
-      <section className="relative min-h-screen flex flex-col items-center overflow-hidden bg-white">
+      <section
+        data-analytics-section="Hero"
+        className="relative min-h-screen flex flex-col items-center overflow-hidden bg-white"
+      >
 
         {/* Floral top banner */}
         <FloralTopBanner className="absolute top-0 left-0 right-0 z-0" />
@@ -393,7 +384,7 @@ export default function Home() {
       </section>
 
       {/* ── Welcome video section ───────────────────────────── */}
-      <section className="py-20 px-4 bg-mauve-50/40">
+      <section data-analytics-section="Video" className="py-20 px-4 bg-mauve-50/40">
         <div className="max-w-3xl mx-auto text-center">
           <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">A message from</p>
           <h2 className="section-title mb-3">Avinash &amp; Ananya</h2>
@@ -403,12 +394,12 @@ export default function Home() {
           <p className="font-serif italic text-mauve-600 text-lg mb-10 max-w-lg mx-auto">
             We are so grateful to have you in our lives and celebrate this special moment together. Watch our welcome invitation below.
           </p>
-          <WelcomeVideo />
+          <WelcomeVideo visitId={visitId} onAction={trackAction} />
         </div>
       </section>
 
       {/* ── Event details section ───────────────────────────── */}
-      <section className="py-20 px-4">
+      <section data-analytics-section="Event Details" className="py-20 px-4">
         <div className="max-w-2xl mx-auto text-center">
           <div className="floral-divider mb-8">
             <FloralSprig />

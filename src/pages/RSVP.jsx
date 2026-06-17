@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import axios from 'axios';
 import { FloralSprig, FloralTopBanner } from '../components/FloralDecor';
-import { Check, ChevronRight, User, Users, Phone, Mail, MessageSquare, CalendarPlus } from 'lucide-react';
+import { Check, ChevronRight, Users, Phone, Mail, MessageSquare, CalendarPlus } from 'lucide-react';
+import { useVisitAnalytics } from '../utils/analytics';
 
 // ── Step indicator ──────────────────────────────────────────────────────────
 function StepDot({ step, current, label }) {
@@ -55,6 +56,10 @@ function AttendOption({ value, label, sub, selected, onClick }) {
 const blankGuest = () => ({ firstName: '', lastName: '' });
 
 export default function RSVP() {
+  const { trackAction, handleTrackedClick } = useVisitAnalytics({
+    sections: ['RSVP Header', 'RSVP Form'],
+  });
+  const startedRef = useRef(false);
   const [step,          setStep]         = useState(1);
   const [firstName,     setFirstName]    = useState('');
   const [lastName,      setLastName]     = useState('');
@@ -66,13 +71,21 @@ export default function RSVP() {
   const [submitted,     setSubmitted]    = useState(false);
   const [error,         setError]        = useState('');
 
+  const trackRsvpStarted = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    trackAction('rsvp_started', 'Started RSVP form');
+  };
+
   const handleAdditionalNumChange = (n) => {
+    trackRsvpStarted();
     const num = Math.max(0, Math.min(8, n));
     setAdditionalNum(num);
     setAdditionals(Array.from({ length: num }, (_, i) => additionals[i] || blankGuest()));
   };
 
   const updateAdditional = (i, field, value) => {
+    trackRsvpStarted();
     setAdditionals(prev => prev.map((g, idx) => idx === i ? { ...g, [field]: value } : g));
   };
 
@@ -89,12 +102,21 @@ export default function RSVP() {
     };
     try {
       await axios.post('/api/rsvp', payload);
+      trackAction('rsvp_submitted', 'Submitted RSVP', {
+        attending,
+        additionalGuests: additionals.filter(g => g.firstName.trim()).length,
+      });
       setSubmitted(true);
     } catch {
       // localStorage fallback
       const stored = JSON.parse(localStorage.getItem('rsvps') || '[]');
       stored.push({ ...payload, id: Date.now() });
       localStorage.setItem('rsvps', JSON.stringify(stored));
+      trackAction('rsvp_submitted', 'Submitted RSVP', {
+        attending,
+        additionalGuests: additionals.filter(g => g.firstName.trim()).length,
+        storage: 'local',
+      });
       setSubmitted(true);
     } finally {
       setSubmitting(false);
@@ -104,7 +126,7 @@ export default function RSVP() {
   // ── Success ────────────────────────────────────────────────────────────────
   if (submitted) {
     return (
-      <div className="min-h-screen bg-white pt-16 md:pt-20">
+      <div className="min-h-screen bg-white pt-16 md:pt-20" onClickCapture={handleTrackedClick}>
         <div className="max-w-lg mx-auto px-4 py-20 text-center">
           <div className="w-20 h-20 rounded-full bg-mauve-100 flex items-center justify-center mx-auto mb-6">
             <Check className="w-10 h-10 text-mauve-600" />
@@ -140,9 +162,9 @@ export default function RSVP() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" onClickCapture={handleTrackedClick}>
       {/* Top floral */}
-      <div className="pt-16 md:pt-20 relative overflow-hidden">
+      <div data-analytics-section="RSVP Header" className="pt-16 md:pt-20 relative overflow-hidden">
         <FloralTopBanner className="absolute top-0 left-0 right-0 opacity-50" />
         <div className="relative z-10 py-14 px-4 text-center">
           <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">
@@ -168,7 +190,7 @@ export default function RSVP() {
 
       {/* ── STEP 1: Name + attendance + additional guests ─────────────────── */}
       {step === 1 && (
-        <div className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up">
+        <div data-analytics-section="RSVP Form" className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up">
           <div className="card">
             <h2 className="font-serif text-2xl text-mauve-800 mb-1 text-center">Your Details</h2>
             <p className="font-sans text-sm text-mauve-400 text-center mb-6">
@@ -182,7 +204,7 @@ export default function RSVP() {
                   type="text"
                   className="form-input"
                   value={firstName}
-                  onChange={e => setFirstName(e.target.value)}
+                  onChange={e => { trackRsvpStarted(); setFirstName(e.target.value); }}
                   placeholder="First name"
                 />
               </div>
@@ -192,7 +214,7 @@ export default function RSVP() {
                   type="text"
                   className="form-input"
                   value={lastName}
-                  onChange={e => setLastName(e.target.value)}
+                  onChange={e => { trackRsvpStarted(); setLastName(e.target.value); }}
                   placeholder="Last name"
                 />
               </div>
@@ -206,14 +228,14 @@ export default function RSVP() {
                   label="Joyfully accepts"
                   sub="I'll be there to celebrate!"
                   selected={attending === 'yes'}
-                  onClick={setAttending}
+                  onClick={(value) => { trackRsvpStarted(); setAttending(value); }}
                 />
                 <AttendOption
                   value="no"
                   label="Regretfully declines"
                   sub="I'm unable to make it"
                   selected={attending === 'no'}
-                  onClick={setAttending}
+                  onClick={(value) => { trackRsvpStarted(); setAttending(value); }}
                 />
               </div>
             </div>
@@ -277,7 +299,13 @@ export default function RSVP() {
 
             <button
               disabled={!step1Valid()}
-              onClick={() => setStep(2)}
+              onClick={() => {
+                trackAction('rsvp_step_completed', 'Completed RSVP step 1', {
+                  attending,
+                  additionalGuests: additionalNum,
+                });
+                setStep(2);
+              }}
               className={`btn-primary w-full flex items-center justify-center gap-2 mt-2
                 ${!step1Valid() ? 'opacity-40 cursor-not-allowed' : ''}`}
             >
@@ -289,7 +317,7 @@ export default function RSVP() {
 
       {/* ── STEP 2: Contact + confirm ─────────────────────────────────────── */}
       {step === 2 && (
-        <div className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up">
+        <div data-analytics-section="RSVP Form" className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up">
           <div className="card">
             <h2 className="font-serif text-2xl text-mauve-800 mb-1 text-center">Confirm RSVP</h2>
             <p className="font-sans text-sm text-mauve-400 text-center mb-6">
@@ -306,7 +334,7 @@ export default function RSVP() {
                   className="form-input"
                   placeholder="(555) 123-4567"
                   value={contact.phone}
-                  onChange={e => setContact(p => ({ ...p, phone: e.target.value }))}
+                  onChange={e => { trackRsvpStarted(); setContact(p => ({ ...p, phone: e.target.value })); }}
                 />
               </div>
               <div>
@@ -318,7 +346,7 @@ export default function RSVP() {
                   className="form-input"
                   placeholder="your@email.com"
                   value={contact.email}
-                  onChange={e => setContact(p => ({ ...p, email: e.target.value }))}
+                  onChange={e => { trackRsvpStarted(); setContact(p => ({ ...p, email: e.target.value })); }}
                 />
               </div>
               <div>
@@ -330,7 +358,7 @@ export default function RSVP() {
                   rows={3}
                   placeholder="Write a short note…"
                   value={contact.notes}
-                  onChange={e => setContact(p => ({ ...p, notes: e.target.value }))}
+                  onChange={e => { trackRsvpStarted(); setContact(p => ({ ...p, notes: e.target.value })); }}
                 />
               </div>
             </div>
