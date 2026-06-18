@@ -313,7 +313,7 @@ export default function Home() {
       {/* ── Hero section ───────────────────────────────────── */}
       <section
         data-analytics-section="Hero"
-        className="relative min-h-screen flex flex-col items-center overflow-hidden bg-white"
+        className="relative min-h-fit sm:min-h-screen flex flex-col items-center overflow-hidden bg-white"
       >
 
         {/* Floral top banner */}
@@ -328,7 +328,7 @@ export default function Home() {
         </div>
 
         {/* Hero content */}
-        <div className="relative z-10 flex flex-col items-center justify-center flex-1 pt-10 sm:pt-16 lg:pt-28 xl:pt-40 pb-12 px-12 sm:px-24 lg:px-52 text-center">
+        <div className="relative z-10 flex flex-col items-center justify-center flex-1 pt-10 sm:pt-16 lg:pt-28 xl:pt-40 pb-4 sm:pb-12 px-12 sm:px-24 lg:px-52 text-center">
           <h1 className="animate-fade-in-up delay-200 font-allura text-7xl sm:text-8xl md:text-9xl lg:text-[10rem] text-mauve-800 leading-none mb-2">
             Avinash
           </h1>
