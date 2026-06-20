@@ -71,13 +71,7 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
 
   useEffect(() => {
     if (hasVideo && videoRef.current) {
-      const video = videoRef.current;
-
-      video.play().catch(() => {
-        video.muted = true;
-        setMuted(true);
-        video.play().catch(() => setPlaying(false));
-      });
+      videoRef.current.play().catch(() => setPlaying(false));
     }
   }, [hasVideo]);
 
@@ -355,6 +349,17 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
   const playedPercent = duration ? Math.min(100, (currentTime / duration) * 100) : 0;
   const chromeVisible = controlsVisible || !playing || settingsOpen || isDragging;
 
+  const handleVideoSurfaceClick = (e) => {
+    e.stopPropagation();
+
+    if (!chromeVisible) {
+      revealControls();
+      return;
+    }
+
+    togglePlay();
+  };
+
   if (!hasVideo) {
     return (
       <div className="video-wrapper">
@@ -373,7 +378,9 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
       tabIndex={0}
       onKeyDown={handleKeyDown}
       onFocus={revealControls}
-      onPointerMove={revealControls}
+      onPointerMove={(e) => {
+        if (e.pointerType === 'mouse') revealControls();
+      }}
       onMouseLeave={() => {
         if (playing && !settingsOpen && !draggingRef.current) setControlsVisible(false);
       }}
@@ -392,7 +399,7 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
           setPlaying(false);
           setControlsVisible(true);
         }}
-        onClick={togglePlay}
+        onClick={handleVideoSurfaceClick}
         onTimeUpdate={handleTimeUpdate}
         onProgress={handleProgress}
         onLoadedMetadata={handleLoadedMetadata}
@@ -542,17 +549,6 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
         </div>
       </div>
 
-      {!chromeVisible && (
-        <button
-          type="button"
-          className="stream-tap-layer"
-          onClick={(e) => {
-            e.stopPropagation();
-            revealControls();
-          }}
-          aria-label="Show video controls"
-        />
-      )}
     </div>
   );
 }

@@ -111,8 +111,7 @@
   touch-action: manipulation;
 }
 
-.stream-player video,
-.stream-tap-layer {
+.stream-player video {
   cursor: pointer;
 }
 
@@ -404,14 +403,6 @@
 .stream-settings-menu button:hover,
 .stream-settings-menu button.is-active {
   background: rgba(255, 255, 255, 0.12);
-}
-
-.stream-tap-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 25;
-  border: 0;
-  background: transparent;
 }
 
 @media (max-width: 639px) {
