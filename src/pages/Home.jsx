@@ -34,12 +34,12 @@ function CountdownBlock({ value, label }) {
   );
 }
 
-// ── Video player — autoplay muted, click to unmute/pause ────────────────────
+// ── Video player — starts with sound, click to mute/unmute or pause ─────────
 function WelcomeVideo({ visitId, onAction = () => {} }) {
   const videoRef             = useRef(null);
   const progressRef          = useRef(null);
-  const [muted,   setMuted]  = useState(true);
-  const [playing, setPlaying]= useState(true);
+  const [muted,   setMuted]  = useState(false);
+  const [playing, setPlaying]= useState(false);
   const [hasVideo, setHasVideo] = useState(false);
   const [hasTrackedPlay, setHasTrackedPlay] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -161,9 +161,10 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
   const toggleMute = (e) => {
     e.stopPropagation();
     if (!videoRef.current) return;
-    videoRef.current.muted = !muted;
+    const nextMuted = !muted;
+    videoRef.current.muted = nextMuted;
     onAction(muted ? 'video_unmute' : 'video_mute', muted ? 'Unmuted welcome video' : 'Muted welcome video');
-    setMuted(m => !m);
+    setMuted(nextMuted);
   };
 
   const togglePlay = () => {
@@ -174,8 +175,7 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
       setPlaying(false);
     } else {
       onAction('video_resume', 'Resumed welcome video');
-      videoRef.current.play();
-      setPlaying(true);
+      videoRef.current.play().catch(() => setPlaying(false));
     }
   };
 
@@ -196,7 +196,7 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
         ref={videoRef}
         src="/videos/welcome.mp4"
         autoPlay
-        muted
+        muted={muted}
         loop
         playsInline
         className="w-full block"
