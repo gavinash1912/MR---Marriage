@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FloralLeft, FloralRight, FloralTopBanner, FloralSprig } from '../components/FloralDecor';
-import { Calendar, MapPin, Clock, Play, Pause } from 'lucide-react';
+import {
+  Calendar, MapPin, Clock, Play, Pause, Volume1, Volume2, VolumeX,
+  Settings, Maximize
+} from 'lucide-react';
 import { trackEvent, useVisitAnalytics } from '../utils/analytics';
 
 // ── Countdown hook ──────────────────────────────────────────────────────────
@@ -34,19 +37,31 @@ function CountdownBlock({ value, label }) {
   );
 }
 
-// ── Video player — starts with sound, click to mute/unmute or pause ─────────
+// ── Streaming-style video player ─────────────────────────────────────────────
 function WelcomeVideo({ visitId, onAction = () => {} }) {
-  const videoRef             = useRef(null);
-  const progressRef          = useRef(null);
-  const [muted,   setMuted]  = useState(false);
-  const [playing, setPlaying]= useState(false);
+  const wrapperRef = useRef(null);
+  const videoRef = useRef(null);
+  const progressRef = useRef(null);
+  const controlsTimerRef = useRef(null);
+  const draggingRef = useRef(false);
+  const lastVolumeRef = useRef(1);
+  const fullscreenStateRef = useRef(false);
+  const watchedMilestonesRef = useRef(new Set());
+
+  const [muted, setMuted] = useState(false);
+  const [volume, setVolume] = useState(1);
+  const [playing, setPlaying] = useState(false);
   const [hasVideo, setHasVideo] = useState(false);
   const [hasTrackedPlay, setHasTrackedPlay] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [bufferedPercent, setBufferedPercent] = useState(0);
   const [hoverTime, setHoverTime] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const watchedMilestonesRef = useRef(new Set());
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     fetch('/videos/welcome.mp4', { method: 'HEAD' })
@@ -56,9 +71,82 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
 
   useEffect(() => {
     if (hasVideo && videoRef.current) {
-      videoRef.current.play().catch(() => setPlaying(false));
+      const video = videoRef.current;
+
+      video.play().catch(() => {
+        video.muted = true;
+        setMuted(true);
+        video.play().catch(() => setPlaying(false));
+      });
     }
   }, [hasVideo]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const updateFullscreenState = (nextFullscreen, mode) => {
+      if (fullscreenStateRef.current === nextFullscreen) return;
+
+      fullscreenStateRef.current = nextFullscreen;
+      setIsFullscreen(nextFullscreen);
+      onAction(
+        nextFullscreen ? 'video_fullscreen_enter' : 'video_fullscreen_exit',
+        nextFullscreen ? 'Entered video fullscreen' : 'Exited video fullscreen',
+        {
+          mode,
+          currentTime: Math.round(videoRef.current?.currentTime || 0),
+        }
+      );
+    };
+
+    const handleFullscreenChange = () => {
+      updateFullscreenState(document.fullscreenElement === wrapperRef.current, 'browser');
+    };
+    const handleWebkitBeginFullscreen = () => updateFullscreenState(true, 'native');
+    const handleWebkitEndFullscreen = () => updateFullscreenState(false, 'native');
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    video?.addEventListener('webkitbeginfullscreen', handleWebkitBeginFullscreen);
+    video?.addEventListener('webkitendfullscreen', handleWebkitEndFullscreen);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      video?.removeEventListener('webkitbeginfullscreen', handleWebkitBeginFullscreen);
+      video?.removeEventListener('webkitendfullscreen', handleWebkitEndFullscreen);
+    };
+  }, [hasVideo, onAction]);
+
+  useEffect(() => () => clearTimeout(controlsTimerRef.current), []);
+
+  useEffect(() => {
+    clearTimeout(controlsTimerRef.current);
+
+    if (!playing || settingsOpen || isDragging) {
+      setControlsVisible(true);
+      return undefined;
+    }
+
+    controlsTimerRef.current = setTimeout(() => setControlsVisible(false), 2600);
+    return () => clearTimeout(controlsTimerRef.current);
+  }, [playing, settingsOpen, isDragging]);
+
+  const formatTime = (time) => {
+    if (!Number.isFinite(time) || time < 0) return '0:00';
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const seconds = Math.floor(time % 60);
+    const minutePart = hours ? String(minutes).padStart(2, '0') : String(minutes);
+
+    return `${hours ? `${hours}:` : ''}${minutePart}:${String(seconds).padStart(2, '0')}`;
+  };
+
+  const revealControls = () => {
+    setControlsVisible(true);
+    clearTimeout(controlsTimerRef.current);
+
+    if (playing && !settingsOpen && !draggingRef.current) {
+      controlsTimerRef.current = setTimeout(() => setControlsVisible(false), 2600);
+    }
+  };
 
   const handleTimeUpdate = () => {
     if (videoRef.current && !isDragging) {
@@ -87,97 +175,185 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
     }
   };
 
+  const handleProgress = () => {
+    const video = videoRef.current;
+    if (!video?.duration || !video.buffered.length) return;
+
+    const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+    setBufferedPercent(Math.min(100, (bufferedEnd / video.duration) * 100));
+  };
+
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
       setDuration(videoRef.current.duration);
+      videoRef.current.volume = volume;
     }
   };
 
-  const handleProgressMouseMove = (e) => {
-    if (!duration || !progressRef.current) return;
+  const getSeekTime = (clientX) => {
+    if (!duration || !progressRef.current) return 0;
     const rect = progressRef.current.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    setHoverTime(percent * duration);
+    const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return percent * duration;
   };
 
-  const handleProgressMouseLeave = () => {
-    setHoverTime(null);
+  const seekToClientX = (clientX) => {
+    if (!videoRef.current) return;
+    const nextTime = getSeekTime(clientX);
+    videoRef.current.currentTime = nextTime;
+    setCurrentTime(nextTime);
   };
 
-  const handleSeek = (e) => {
-    e.stopPropagation();
-    const rect = e.currentTarget.getBoundingClientRect();
-    const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    if (videoRef.current) {
-      videoRef.current.currentTime = percent * videoRef.current.duration;
-      setCurrentTime(percent * duration);
-      onAction('video_seek', `Seeked video to ${formatTime(percent * duration)}`, {
-        toSeconds: Math.round(percent * duration),
-      });
-    }
-  };
-
-  const handleDragStart = (e) => {
+  const handleProgressPointerDown = (e) => {
     e.stopPropagation();
     e.preventDefault();
+    draggingRef.current = true;
     setIsDragging(true);
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    seekToClientX(e.clientX);
+    revealControls();
   };
 
-  const handleDragMove = (e) => {
-    if (!isDragging || !videoRef.current) return;
-    const rect = progressRef.current.getBoundingClientRect();
-    const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    videoRef.current.currentTime = percent * duration;
-    setCurrentTime(percent * duration);
+  const handleProgressPointerMove = (e) => {
+    if (e.pointerType === 'mouse') {
+      setHoverTime(getSeekTime(e.clientX));
+    }
+    if (draggingRef.current) {
+      seekToClientX(e.clientX);
+    }
   };
 
-  const handleDragEnd = () => {
-    if (isDragging && videoRef.current) {
-      onAction('video_seek', `Dragged video to ${formatTime(videoRef.current.currentTime)}`, {
+  const handleProgressPointerUp = (e) => {
+    e.stopPropagation();
+    if (draggingRef.current && videoRef.current) {
+      seekToClientX(e.clientX);
+      onAction('video_seek', `Seeked video to ${formatTime(videoRef.current.currentTime)}`, {
         toSeconds: Math.round(videoRef.current.currentTime),
       });
     }
+    draggingRef.current = false;
     setIsDragging(false);
+    revealControls();
   };
 
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleDragMove);
-      document.addEventListener('mouseup', handleDragEnd);
-      return () => {
-        document.removeEventListener('mousemove', handleDragMove);
-        document.removeEventListener('mouseup', handleDragEnd);
-      };
-    }
-  }, [isDragging, duration]);
-
-  const formatTime = (time) => {
-    if (!time || isNaN(time)) return '0:00';
-    const mins = Math.floor(time / 60);
-    const secs = Math.floor(time % 60);
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  const handleProgressPointerCancel = () => {
+    draggingRef.current = false;
+    setIsDragging(false);
+    revealControls();
   };
 
   const toggleMute = (e) => {
-    e.stopPropagation();
+    e?.stopPropagation();
     if (!videoRef.current) return;
-    const nextMuted = !muted;
+    const nextMuted = !muted && volume > 0;
+
+    if (!nextMuted && volume === 0) {
+      const restoredVolume = lastVolumeRef.current || 1;
+      videoRef.current.volume = restoredVolume;
+      setVolume(restoredVolume);
+    }
+
     videoRef.current.muted = nextMuted;
     onAction(muted ? 'video_unmute' : 'video_mute', muted ? 'Unmuted welcome video' : 'Muted welcome video');
     setMuted(nextMuted);
+    revealControls();
   };
 
-  const togglePlay = () => {
+  const handleVolumeChange = (e) => {
+    e.stopPropagation();
+    const nextVolume = Number(e.target.value);
     if (!videoRef.current) return;
-    if (playing) {
+
+    videoRef.current.volume = nextVolume;
+    videoRef.current.muted = nextVolume === 0;
+    setVolume(nextVolume);
+    setMuted(nextVolume === 0);
+    if (nextVolume > 0) lastVolumeRef.current = nextVolume;
+  };
+
+  const togglePlay = (e) => {
+    e?.stopPropagation();
+    if (!videoRef.current) return;
+    setSettingsOpen(false);
+    if (!videoRef.current.paused) {
       onAction('video_pause', 'Paused welcome video');
       videoRef.current.pause();
       setPlaying(false);
+      setControlsVisible(true);
     } else {
       onAction('video_resume', 'Resumed welcome video');
       videoRef.current.play().catch(() => setPlaying(false));
+      revealControls();
     }
   };
+
+  const changePlaybackRate = (rate) => {
+    if (!videoRef.current) return;
+    videoRef.current.playbackRate = rate;
+    setPlaybackRate(rate);
+    setSettingsOpen(false);
+    onAction('video_playback_rate', `Changed playback speed to ${rate}x`, { rate });
+    revealControls();
+  };
+
+  const toggleFullscreen = async (e) => {
+    e?.stopPropagation();
+    setSettingsOpen(false);
+
+    if (document.fullscreenElement) {
+      await document.exitFullscreen?.();
+      return;
+    }
+
+    if (wrapperRef.current?.requestFullscreen) {
+      await wrapperRef.current.requestFullscreen();
+    } else if (videoRef.current?.webkitEnterFullscreen) {
+      videoRef.current.webkitEnterFullscreen();
+    }
+    revealControls();
+  };
+
+  const skipBy = (seconds) => {
+    if (!videoRef.current) return;
+    const nextTime = Math.max(0, Math.min(duration, videoRef.current.currentTime + seconds));
+    videoRef.current.currentTime = nextTime;
+    setCurrentTime(nextTime);
+    onAction('video_seek', `${seconds > 0 ? 'Skipped forward' : 'Skipped back'} ${Math.abs(seconds)} seconds`, {
+      toSeconds: Math.round(nextTime),
+    });
+    revealControls();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.target !== e.currentTarget) return;
+    const key = e.key.toLowerCase();
+    if ([' ', 'k', 'm', 'f', 'arrowleft', 'arrowright'].includes(key)) {
+      e.preventDefault();
+    }
+
+    if (key === ' ' || key === 'k') togglePlay();
+    if (key === 'm') toggleMute();
+    if (key === 'f') toggleFullscreen();
+    if (key === 'arrowleft') skipBy(-5);
+    if (key === 'arrowright') skipBy(5);
+  };
+
+  const handleProgressKeyDown = (e) => {
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      e.stopPropagation();
+      skipBy(-5);
+    }
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      e.stopPropagation();
+      skipBy(5);
+    }
+  };
+
+  const VolumeIcon = muted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
+  const playedPercent = duration ? Math.min(100, (currentTime / duration) * 100) : 0;
+  const chromeVisible = controlsVisible || !playing || settingsOpen || isDragging;
 
   if (!hasVideo) {
     return (
@@ -191,7 +367,18 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
   }
 
   return (
-    <div className="video-wrapper group cursor-pointer" onClick={togglePlay}>
+    <div
+      ref={wrapperRef}
+      className={`video-wrapper stream-player ${chromeVisible ? 'stream-player--active' : ''}`}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      onFocus={revealControls}
+      onPointerMove={revealControls}
+      onMouseLeave={() => {
+        if (playing && !settingsOpen && !draggingRef.current) setControlsVisible(false);
+      }}
+      aria-label="Welcome invitation video player"
+    >
       <video
         ref={videoRef}
         src="/videos/welcome.mp4"
@@ -201,99 +388,170 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
         playsInline
         className="w-full block"
         onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
+        onPause={() => {
+          setPlaying(false);
+          setControlsVisible(true);
+        }}
+        onClick={togglePlay}
         onTimeUpdate={handleTimeUpdate}
+        onProgress={handleProgress}
         onLoadedMetadata={handleLoadedMetadata}
       />
 
-      {/* YouTube-style progress bar */}
-      <div
-        ref={progressRef}
-        className="youtube-seek"
-        onClick={handleSeek}
-        onMouseMove={handleProgressMouseMove}
-        onMouseLeave={handleProgressMouseLeave}
-        aria-label="Seek video"
-      >
-        <div className="youtube-seek__track">
-          <div className="youtube-seek__loaded" />
-          <div
-            className="youtube-seek__played"
-            style={{ width: duration ? `${(currentTime / duration) * 100}%` : '0%' }}
-          />
-
-          {hoverTime !== null && (
-            <div
-              className="youtube-seek__hover"
-              style={{ left: duration ? `${(hoverTime / duration) * 100}%` : '0%' }}
-            />
-          )}
-        </div>
-
-        <div
-          className="youtube-seek__thumb"
-          style={{ left: duration ? `${(currentTime / duration) * 100}%` : '0%' }}
-          onMouseDown={handleDragStart}
-        />
+      <div className={`stream-top-chrome ${chromeVisible ? 'is-visible' : ''}`}>
+        <p className="stream-video-title">Avinash &amp; Ananya</p>
+        <p className="stream-video-subtitle">Welcome Invitation</p>
       </div>
 
-      {/* Time tooltip on hover */}
-      {hoverTime !== null && (
-        <div
-          className="absolute bottom-6 left-0 z-30 text-white text-xs bg-black/90 px-2 py-1 rounded-sm shadow pointer-events-none"
-          style={{
-            left: duration ? `${(hoverTime / duration) * 100}%` : '0',
-            transform: 'translateX(-50%)',
-          }}
+      {!playing && (
+        <button
+          type="button"
+          onClick={togglePlay}
+          className="stream-center-play"
+          aria-label="Play video"
+          title="Play"
         >
-          {formatTime(hoverTime)}
-        </div>
+          <Play className="w-8 h-8 ml-1" fill="currentColor" />
+        </button>
       )}
 
-      {/* Current time and duration display */}
-      <div className="absolute bottom-12 left-4 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-        {formatTime(currentTime)} / {formatTime(duration)}
-      </div>
-
-      {/* Controls overlay — visible on hover */}
-      <div className="absolute inset-0 flex items-end justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-t from-black/20 to-transparent">
-        {/* Play/pause */}
-        <div className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow">
-          {playing
-            ? <Pause className="w-4 h-4 text-mauve-700" />
-            : <Play  className="w-4 h-4 text-mauve-700 ml-0.5" />
-          }
+      <div className={`stream-bottom-chrome ${chromeVisible ? 'is-visible' : ''}`}>
+        <div
+          ref={progressRef}
+          className="stream-progress"
+          role="slider"
+          tabIndex={0}
+          aria-label="Video progress"
+          aria-valuemin={0}
+          aria-valuemax={Math.round(duration || 0)}
+          aria-valuenow={Math.round(currentTime)}
+          onKeyDown={handleProgressKeyDown}
+          onPointerDown={handleProgressPointerDown}
+          onPointerMove={handleProgressPointerMove}
+          onPointerUp={handleProgressPointerUp}
+          onPointerCancel={handleProgressPointerCancel}
+          onPointerLeave={() => {
+            if (!draggingRef.current) setHoverTime(null);
+          }}
+        >
+          <div className="stream-progress__track">
+            <div className="stream-progress__buffered" style={{ width: `${bufferedPercent}%` }} />
+            <div className="stream-progress__played" style={{ width: `${playedPercent}%` }} />
+            <div className="stream-progress__thumb" style={{ left: `${playedPercent}%` }} />
+          </div>
+          {hoverTime !== null && (
+            <span
+              className="stream-progress__tooltip"
+              style={{ left: `${duration ? (hoverTime / duration) * 100 : 0}%` }}
+            >
+              {formatTime(hoverTime)}
+            </span>
+          )}
         </div>
 
-        {/* Mute/unmute button */}
-        <button
-          onClick={toggleMute}
-          className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow text-mauve-700 hover:bg-white transition-colors"
-          aria-label={muted ? 'Unmute' : 'Mute'}
-        >
-          {muted ? (
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M11 5L6 9H2v6h4l5 4V5z"/>
-              <line x1="23" y1="9" x2="17" y2="15"/>
-              <line x1="17" y1="9" x2="23" y2="15"/>
-            </svg>
-          ) : (
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M11 5L6 9H2v6h4l5 4V5z"/>
-              <path d="M19.07 4.93a10 10 0 010 14.14"/>
-              <path d="M15.54 8.46a5 5 0 010 7.07"/>
-            </svg>
-          )}
-        </button>
-      </div>
+        <div className="stream-controls">
+          <div className="stream-controls__group">
+            <button
+              type="button"
+              onClick={togglePlay}
+              className="stream-control-button"
+              aria-label={playing ? 'Pause video' : 'Play video'}
+              title={playing ? 'Pause' : 'Play'}
+            >
+              {playing
+                ? <Pause className="w-5 h-5" fill="currentColor" />
+                : <Play className="w-5 h-5 ml-0.5" fill="currentColor" />
+              }
+            </button>
 
-      {/* Paused overlay */}
-      {!playing && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg">
-            <Play className="w-6 h-6 text-mauve-700 ml-1" />
+            <div className="stream-volume">
+              <button
+                type="button"
+                onClick={toggleMute}
+                className="stream-control-button"
+                aria-label={muted ? 'Unmute video' : 'Mute video'}
+                title={muted ? 'Unmute' : 'Mute'}
+              >
+                <VolumeIcon className="w-5 h-5" />
+              </button>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={muted ? 0 : volume}
+                onClick={e => e.stopPropagation()}
+                onChange={handleVolumeChange}
+                onPointerUp={() => onAction('video_volume', `Changed video volume to ${Math.round(volume * 100)}%`, {
+                  volume: Math.round(volume * 100),
+                })}
+                className="stream-volume__slider"
+                aria-label="Video volume"
+              />
+            </div>
+
+            <span className="stream-time">
+              {formatTime(currentTime)} <span>/</span> {formatTime(duration)}
+            </span>
+          </div>
+
+          <div className="stream-controls__group">
+            <div className="stream-settings-wrap">
+              {settingsOpen && (
+                <div className="stream-settings-menu" onClick={e => e.stopPropagation()}>
+                  <p className="stream-settings-menu__title">Playback speed</p>
+                  {[0.75, 1, 1.25, 1.5, 2].map(rate => (
+                    <button
+                      type="button"
+                      key={rate}
+                      onClick={() => changePlaybackRate(rate)}
+                      className={playbackRate === rate ? 'is-active' : ''}
+                    >
+                      <span>{rate === 1 ? 'Normal' : `${rate}x`}</span>
+                      {playbackRate === rate && <span aria-hidden="true">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSettingsOpen(open => !open);
+                  setControlsVisible(true);
+                }}
+                className={`stream-control-button ${settingsOpen ? 'is-active' : ''}`}
+                aria-label="Playback settings"
+                aria-expanded={settingsOpen}
+                title="Playback settings"
+              >
+                <Settings className="w-5 h-5" />
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              className="stream-control-button"
+              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            >
+              <Maximize className="w-5 h-5" />
+            </button>
           </div>
         </div>
+      </div>
+
+      {!chromeVisible && (
+        <button
+          type="button"
+          className="stream-tap-layer"
+          onClick={(e) => {
+            e.stopPropagation();
+            revealControls();
+          }}
+          aria-label="Show video controls"
+        />
       )}
     </div>
   );
