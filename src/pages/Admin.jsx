@@ -2,9 +2,11 @@ import { Fragment, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {
   Users, Check, X, Search, Download, RefreshCw,
-  ChevronDown, ChevronUp, Trash2, Mail, Phone, MessageSquare,
+  ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Trash2, Mail, Phone, MessageSquare,
   Pencil, Save, XCircle, Plus, Minus, MapPin, Smartphone, Eye
 } from 'lucide-react';
+
+const VISITOR_PAGE_SIZE = 50;
 
 // ── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ label, value, sub, color = 'mauve' }) {
@@ -366,35 +368,13 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState('rsvp');
   const [timeFilter, setTimeFilter] = useState('all'); // all, 15m, 30m, 1h, 6h, 1d
   const [expandedVisits, setExpandedVisits] = useState({});
-
-  const getFilteredVisitors = () => {
-    if (timeFilter === 'all') return visitors;
-
-    const now = new Date();
-    let cutoffTime = new Date();
-
-    switch (timeFilter) {
-      case '15m':
-        cutoffTime.setMinutes(now.getMinutes() - 15);
-        break;
-      case '30m':
-        cutoffTime.setMinutes(now.getMinutes() - 30);
-        break;
-      case '1h':
-        cutoffTime.setHours(now.getHours() - 1);
-        break;
-      case '6h':
-        cutoffTime.setHours(now.getHours() - 6);
-        break;
-      case '1d':
-        cutoffTime.setDate(now.getDate() - 1);
-        break;
-      default:
-        return visitors;
-    }
-
-    return visitors.filter(v => new Date(v.visitedAt) >= cutoffTime);
-  };
+  const [visitorPage, setVisitorPage] = useState(1);
+  const [visitorPagination, setVisitorPagination] = useState({
+    page: 1,
+    pageSize: VISITOR_PAGE_SIZE,
+    totalVisitors: 0,
+    totalPages: 1,
+  });
 
   const getFilteredAnalytics = () => {
     return {
@@ -422,17 +402,34 @@ export default function Admin() {
   const fetchAnalytics = useCallback(async () => {
     try {
       const query = timeFilter === 'all' ? '' : `?timeFilter=${encodeURIComponent(timeFilter)}`;
-      const detailsQuery = timeFilter === 'all'
-        ? '?details=true'
-        : `?details=true&timeFilter=${encodeURIComponent(timeFilter)}`;
       const res = await axios.get(`/api/analytics${query}`);
       setAnalytics(res.data);
-      const visitorRes = await axios.get(`/api/analytics${detailsQuery}`);
-      setVisitors(visitorRes.data.visitors || []);
     } catch {
       console.error('Failed to fetch analytics');
     }
   }, [timeFilter]);
+
+  const fetchVisitors = useCallback(async () => {
+    try {
+      const detailsTimeQuery = timeFilter === 'all'
+        ? ''
+        : `&timeFilter=${encodeURIComponent(timeFilter)}`;
+      const detailsQuery = `?details=true&page=${visitorPage}&pageSize=${VISITOR_PAGE_SIZE}${detailsTimeQuery}`;
+      const visitorRes = await axios.get(`/api/analytics${detailsQuery}`);
+      setVisitors(visitorRes.data.visitors || []);
+      setVisitorPagination(visitorRes.data.pagination || {
+        page: 1,
+        pageSize: VISITOR_PAGE_SIZE,
+        totalVisitors: visitorRes.data.visitors?.length || 0,
+        totalPages: 1,
+      });
+      if (visitorRes.data.pagination?.page && visitorRes.data.pagination.page !== visitorPage) {
+        setVisitorPage(visitorRes.data.pagination.page);
+      }
+    } catch {
+      console.error('Failed to fetch visitor logs');
+    }
+  }, [timeFilter, visitorPage]);
 
   useEffect(() => {
     fetchRsvps();
@@ -441,6 +438,10 @@ export default function Admin() {
   useEffect(() => {
     fetchAnalytics();
   }, [fetchAnalytics]);
+
+  useEffect(() => {
+    fetchVisitors();
+  }, [fetchVisitors]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this RSVP entry?')) return;
@@ -501,7 +502,7 @@ export default function Admin() {
       return 0;
     });
 
-  const filteredVisitors = getFilteredVisitors();
+  const filteredVisitors = visitors;
   const filteredAnalytics = getFilteredAnalytics();
   const toggleVisitExpanded = (id) => {
     setExpandedVisits(prev => ({ ...prev, [id]: !prev[id] }));
@@ -531,7 +532,7 @@ export default function Admin() {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => { fetchRsvps(); fetchAnalytics(); }}
+              onClick={() => { fetchRsvps(); fetchAnalytics(); fetchVisitors(); }}
               className="flex items-center gap-1.5 btn-secondary text-xs px-4 py-2"
             >
               <RefreshCw className="w-3.5 h-3.5" /> Refresh
@@ -566,7 +567,7 @@ export default function Admin() {
                 : 'bg-white text-mauve-600 hover:bg-mauve-50'
             }`}
           >
-            Visit Logs ({filteredVisitors.length})
+            Visit Logs ({visitorPagination.totalVisitors})
           </button>
         </div>
 
@@ -576,7 +577,11 @@ export default function Admin() {
             <label className="font-sans text-xs tracking-widest uppercase text-mauve-500 mr-3">Filter by:</label>
             <select
               value={timeFilter}
-              onChange={(e) => setTimeFilter(e.target.value)}
+              onChange={(e) => {
+                setTimeFilter(e.target.value);
+                setVisitorPage(1);
+                setExpandedVisits({});
+              }}
               className="form-input py-2 text-sm w-auto"
             >
               <option value="15m">Past 15 minutes</option>
@@ -724,7 +729,7 @@ export default function Admin() {
               <div className="py-20 text-center">
                 <Eye className="w-10 h-10 text-mauve-200 mx-auto mb-3" />
                 <p className="font-sans text-sm text-mauve-400">
-                  {visitors.length === 0 ? 'No visit logs yet' : 'No visit logs in this time range'}
+                  {timeFilter === 'all' ? 'No visit logs yet' : 'No visit logs in this time range'}
                 </p>
               </div>
             ) : (
@@ -825,10 +830,41 @@ export default function Admin() {
             )}
 
             {filteredVisitors.length > 0 && (
-              <div className="px-4 py-3 border-t border-mauve-100 bg-mauve-50/40">
+              <div className="px-4 py-3 border-t border-mauve-100 bg-mauve-50/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <p className="font-sans text-xs text-mauve-400">
-                  Showing {filteredVisitors.length} visit log{filteredVisitors.length !== 1 ? 's' : ''} {timeFilter !== 'all' && `(${timeFilter})`}
+                  Showing {((visitorPagination.page - 1) * visitorPagination.pageSize) + 1}–
+                  {Math.min(visitorPagination.page * visitorPagination.pageSize, visitorPagination.totalVisitors)}
+                  {' '}of {visitorPagination.totalVisitors} visit logs
                 </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVisitorPage(page => Math.max(1, page - 1));
+                      setExpandedVisits({});
+                    }}
+                    disabled={visitorPagination.page <= 1}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 border border-mauve-200 text-mauve-600 text-xs font-sans disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-colors"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    Previous
+                  </button>
+                  <span className="font-sans text-xs text-mauve-500 min-w-20 text-center">
+                    Page {visitorPagination.page} of {visitorPagination.totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVisitorPage(page => Math.min(visitorPagination.totalPages, page + 1));
+                      setExpandedVisits({});
+                    }}
+                    disabled={visitorPagination.page >= visitorPagination.totalPages}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 border border-mauve-200 text-mauve-600 text-xs font-sans disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-colors"
+                  >
+                    Next
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             )}
           </div>

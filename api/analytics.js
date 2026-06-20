@@ -102,8 +102,27 @@ async function fetchJson(url, options = {}) {
   }
 }
 
-function formatLocation(city, country) {
-  return [city, country].filter(Boolean).join(', ') || null;
+function formatLocation(city, region, country, countryCode) {
+  const normalizedCountry = String(country || '').trim().toLowerCase();
+  const normalizedCountryCode = String(countryCode || '').trim().toUpperCase();
+  const isUnitedStates = (
+    normalizedCountryCode === 'US' ||
+    normalizedCountry === 'united states' ||
+    normalizedCountry === 'united states of america' ||
+    normalizedCountry === 'usa' ||
+    normalizedCountry === 'us'
+  );
+  const parts = isUnitedStates ? [city, region, country] : [city, country];
+
+  return parts.filter(Boolean).join(', ') || null;
+}
+
+function getPositiveInteger(value, fallback, max = Number.MAX_SAFE_INTEGER) {
+  const rawValue = Array.isArray(value) ? value[0] : value;
+  const parsedValue = Number.parseInt(rawValue, 10);
+
+  if (!Number.isFinite(parsedValue) || parsedValue < 1) return fallback;
+  return Math.min(parsedValue, max);
 }
 
 function getKeyCdnUserAgent() {
@@ -164,7 +183,9 @@ async function getLocationFromIP(ip) {
     {
       name: 'ipwho.is',
       url: `https://ipwho.is/${encodedIp}`,
-      parse: data => data?.success ? formatLocation(data.city, data.country) : null,
+      parse: data => data?.success
+        ? formatLocation(data.city, data.region, data.country, data.country_code)
+        : null,
     },
     {
       name: 'KeyCDN',
@@ -176,7 +197,9 @@ async function getLocationFromIP(ip) {
       },
       parse: data => {
         const geo = data?.data?.geo || data?.body?.geo;
-        return data?.status === 'success' ? formatLocation(geo?.city, geo?.country_name) : null;
+        return data?.status === 'success'
+          ? formatLocation(geo?.city, geo?.region_name, geo?.country_name, geo?.country_code)
+          : null;
       },
     },
   ];
@@ -286,9 +309,17 @@ export default async function handler(req, res) {
 
       // Check for detailed visitor logs first
       if (req.query.details === 'true') {
+        const requestedPage = getPositiveInteger(req.query.page, 1);
+        const pageSize = getPositiveInteger(req.query.pageSize, 10, 100);
+        const detailsQuery = { ...timeQuery, eventType: 'page_view' };
+        const totalVisitors = await col.countDocuments(detailsQuery);
+        const totalPages = Math.max(1, Math.ceil(totalVisitors / pageSize));
+        const page = Math.min(requestedPage, totalPages);
         const events = await col
-          .find({ ...timeQuery, eventType: 'page_view' })
+          .find(detailsQuery)
           .sort({ timestamp: -1 })
+          .skip((page - 1) * pageSize)
+          .limit(pageSize)
           .toArray();
 
         const visitIds = events.map(event => event.visitId).filter(Boolean);
@@ -329,7 +360,15 @@ export default async function handler(req, res) {
           visitedAt: event.timestamp,
         }));
 
-        return res.status(200).json({ visitors });
+        return res.status(200).json({
+          visitors,
+          pagination: {
+            page,
+            pageSize,
+            totalVisitors,
+            totalPages,
+          },
+        });
       }
 
       // Default: return analytics summary
