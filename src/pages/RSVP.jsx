@@ -250,18 +250,18 @@ export default function RSVP() {
               <button
                 type="button"
                 onClick={addGuestFromConfirmation}
-                className="btn-primary w-full flex items-center justify-center gap-2"
+                className="w-full flex items-center justify-center gap-2 border border-gray-300 bg-gray-100 text-gray-800 px-6 py-3 font-sans text-sm hover:bg-gray-200 transition-colors"
                 autoFocus
               >
                 <Users className="w-4 h-4" />
-                Add guests
+                Add Guests
               </button>
               <button
                 type="button"
                 onClick={confirmSoloAttendance}
-                className="btn-secondary w-full"
+                className="w-full flex items-center justify-center border border-gray-300 bg-gray-100 text-gray-800 px-6 py-3 font-sans text-sm hover:bg-gray-200 transition-colors"
               >
-                Yes, just me
+                Yes, Just Me
               </button>
             </div>
           </div>
@@ -365,7 +365,7 @@ export default function RSVP() {
                   </div>
                   <div className="text-left">
                     <p className="font-sans text-sm font-semibold text-mauve-800">
-                      Is anyone coming with you?
+                      Is anyone accompanying you?
                     </p>
                     <p className="font-sans text-xs text-mauve-500 mt-1">
                       Add your spouse, children, family members, or other accompanying guests.
@@ -389,7 +389,7 @@ export default function RSVP() {
                 </div>
                 <p className="font-sans text-xs text-mauve-400 mt-3">
                   {additionalNum === 0
-                    ? 'Currently: just you'
+                    ? 'Currently : Just Me !'
                     : `${additionalNum} additional guest${additionalNum === 1 ? '' : 's'}`}
                 </p>
 
@@ -397,30 +397,34 @@ export default function RSVP() {
                 {additionals.length > 0 && (
                   <div className="mt-4 space-y-3">
                     {additionals.map((g, i) => (
-                      <div key={i} className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="form-label flex items-center gap-1.5">
-                            <Users className="w-3.5 h-3.5" /> Guest {i + 1} First Name *
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            className="form-input text-sm"
-                            placeholder="First name"
-                            value={g.firstName}
-                            onChange={e => updateAdditional(i, 'firstName', e.target.value)}
-                            aria-invalid={!g.firstName.trim()}
-                          />
-                        </div>
-                        <div>
-                          <label className="form-label">Last Name</label>
-                          <input
-                            type="text"
-                            className="form-input text-sm"
-                            placeholder="Last name"
-                            value={g.lastName}
-                            onChange={e => updateAdditional(i, 'lastName', e.target.value)}
-                          />
+                      <div key={i} className="rounded border border-mauve-100 p-3">
+                        <p className="flex items-center gap-1.5 font-sans text-xs font-semibold text-mauve-600 mb-3">
+                          <Users className="w-3.5 h-3.5" />
+                          Guest {i + 1}
+                        </p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="min-w-0">
+                            <label className="form-label whitespace-nowrap">First Name *</label>
+                            <input
+                              type="text"
+                              required
+                              className="form-input text-sm"
+                              placeholder="First name"
+                              value={g.firstName}
+                              onChange={e => updateAdditional(i, 'firstName', e.target.value)}
+                              aria-invalid={!g.firstName.trim()}
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <label className="form-label whitespace-nowrap">Last Name</label>
+                            <input
+                              type="text"
+                              className="form-input text-sm"
+                              placeholder="Last name"
+                              value={g.lastName}
+                              onChange={e => updateAdditional(i, 'lastName', e.target.value)}
+                            />
+                          </div>
                         </div>
                       </div>
                     ))}
