@@ -367,6 +367,10 @@ export default function Admin() {
   const [visitors, setVisitors] = useState([]);
   const [activeTab, setActiveTab] = useState('rsvp');
   const [timeFilter, setTimeFilter] = useState('all'); // all, 15m, 30m, 1h, 6h, 1d
+  const [visitorIpInput, setVisitorIpInput] = useState('');
+  const [visitorLocationInput, setVisitorLocationInput] = useState('');
+  const [visitorIpFilter, setVisitorIpFilter] = useState('');
+  const [visitorLocationFilter, setVisitorLocationFilter] = useState('');
   const [expandedVisits, setExpandedVisits] = useState({});
   const [visitorPage, setVisitorPage] = useState(1);
   const [visitorPagination, setVisitorPagination] = useState({
@@ -411,11 +415,16 @@ export default function Admin() {
 
   const fetchVisitors = useCallback(async () => {
     try {
-      const detailsTimeQuery = timeFilter === 'all'
-        ? ''
-        : `&timeFilter=${encodeURIComponent(timeFilter)}`;
-      const detailsQuery = `?details=true&page=${visitorPage}&pageSize=${VISITOR_PAGE_SIZE}${detailsTimeQuery}`;
-      const visitorRes = await axios.get(`/api/analytics${detailsQuery}`);
+      const params = new URLSearchParams({
+        details: 'true',
+        page: String(visitorPage),
+        pageSize: String(VISITOR_PAGE_SIZE),
+      });
+      if (timeFilter !== 'all') params.set('timeFilter', timeFilter);
+      if (visitorIpFilter) params.set('ip', visitorIpFilter);
+      if (visitorLocationFilter) params.set('location', visitorLocationFilter);
+
+      const visitorRes = await axios.get(`/api/analytics?${params.toString()}`);
       setVisitors(visitorRes.data.visitors || []);
       setVisitorPagination(visitorRes.data.pagination || {
         page: 1,
@@ -429,7 +438,7 @@ export default function Admin() {
     } catch {
       console.error('Failed to fetch visitor logs');
     }
-  }, [timeFilter, visitorPage]);
+  }, [timeFilter, visitorPage, visitorIpFilter, visitorLocationFilter]);
 
   useEffect(() => {
     fetchRsvps();
@@ -507,6 +516,22 @@ export default function Admin() {
   const toggleVisitExpanded = (id) => {
     setExpandedVisits(prev => ({ ...prev, [id]: !prev[id] }));
   };
+  const applyVisitorFilters = (event) => {
+    event.preventDefault();
+    setVisitorIpFilter(visitorIpInput.trim());
+    setVisitorLocationFilter(visitorLocationInput.trim());
+    setVisitorPage(1);
+    setExpandedVisits({});
+  };
+  const clearVisitorFilters = () => {
+    setVisitorIpInput('');
+    setVisitorLocationInput('');
+    setVisitorIpFilter('');
+    setVisitorLocationFilter('');
+    setVisitorPage(1);
+    setExpandedVisits({});
+  };
+  const hasVisitorFilters = Boolean(visitorIpFilter || visitorLocationFilter);
 
   return (
     <div className="min-h-screen bg-mauve-50/30 pt-16 md:pt-20">
@@ -571,27 +596,77 @@ export default function Admin() {
           </button>
         </div>
 
-        {/* Time filter for visitors tab */}
+        {/* Filters for visitors tab */}
         {activeTab === 'visitors' && (
-          <div className="mb-6">
-            <label className="font-sans text-xs tracking-widest uppercase text-mauve-500 mr-3">Filter by:</label>
-            <select
-              value={timeFilter}
-              onChange={(e) => {
-                setTimeFilter(e.target.value);
-                setVisitorPage(1);
-                setExpandedVisits({});
-              }}
-              className="form-input py-2 text-sm w-auto"
-            >
-              <option value="15m">Past 15 minutes</option>
-              <option value="30m">Past 30 minutes</option>
-              <option value="1h">Past 1 hour</option>
-              <option value="6h">Past 6 hours</option>
-              <option value="1d">Past 1 day</option>
-              <option value="all">All time</option>
-            </select>
-          </div>
+          <form
+            onSubmit={applyVisitorFilters}
+            className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[180px_1fr_1fr_auto] gap-3 items-end"
+          >
+            <div>
+              <label className="form-label" htmlFor="visitor-time-filter">Time range</label>
+              <select
+                id="visitor-time-filter"
+                value={timeFilter}
+                onChange={(e) => {
+                  setTimeFilter(e.target.value);
+                  setVisitorPage(1);
+                  setExpandedVisits({});
+                }}
+                className="form-input py-2 text-sm"
+              >
+                <option value="15m">Past 15 minutes</option>
+                <option value="30m">Past 30 minutes</option>
+                <option value="1h">Past 1 hour</option>
+                <option value="6h">Past 6 hours</option>
+                <option value="1d">Past 1 day</option>
+                <option value="all">All time</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="form-label" htmlFor="visitor-ip-filter">IP address</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mauve-300" />
+                <input
+                  id="visitor-ip-filter"
+                  type="search"
+                  value={visitorIpInput}
+                  onChange={e => setVisitorIpInput(e.target.value)}
+                  className="form-input py-2 pl-9 text-sm"
+                  placeholder="e.g. 24.27.98"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="form-label" htmlFor="visitor-location-filter">Location</label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mauve-300" />
+                <input
+                  id="visitor-location-filter"
+                  type="search"
+                  value={visitorLocationInput}
+                  onChange={e => setVisitorLocationInput(e.target.value)}
+                  className="form-input py-2 pl-9 text-sm"
+                  placeholder="City, state, or country"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 sm:col-span-2 lg:col-span-1">
+              <button type="submit" className="btn-primary flex-1 lg:flex-none text-xs px-4 py-2.5">
+                Apply
+              </button>
+              <button
+                type="button"
+                onClick={clearVisitorFilters}
+                disabled={!hasVisitorFilters && !visitorIpInput && !visitorLocationInput}
+                className="btn-secondary flex-1 lg:flex-none text-xs px-4 py-2.5 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Clear
+              </button>
+            </div>
+          </form>
         )}
 
         {/* RSVP Tab Content */}
@@ -729,7 +804,11 @@ export default function Admin() {
               <div className="py-20 text-center">
                 <Eye className="w-10 h-10 text-mauve-200 mx-auto mb-3" />
                 <p className="font-sans text-sm text-mauve-400">
-                  {timeFilter === 'all' ? 'No visit logs yet' : 'No visit logs in this time range'}
+                  {hasVisitorFilters
+                    ? 'No visit logs match these filters'
+                    : timeFilter === 'all'
+                      ? 'No visit logs yet'
+                      : 'No visit logs in this time range'}
                 </p>
               </div>
             ) : (
