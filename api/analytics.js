@@ -125,6 +125,15 @@ function getPositiveInteger(value, fallback, max = Number.MAX_SAFE_INTEGER) {
   return Math.min(parsedValue, max);
 }
 
+function getQueryText(value, maxLength = 100) {
+  const rawValue = Array.isArray(value) ? value[0] : value;
+  return String(rawValue || '').trim().slice(0, maxLength);
+}
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function getKeyCdnUserAgent() {
   const siteUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
@@ -312,6 +321,16 @@ export default async function handler(req, res) {
         const requestedPage = getPositiveInteger(req.query.page, 1);
         const pageSize = getPositiveInteger(req.query.pageSize, 10, 100);
         const detailsQuery = { ...timeQuery, eventType: 'page_view' };
+        const ipFilter = getQueryText(req.query.ip);
+        const locationFilter = getQueryText(req.query.location);
+
+        if (ipFilter) {
+          detailsQuery.ipAddress = { $regex: escapeRegex(ipFilter), $options: 'i' };
+        }
+        if (locationFilter) {
+          detailsQuery.location = { $regex: escapeRegex(locationFilter), $options: 'i' };
+        }
+
         const totalVisitors = await col.countDocuments(detailsQuery);
         const totalPages = Math.max(1, Math.ceil(totalVisitors / pageSize));
         const page = Math.min(requestedPage, totalPages);

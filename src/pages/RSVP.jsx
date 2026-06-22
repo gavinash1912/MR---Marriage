@@ -61,12 +61,15 @@ export default function RSVP() {
     sections: ['RSVP Header', 'RSVP Form'],
   });
   const startedRef = useRef(false);
+  const additionalGuestsRef = useRef(null);
   const [step,          setStep]         = useState(1);
   const [firstName,     setFirstName]    = useState('');
   const [lastName,      setLastName]     = useState('');
   const [attending,     setAttending]    = useState('');
   const [additionalNum, setAdditionalNum]= useState(0);
   const [additionals,   setAdditionals]  = useState([]);
+  const [showGuestConfirm, setShowGuestConfirm] = useState(false);
+  const [confirmedSolo, setConfirmedSolo] = useState(false);
   const [contact,       setContact]      = useState({ phone: '', email: '', notes: '' });
   const [submitting,    setSubmitting]   = useState(false);
   const [submitted,     setSubmitted]    = useState(false);
@@ -81,6 +84,7 @@ export default function RSVP() {
   const handleAdditionalNumChange = (n) => {
     trackRsvpStarted();
     const num = Math.max(0, Math.min(8, n));
+    setConfirmedSolo(false);
     setAdditionalNum(num);
     setAdditionals(Array.from({ length: num }, (_, i) => additionals[i] || blankGuest()));
   };
@@ -90,7 +94,54 @@ export default function RSVP() {
     setAdditionals(prev => prev.map((g, idx) => idx === i ? { ...g, [field]: value } : g));
   };
 
-  const step1Valid = () => firstName.trim() && lastName.trim() && attending !== '';
+  const additionalGuestsValid = () => (
+    additionalNum === 0 || additionals.every(guest => guest.firstName.trim())
+  );
+
+  const step1Valid = () => Boolean(
+    firstName.trim() &&
+    lastName.trim() &&
+    attending !== '' &&
+    (attending !== 'yes' || additionalGuestsValid())
+  );
+
+  const completeStepOne = () => {
+    trackAction('rsvp_step_completed', 'Completed RSVP step 1', {
+      attending,
+      additionalGuests: additionalNum,
+    });
+    setStep(2);
+  };
+
+  const handleContinue = () => {
+    if (attending === 'yes' && additionalNum === 0 && !confirmedSolo) {
+      trackAction('rsvp_guest_confirmation_shown', 'Asked to confirm no additional guests');
+      setShowGuestConfirm(true);
+      return;
+    }
+
+    completeStepOne();
+  };
+
+  const confirmSoloAttendance = () => {
+    setConfirmedSolo(true);
+    setShowGuestConfirm(false);
+    trackAction('rsvp_solo_confirmed', 'Confirmed attending without additional guests');
+    completeStepOne();
+  };
+
+  const addGuestFromConfirmation = () => {
+    setShowGuestConfirm(false);
+    handleAdditionalNumChange(1);
+    trackAction('rsvp_add_guests_prompt', 'Chose to add guests from confirmation');
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        additionalGuestsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        additionalGuestsRef.current?.querySelector('input')?.focus();
+      });
+    });
+  };
 
   // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
@@ -177,6 +228,46 @@ export default function RSVP() {
 
   return (
     <div className="min-h-screen bg-white" onClickCapture={handleTrackedClick}>
+      {showGuestConfirm && (
+        <div
+          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/55 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="guest-confirm-title"
+          aria-describedby="guest-confirm-description"
+        >
+          <div className="w-full max-w-sm bg-white rounded-lg shadow-2xl p-6 text-center">
+            <div className="w-14 h-14 rounded-full bg-mauve-100 flex items-center justify-center mx-auto mb-4">
+              <Users className="w-7 h-7 text-mauve-700" />
+            </div>
+            <h2 id="guest-confirm-title" className="font-serif text-2xl text-mauve-800 mb-2">
+              Are you attending by yourself?
+            </h2>
+            <p id="guest-confirm-description" className="font-sans text-sm text-mauve-500 mb-6">
+              You currently have no additional guests. Please confirm before continuing.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={addGuestFromConfirmation}
+                className="btn-primary w-full flex items-center justify-center gap-2"
+                autoFocus
+              >
+                <Users className="w-4 h-4" />
+                Add guests
+              </button>
+              <button
+                type="button"
+                onClick={confirmSoloAttendance}
+                className="btn-secondary w-full"
+              >
+                Yes, just me
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Top floral */}
       <div data-analytics-section="RSVP Header" className="pt-16 md:pt-20 relative overflow-hidden">
         <FloralTopBanner className="absolute top-0 left-0 right-0 opacity-50" />
@@ -242,25 +333,45 @@ export default function RSVP() {
                   label="Joyfully accepts"
                   sub="I'll be there to celebrate!"
                   selected={attending === 'yes'}
-                  onClick={(value) => { trackRsvpStarted(); setAttending(value); }}
+                  onClick={(value) => {
+                    trackRsvpStarted();
+                    setAttending(value);
+                    setConfirmedSolo(false);
+                  }}
                 />
                 <AttendOption
                   value="no"
                   label="Regretfully declines"
                   sub="I'm unable to make it"
                   selected={attending === 'no'}
-                  onClick={(value) => { trackRsvpStarted(); setAttending(value); }}
+                  onClick={(value) => {
+                    trackRsvpStarted();
+                    setAttending(value);
+                    setConfirmedSolo(false);
+                  }}
                 />
               </div>
             </div>
 
             {/* Additional guests — only if attending */}
             {attending === 'yes' && (
-              <div className="mb-6">
-                <label className="form-label">Additional Guests</label>
-                <p className="font-sans text-xs text-mauve-400 mb-3">
-                  How many additional guests will be accompanying you ? (0 – 8)
-                </p>
+              <div
+                ref={additionalGuestsRef}
+                className="mb-6 rounded-lg border-2 border-mauve-300 bg-white p-4 shadow-sm"
+              >
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-mauve-100 flex items-center justify-center flex-shrink-0">
+                    <Users className="w-5 h-5 text-mauve-700" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-sans text-sm font-semibold text-mauve-800">
+                      Is anyone coming with you?
+                    </p>
+                    <p className="font-sans text-xs text-mauve-500 mt-1">
+                      Add your spouse, children, family members, or other accompanying guests.
+                    </p>
+                  </div>
+                </div>
                 <div className="flex items-center gap-4">
                   <button
                     type="button"
@@ -276,6 +387,11 @@ export default function RSVP() {
                                flex items-center justify-center hover:border-mauve-400 transition-colors"
                   >+</button>
                 </div>
+                <p className="font-sans text-xs text-mauve-400 mt-3">
+                  {additionalNum === 0
+                    ? 'Currently: just you'
+                    : `${additionalNum} additional guest${additionalNum === 1 ? '' : 's'}`}
+                </p>
 
                 {/* Name fields for additional guests */}
                 {additionals.length > 0 && (
@@ -284,14 +400,16 @@ export default function RSVP() {
                       <div key={i} className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="form-label flex items-center gap-1.5">
-                            <Users className="w-3.5 h-3.5" /> Guest {i + 1} First
+                            <Users className="w-3.5 h-3.5" /> Guest {i + 1} First Name *
                           </label>
                           <input
                             type="text"
+                            required
                             className="form-input text-sm"
                             placeholder="First name"
                             value={g.firstName}
                             onChange={e => updateAdditional(i, 'firstName', e.target.value)}
+                            aria-invalid={!g.firstName.trim()}
                           />
                         </div>
                         <div>
@@ -306,6 +424,11 @@ export default function RSVP() {
                         </div>
                       </div>
                     ))}
+                    {!additionalGuestsValid() && (
+                      <p className="font-sans text-xs text-blush-600">
+                        Enter a first name for each additional guest to continue.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -313,13 +436,7 @@ export default function RSVP() {
 
             <button
               disabled={!step1Valid()}
-              onClick={() => {
-                trackAction('rsvp_step_completed', 'Completed RSVP step 1', {
-                  attending,
-                  additionalGuests: additionalNum,
-                });
-                setStep(2);
-              }}
+              onClick={handleContinue}
               className={`btn-primary w-full flex items-center justify-center gap-2 mt-2
                 ${!step1Valid() ? 'opacity-40 cursor-not-allowed' : ''}`}
             >
