@@ -245,10 +245,10 @@ export default function RSVP() {
               <Users className="w-7 h-7 text-mauve-700" />
             </div>
             <h2 id="guest-confirm-title" className="font-serif text-2xl text-mauve-800 mb-2">
-              No additional guests?
+              No additional guests ?
             </h2>
             <p id="guest-confirm-description" className="font-sans text-sm text-mauve-500 mb-6">
-              This will only move you to the final review. Your RSVP is not submitted until you tap Submit RSVP on the next screen.
+              Submit RSVP on the next screen
             </p>
             <div className="flex flex-col gap-3">
               <button
