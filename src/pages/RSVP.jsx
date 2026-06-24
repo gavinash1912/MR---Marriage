@@ -61,6 +61,7 @@ export default function RSVP() {
     sections: ['RSVP Header', 'RSVP Form'],
   });
   const startedRef = useRef(false);
+  const formStartRef = useRef(null);
   const additionalGuestsRef = useRef(null);
   const [step,          setStep]         = useState(1);
   const [firstName,     setFirstName]    = useState('');
@@ -111,6 +112,9 @@ export default function RSVP() {
       additionalGuests: additionalNum,
     });
     setStep(2);
+    requestAnimationFrame(() => {
+      formStartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   };
 
   const handleContinue = () => {
@@ -230,7 +234,7 @@ export default function RSVP() {
     <div className="min-h-screen bg-white" onClickCapture={handleTrackedClick}>
       {showGuestConfirm && (
         <div
-          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/55 p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/55 p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="guest-confirm-title"
@@ -241,10 +245,10 @@ export default function RSVP() {
               <Users className="w-7 h-7 text-mauve-700" />
             </div>
             <h2 id="guest-confirm-title" className="font-serif text-2xl text-mauve-800 mb-2">
-              Are you attending by yourself?
+              No additional guests?
             </h2>
             <p id="guest-confirm-description" className="font-sans text-sm text-mauve-500 mb-6">
-              You currently have no additional guests. Please confirm before continuing.
+              This will only move you to the final review. Your RSVP is not submitted until you tap Submit RSVP on the next screen.
             </p>
             <div className="flex flex-col gap-3">
               <button
@@ -261,7 +265,7 @@ export default function RSVP() {
                 onClick={confirmSoloAttendance}
                 className="w-full flex items-center justify-center border border-gray-300 bg-gray-100 text-gray-800 px-6 py-3 font-sans text-sm hover:bg-gray-200 transition-colors"
               >
-                Yes, Just Me
+                Continue Without Guests
               </button>
             </div>
           </div>
@@ -285,11 +289,11 @@ export default function RSVP() {
       </div>
 
       {/* Step indicator — 2 steps now */}
-      <div className="max-w-xs mx-auto px-6 mb-8">
+      <div ref={formStartRef} className="max-w-xs mx-auto px-6 mb-8">
         <div className="flex items-center">
           <StepDot step={1} current={step} label="Your Info" />
           <StepLine done={step > 1} />
-          <StepDot step={2} current={step} label="Confirm"   />
+          <StepDot step={2} current={step} label="Submit"   />
         </div>
       </div>
 
@@ -454,10 +458,19 @@ export default function RSVP() {
       {step === 2 && (
         <div data-analytics-section="RSVP Form" className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up">
           <div className="card">
-            <h2 className="font-serif text-2xl text-mauve-800 mb-1 text-center">Confirm RSVP</h2>
+            <h2 className="font-serif text-2xl text-mauve-800 mb-1 text-center">Final Step: Submit RSVP</h2>
             <p className="font-sans text-sm text-mauve-400 text-center mb-6">
-              Almost done! Add your contact info and review.
+              Your RSVP is not saved yet. Review below, then tap Submit RSVP.
             </p>
+
+            <div className="rounded-lg border border-blush-200 bg-white p-3 mb-6 text-center">
+              <p className="font-sans text-sm font-semibold text-mauve-800">
+                Not submitted yet
+              </p>
+              <p className="font-sans text-xs text-mauve-500 mt-1">
+                The final button is at the bottom of this step.
+              </p>
+            </div>
 
             <div className="space-y-4 mb-6">
               <div>
@@ -522,14 +535,11 @@ export default function RSVP() {
               <p className="font-sans text-sm text-red-500 mb-4 text-center">{error}</p>
             )}
 
-            <div className="flex gap-3">
-              <button onClick={() => setStep(1)} className="btn-secondary flex-1 text-sm">
-                Back
-              </button>
+            <div className="flex flex-col gap-3 sm:flex-row-reverse">
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className={`btn-primary flex-1 flex items-center justify-center gap-2 text-sm
+                className={`btn-primary flex-1 flex items-center justify-center gap-2 text-sm py-4
                   ${submitting ? 'opacity-60 cursor-not-allowed' : ''}`}
               >
                 {submitting ? (
@@ -543,6 +553,9 @@ export default function RSVP() {
                 ) : (
                   <>Submit RSVP <Check className="w-4 h-4" /></>
                 )}
+              </button>
+              <button onClick={() => setStep(1)} className="btn-secondary flex-1 text-sm">
+                Back
               </button>
             </div>
           </div>
