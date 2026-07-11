@@ -4,6 +4,7 @@
 // PATCH  /api/guests?id=:id   → update one
 import { getDb } from './_db.js';
 import { ObjectId } from 'mongodb';
+import { requireOwnerAccess, siteIsInactive } from './_access.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,6 +12,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (siteIsInactive() && !requireOwnerAccess(req, res)) return;
 
   try {
     const db  = await getDb();

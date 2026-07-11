@@ -1,5 +1,6 @@
 // api/rsvp.js — POST /api/rsvp  — save a new RSVP
 import { getDb } from './_db.js';
+import { isOwnerRequest, siteIsInactive } from './_access.js';
 
 export default async function handler(req, res) {
   // CORS headers
@@ -9,6 +10,9 @@ export default async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (siteIsInactive() && !isOwnerRequest(req)) {
+    return res.status(403).json({ error: 'RSVP submissions are closed' });
+  }
 
   try {
     const body = req.body;

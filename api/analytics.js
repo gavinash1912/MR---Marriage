@@ -1,5 +1,6 @@
 // api/analytics.js — POST: log analytics events, GET: retrieve analytics
 import { getDb } from './_db.js';
+import { isOwnerRequest, requireOwnerAccess, siteIsInactive } from './_access.js';
 
 function firstHeaderValue(value) {
   return Array.isArray(value) ? value[0] : value;
@@ -239,6 +240,10 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method === 'GET' && siteIsInactive() && !requireOwnerAccess(req, res)) return;
+  if (req.method === 'POST' && siteIsInactive() && !isOwnerRequest(req)) {
+    return res.status(403).json({ error: 'Site is inactive' });
+  }
 
   try {
     const db = await getDb();
