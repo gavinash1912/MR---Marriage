@@ -1,16 +1,42 @@
-# React + Vite
+# Manas & Rupa Sri Marriage Website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+RSVP website for Manas and Rupa Sri's marriage celebration, built with React, Vite, Tailwind CSS, Vercel serverless functions, and optional MongoDB persistence.
 
-Currently, two official plugins are available:
+## Local Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+The local site runs at `http://localhost:5173`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Routes
 
-## Expanding the ESLint configuration
+| Route | Description |
+| --- | --- |
+| `/` | Home page with names, countdown, invitation video, and event details |
+| `/schedule` | Event schedule, venue details, and calendar links |
+| `/rsvp` | RSVP form for guests and additional attendees |
+| `/admin-mr-2026` | Hidden admin dashboard for RSVPs and visitor logs |
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Event Video
+
+Place the invitation video at:
+
+```text
+public/videos/welcome.mp4
+```
+
+The page detects the MP4 automatically and shows the custom video player.
+
+## Data Storage
+
+RSVPs use `/api/rsvp` and `/api/guests`. If `MONGODB_URI` is not configured, submissions fall back to browser `localStorage`.
+
+Copy `.env.example` to `.env` and set:
+
+```text
+MONGODB_URI=mongodb+srv://...
+MONGODB_DB=marriage
+```

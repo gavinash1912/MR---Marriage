@@ -199,7 +199,7 @@ export default function RSVP() {
           {attending === 'yes' && (
             <>
               <p className="font-sans text-sm text-mauve-400 mb-8">
-                July 5, 2026 · 8:00 AM · Grandion Event Venue, Frisco TX
+                September 5, 2026 · 8:00 AM · Atithi Venue, Plano TX
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <a
@@ -277,7 +277,7 @@ export default function RSVP() {
         <FloralTopBanner className="absolute top-0 left-0 right-0 opacity-50" />
         <div className="relative z-10 py-14 px-4 text-center">
           <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">
-            Engagement Ceremony · July 5, 2026
+            Marriage Ceremony · September 5, 2026
           </p>
           <h1 className="font-serif text-5xl md:text-6xl tracking-widest2 text-mauve-800 uppercase mb-2">
             RSVP
@@ -560,7 +560,7 @@ export default function RSVP() {
       <footer className="py-10 text-center border-t border-mauve-100">
         <FloralSprig className="mb-3" />
         <p className="font-serif italic text-mauve-400 text-sm">
-          Avinash &amp; Ananya &nbsp;·&nbsp; July 5, 2026
+          Manas &amp; Rupa Sri &nbsp;·&nbsp; September 5, 2026
         </p>
       </footer>
     </div>

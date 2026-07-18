@@ -42,7 +42,7 @@ function InactiveSite({ status, onUnlock }) {
     <main className="min-h-screen bg-mauve-50 flex items-center justify-center px-4 py-12">
       <section className="w-full max-w-sm rounded-lg bg-white border border-mauve-100 shadow-xl p-6 text-center">
         <p className="font-sans text-xs tracking-widest uppercase text-mauve-400 mb-3">
-          Avinash &amp; Ananya
+          Manas &amp; Rupa Sri
         </p>
         <h1 className="font-serif text-3xl text-mauve-800 mb-3">
           This site is currently inactive
@@ -131,7 +131,7 @@ function AppLayout() {
         <Route path="/schedule" element={<Schedule />} />
         <Route path="/rsvp"    element={<RSVP />}     />
         {/* Admin at hidden URL — change this slug before going live */}
-        <Route path="/admin-aa-2026" element={<Admin />} />
+        <Route path="/admin-mr-2026" element={<Admin />} />
       </Routes>
     </>
   );

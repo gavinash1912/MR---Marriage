@@ -46,22 +46,22 @@ export default function Schedule() {
       <div className="pt-16 md:pt-20 relative overflow-hidden">
         <FloralTopBanner className="absolute top-0 left-0 right-0 opacity-60" />
         <div className="relative z-10 py-16 px-4 text-center">
-          <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">July 5, 2026</p>
+          <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">September 5, 2026</p>
           <h1 className="font-allura text-6xl md:text-7xl text-mauve-800 mb-3">
             Schedule
           </h1>
           <p className="font-serif italic text-mauve-500 text-lg">
-            Grandion Event Venue &nbsp;·&nbsp; Frisco, TX
+            Atithi Venue &nbsp;·&nbsp; Plano, TX
           </p>
           <div className="mt-4 flex items-center justify-center gap-2 text-mauve-500">
             <MapPin className="w-4 h-4" />
             <a
-              href="https://maps.google.com/?q=1810+Parkwood+Blvd+Frisco+TX+75034"
+              href="https://maps.google.com/?q=Atithi+Venue+9060+Independence+Parkway+Plano+TX+75025"
               target="_blank"
               rel="noopener noreferrer"
               className="font-sans text-sm hover:text-mauve-700 underline underline-offset-2"
             >
-              1810 Parkwood Blvd, Frisco, TX 75034
+              9060 Independence Parkway, Plano, TX 75025
             </a>
           </div>
         </div>
@@ -71,15 +71,15 @@ export default function Schedule() {
       <section className="max-w-2xl mx-auto px-4 pb-12">
         <TimelineEvent
           time="8:00 AM"
-          title="Engagement Ceremony Begins"
-          description="The formal engagement ceremony with family blessings"
+          title="Marriage Ceremony Begins"
+          description="Family blessings and traditional wedding rituals begin"
           icon={Star}
           accent
         />
         <TimelineEvent
           time="10:00 AM"
-          title="Ring Exchange"
-          description="The official exchange of rings by Avinash &amp; Ananya"
+          title="Muhurtham & Wedding Rituals"
+          description="Manas and Rupa Sri are joined in marriage with blessings from family and friends"
           icon={Star}
           accent
         />
@@ -108,7 +108,7 @@ export default function Schedule() {
           </div>
           <h2 className="font-serif text-2xl md:text-3xl text-mauve-800 mb-2">Save the Date</h2>
           <p className="font-sans text-sm text-mauve-500 mb-8">
-            Add the engagement ceremony to your calendar so you don't miss it.
+            Add the marriage ceremony to your calendar so you don't miss it.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -147,8 +147,8 @@ export default function Schedule() {
             <div className="flex items-start gap-3">
               <MapPin className="w-5 h-5 text-mauve-500 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-serif text-lg text-mauve-800">Grandion Event Venue</p>
-                <p className="font-sans text-sm text-mauve-600">1810 Parkwood Blvd, Frisco, TX 75034</p>
+                <p className="font-serif text-lg text-mauve-800">Atithi Venue</p>
+                <p className="font-sans text-sm text-mauve-600">9060 Independence Parkway, Plano, TX 75025</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -160,7 +160,7 @@ export default function Schedule() {
               </div>
             </div>
             <a
-              href="https://maps.google.com/?q=1810+Parkwood+Blvd+Frisco+TX+75034"
+              href="https://maps.google.com/?q=Atithi+Venue+9060+Independence+Parkway+Plano+TX+75025"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full btn-secondary text-sm mt-2"
@@ -176,7 +176,7 @@ export default function Schedule() {
       <footer className="py-10 text-center border-t border-mauve-100">
         <FloralSprig className="mb-3" />
         <p className="font-serif italic text-mauve-400 text-sm">
-          Avinash &amp; Ananya &nbsp;·&nbsp; July 5, 2026
+          Manas &amp; Rupa Sri &nbsp;·&nbsp; September 5, 2026
         </p>
       </footer>
     </div>

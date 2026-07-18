@@ -138,7 +138,7 @@ function escapeRegex(value) {
 function getKeyCdnUserAgent() {
   const siteUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
-    : 'https://aa-engagement.vercel.app';
+    : 'https://mr-marriage.vercel.app';
 
   return `keycdn-tools:${siteUrl}`;
 }

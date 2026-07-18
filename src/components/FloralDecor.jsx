@@ -1,22 +1,22 @@
-// Botanical florals — large watercolor-style, matching the welcome video palette
-// Key: big blue-gray peonies, deep purple dahlias, orange sprigs, dark sage leaves
+// Botanical florals - watercolor-style in a warm marriage palette:
+// rose lotus blooms, maroon dahlias, gold sprigs, and deep sage leaves.
 
 const P = {
-  // Slate-blue peony (the big blue flowers in the video)
-  p1: '#8cacd8', p2: '#b2c8ec', p3: '#5a7eb8', p4: '#d8e4f4',
-  // Deep purple dahlia (the purple chrysanthemum-style flowers)
-  d1: '#7038b8', d2: '#9460d0', d3: '#4c2490', d4: '#c098e4',
-  // Orange/amber accent sprigs
-  o1: '#c87010', o2: '#e09828', o3: '#f4b840',
-  // Dark sage + olive leaves
-  s1: '#3a5628', s2: '#4e6a3a', s3: '#68844e', s4: '#7a9860',
-  ol: '#445030',
-  // Magenta/hot pink
-  m1: '#b02870', m2: '#cc4890', m3: '#e870b0',
-  // Lavender
-  lv1: '#8868b8', lv2: '#aa90d0', lv3: '#ccc0e8',
-  // Blush
-  bl: '#ecc4d4', bl2: '#f4d8e8',
+  // Rose lotus blooms
+  p1: '#e8a8a8', p2: '#f2c8c0', p3: '#b84e5e', p4: '#fff0e6',
+  // Maroon dahlias
+  d1: '#8e263f', d2: '#b64a5a', d3: '#571326', d4: '#dfa0a8',
+  // Gold accent sprigs
+  o1: '#b8860b', o2: '#d6a842', o3: '#f3d074',
+  // Deep sage + olive leaves
+  s1: '#314a2f', s2: '#47623a', s3: '#6d844d', s4: '#8a9b62',
+  ol: '#3f4b2c',
+  // Vermilion rose
+  m1: '#bf3852', m2: '#dc6f78', m3: '#f0a7ad',
+  // Antique gold
+  lv1: '#a66e2a', lv2: '#c99b50', lv3: '#efd9a5',
+  // Ivory blossoms
+  bl: '#fff1dc', bl2: '#ffe0c7',
 };
 
 // ── Watercolor/organic filter ─────────────────────────────────────────────────
@@ -103,7 +103,7 @@ function BigDahlia({ cx, cy, r = 44, opacity = 0.88 }) {
       <circle cx={cx} cy={cy} r={r * 1.1} fill={P.d1} opacity={0.10} filter="url(#soft)"/>
       {outer}{mid}{inner}
       <circle cx={cx} cy={cy} r={r * 0.13} fill={P.d3} opacity={0.95}/>
-      <circle cx={cx} cy={cy} r={r * 0.06} fill="#1a0840" opacity={0.8}/>
+      <circle cx={cx} cy={cy} r={r * 0.06} fill="#2a0612" opacity={0.8}/>
     </g>
   );
 }
@@ -260,7 +260,7 @@ export function FloralLeft({ className = '' }) {
         <BigLeaf x1={102} y1={182} x2={124} y2={165} w={10} fill={P.s1} opacity={0.58}/>
 
         {/* ── MID: Medium dahlia + peony ── */}
-        <MedDahlia cx={58} cy={298} r={28} fill={P.m1} fill2={P.m2} fill3="#801858" opacity={0.82}/>
+        <MedDahlia cx={58} cy={298} r={28} fill={P.m1} fill2={P.m2} fill3="#8f243f" opacity={0.82}/>
         <BigLeaf x1={38} y1={295} x2={14} y2={278} w={12} fill={P.s1} opacity={0.68}/>
         <BigLeaf x1={80} y1={318} x2={58} y2={342} w={13} fill={P.ol} opacity={0.63}/>
         <BigLeaf x1={92} y1={296} x2={118} y2={280} w={10} fill={P.s3} opacity={0.58}/>
@@ -313,7 +313,7 @@ export function FloralRight({ className = '' }) {
         <BigLeaf x1={58} y1={182} x2={36} y2={165} w={10} fill={P.s1} opacity={0.58}/>
 
         {/* ── MID ── */}
-        <MedDahlia cx={102} cy={298} r={28} fill={P.m1} fill2={P.m2} fill3="#801858" opacity={0.82}/>
+        <MedDahlia cx={102} cy={298} r={28} fill={P.m1} fill2={P.m2} fill3="#8f243f" opacity={0.82}/>
         <BigLeaf x1={122} y1={295} x2={146} y2={278} w={12} fill={P.s1} opacity={0.68}/>
         <BigLeaf x1={80} y1={318} x2={102} y2={342} w={13} fill={P.ol} opacity={0.63}/>
         <BigLeaf x1={68} y1={296} x2={42} y2={280} w={10} fill={P.s3} opacity={0.58}/>

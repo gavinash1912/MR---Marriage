@@ -1,7 +1,7 @@
-const EVENT_TITLE = 'Avinash & Ananya - Engagement Ceremony';
-const EVENT_LOCATION = 'Grandion Event Venue, 1810 Parkwood Blvd, Frisco, TX 75034';
+const EVENT_TITLE = 'Manas & Rupa Sri - Marriage Ceremony';
+const EVENT_LOCATION = 'Atithi Venue, 9060 Independence Parkway, Plano, TX 75025';
 const EVENT_DETAILS = [
-  'Join us to celebrate the engagement of Avinash and Ananya!',
+  'Join us to celebrate the marriage of Manas and Rupa Sri!',
   '',
   'Breakfast & Lunch will be served.',
   'Attire: Indian Traditional',
@@ -11,7 +11,7 @@ export function getGoogleCalendarUrl() {
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: EVENT_TITLE,
-    dates: '20260705T080000/20260705T140000',
+    dates: '20260905T080000/20260905T140000',
     details: EVENT_DETAILS,
     location: EVENT_LOCATION,
   });
@@ -23,12 +23,12 @@ export function downloadCalendarInvite() {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Avinash & Ananya Engagement//EN',
+    'PRODID:-//Manas & Rupa Sri Marriage//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    'DTSTART:20260705T080000',
-    'DTEND:20260705T140000',
+    'DTSTART:20260905T080000',
+    'DTEND:20260905T140000',
     `SUMMARY:${EVENT_TITLE}`,
     `DESCRIPTION:${EVENT_DETAILS.replace(/\n/g, '\\n')}`,
     `LOCATION:${EVENT_LOCATION.replace(/,/g, '\\,')}`,
@@ -37,7 +37,7 @@ export function downloadCalendarInvite() {
     'BEGIN:VALARM',
     'TRIGGER:-P1D',
     'ACTION:DISPLAY',
-    'DESCRIPTION:Avinash & Ananya Engagement - Tomorrow!',
+    'DESCRIPTION:Manas & Rupa Sri Marriage - Tomorrow!',
     'END:VALARM',
     'END:VEVENT',
     'END:VCALENDAR',
@@ -47,7 +47,7 @@ export function downloadCalendarInvite() {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = 'avinash-ananya-engagement.ics';
+  anchor.download = 'manas-rupa-sri-marriage.ics';
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);

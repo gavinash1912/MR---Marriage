@@ -365,7 +365,7 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
       <div className="video-wrapper">
         <div className="aspect-video bg-mauve-100 flex flex-col items-center justify-center gap-4">
           <FloralSprig />
-          <p className="font-serif text-lg text-mauve-500 italic">Welcome video coming soon…</p>
+          <p className="font-serif text-lg text-mauve-500 italic">Wedding invitation video coming soon…</p>
         </div>
       </div>
     );
@@ -384,7 +384,7 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
       onMouseLeave={() => {
         if (playing && !settingsOpen && !draggingRef.current) setControlsVisible(false);
       }}
-      aria-label="Welcome invitation video player"
+      aria-label="Wedding invitation video player"
     >
       <video
         ref={videoRef}
@@ -406,8 +406,8 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
       />
 
       <div className={`stream-top-chrome ${chromeVisible ? 'is-visible' : ''}`}>
-        <p className="stream-video-title">Avinash &amp; Ananya</p>
-        <p className="stream-video-subtitle">Welcome Invitation</p>
+        <p className="stream-video-title">Manas &amp; Rupa Sri</p>
+        <p className="stream-video-subtitle">Wedding Invitation</p>
       </div>
 
       {!playing && (
@@ -555,8 +555,8 @@ function WelcomeVideo({ visitId, onAction = () => {} }) {
 
 // ── Main Home page ───────────────────────────────────────────────────────────
 export default function Home() {
-  const ENGAGEMENT_DATE = '2026-07-05T08:00:00';
-  const countdown = useCountdown(ENGAGEMENT_DATE);
+  const MARRIAGE_DATE = '2026-09-05T08:00:00';
+  const countdown = useCountdown(MARRIAGE_DATE);
   const { visitId, trackAction, handleTrackedClick } = useVisitAnalytics({
     sections: ['Hero', 'Video', 'Event Details'],
   });
@@ -584,7 +584,7 @@ export default function Home() {
         {/* Hero content */}
         <div className="relative z-10 flex flex-col items-center justify-center flex-1 pt-10 sm:pt-16 lg:pt-28 xl:pt-40 pb-4 sm:pb-12 px-12 sm:px-24 lg:px-52 text-center">
           <h1 className="animate-fade-in-up delay-200 font-allura text-7xl sm:text-8xl md:text-9xl lg:text-[10rem] text-mauve-800 leading-none mb-2">
-            Avinash
+            Manas
           </h1>
 
           <div className="animate-fade-in-up delay-300 flex items-center gap-3 my-2">
@@ -594,18 +594,18 @@ export default function Home() {
           </div>
 
           <h1 className="animate-fade-in-up delay-400 font-allura text-7xl sm:text-8xl md:text-9xl lg:text-[10rem] text-mauve-800 leading-none mb-8">
-            Ananya
+            Rupa Sri
           </h1>
 
           <div className="animate-fade-in-up delay-500 flex items-center gap-3 text-mauve-600 mb-2">
             <Calendar className="w-4 h-4" />
-            <span className="font-serif text-lg md:text-xl tracking-wider">July 5, 2026</span>
+            <span className="font-serif text-lg md:text-xl tracking-wider">September 5, 2026</span>
           </div>
 
           <div className="animate-fade-in-up delay-600 flex items-center gap-3 text-mauve-500 mb-6">
             <MapPin className="w-4 h-4 flex-shrink-0" />
             <span className="font-sans text-sm md:text-base">
-              Grandion Event Venue &nbsp;·&nbsp; Frisco, TX
+              Atithi Venue &nbsp;·&nbsp; Plano, TX
             </span>
           </div>
 
@@ -637,12 +637,12 @@ export default function Home() {
       <section data-analytics-section="Video" className="pt-2 pb-20 px-4 bg-mauve-50/40">
         <div className="max-w-3xl mx-auto text-center">
           <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">A message from</p>
-          <h2 className="section-title mb-3">Avinash &amp; Ananya</h2>
+          <h2 className="section-title mb-3">Manas &amp; Rupa Sri</h2>
           <div className="floral-divider my-6">
             <FloralSprig />
           </div>
           <p className="font-serif italic text-mauve-600 text-lg mb-10 max-w-lg mx-auto">
-            We are so grateful to have you in our lives and celebrate this special moment together. Watch our welcome invitation below.
+            We are so grateful to have you in our lives as we celebrate our marriage. Watch our invitation below.
           </p>
           <WelcomeVideo visitId={visitId} onAction={trackAction} />
         </div>
@@ -655,7 +655,7 @@ export default function Home() {
             <FloralSprig />
           </div>
           <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">The celebration</p>
-          <h2 className="section-title mb-8">Engagement Ceremony</h2>
+          <h2 className="section-title mb-8">Marriage Ceremony</h2>
 
           <div className="card text-left space-y-5">
             <div className="flex items-start gap-4">
@@ -664,7 +664,7 @@ export default function Home() {
               </div>
               <div>
                 <p className="form-label">Date</p>
-                <p className="font-serif text-xl text-mauve-800">Sunday, July 5, 2026</p>
+                <p className="font-serif text-xl text-mauve-800">Saturday, September 5, 2026</p>
               </div>
             </div>
 
@@ -685,10 +685,10 @@ export default function Home() {
               </div>
               <div>
                 <p className="form-label">Venue</p>
-                <p className="font-serif text-xl text-mauve-800">Grandion Event Venue</p>
-                <p className="font-sans text-sm text-mauve-600 mt-0.5">1810 Parkwood Blvd, Frisco, TX 75034</p>
+                <p className="font-serif text-xl text-mauve-800">Atithi Venue</p>
+                <p className="font-sans text-sm text-mauve-600 mt-0.5">9060 Independence Parkway, Plano, TX 75025</p>
                 <a
-                  href="https://maps.google.com/?q=1810+Parkwood+Blvd+Frisco+TX+75034"
+                  href="https://maps.google.com/?q=Atithi+Venue+9060+Independence+Parkway+Plano+TX+75025"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block mt-2 font-sans text-xs tracking-wider uppercase text-mauve-600 hover:text-mauve-800 underline underline-offset-2"
@@ -714,9 +714,9 @@ export default function Home() {
       <footer className="py-12 text-center border-t border-mauve-100">
         <FloralSprig className="mb-4" />
         <p className="font-serif italic text-mauve-500 text-base">
-          Avinash &amp; Ananya &nbsp;·&nbsp; July 5, 2026
+          Manas &amp; Rupa Sri &nbsp;·&nbsp; September 5, 2026
         </p>
-        <p className="font-sans text-xs text-mauve-300 mt-2">Frisco, Texas</p>
+        <p className="font-sans text-xs text-mauve-300 mt-2">Plano, Texas</p>
       </footer>
 
     </div>
