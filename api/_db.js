@@ -26,7 +26,7 @@ if (!uri) {
 export async function getDb() {
   if (!clientPromise) throw new Error('MONGODB_URI is not set');
   const c = await clientPromise;
-  return c.db(process.env.MONGODB_DB || 'engagement');
+  return c.db(process.env.MONGODB_DB || 'marriage');
 }
 
 export default clientPromise;

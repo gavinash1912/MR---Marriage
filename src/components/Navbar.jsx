@@ -52,7 +52,7 @@ export default function Navbar() {
               ghost ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
           >
-            Avinash &amp; Ananya
+            Manas &amp; Rupa Sri
           </Link>
 
           {/* Desktop nav */}

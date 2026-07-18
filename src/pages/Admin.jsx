@@ -342,7 +342,7 @@ function exportCSV(rsvps) {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `aa-engagement-rsvps-${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `mr-marriage-rsvps-${new Date().toISOString().slice(0,10)}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -552,7 +552,7 @@ export default function Admin() {
           <div>
             <h1 className="font-serif text-3xl md:text-4xl text-mauve-800">Admin Dashboard</h1>
             <p className="font-sans text-sm text-mauve-400 mt-1">
-              Avinash &amp; Ananya — Engagement · July 5, 2026
+              Manas &amp; Rupa Sri — Marriage · September 5, 2026
             </p>
           </div>
           <div className="flex items-center gap-3">

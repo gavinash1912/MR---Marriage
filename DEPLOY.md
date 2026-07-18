@@ -1,4 +1,4 @@
-# Avinash & Ananya — Engagement Website
+# Manas & Rupa Sri — Marriage Website
 
 ## Quick Start (local)
 
@@ -30,10 +30,10 @@ Supported format: **MP4** (H.264, any resolution — recommended 1080p or 720p).
 The admin page lives at a hidden URL to keep it private:
 
 ```
-https://your-site.vercel.app/admin-aa-2026
+https://your-site.vercel.app/admin-mr-2026
 ```
 
-> **Before going live**, change the slug in `src/App.jsx` line with `/admin-aa-2026` to
+> **Before going live**, change the slug in `src/App.jsx` line with `/admin-mr-2026` to
 > something only you know, e.g. `/admin-secret-xyz`.
 
 ---
@@ -45,8 +45,8 @@ https://your-site.vercel.app/admin-aa-2026
 ```bash
 git init
 git add .
-git commit -m "Initial engagement website"
-git remote add origin https://github.com/YOUR_USER/aa-engagement.git
+git commit -m "Initial marriage website"
+git remote add origin https://github.com/YOUR_USER/mr-marriage.git
 git push -u origin main
 ```
 
@@ -65,7 +65,7 @@ In your Vercel project → **Settings → Environment Variables**, add:
 | Name           | Value                                               |
 |----------------|-----------------------------------------------------|
 | `MONGODB_URI`  | `mongodb+srv://user:pass@cluster.mongodb.net/`      |
-| `MONGODB_DB`   | `engagement`                                        |
+| `MONGODB_DB`   | `marriage`                                        |
 
 > If you skip this, RSVPs fall back to localStorage on each visitor's own browser
 > (no cross-device persistence). Add MongoDB whenever you're ready.
@@ -82,7 +82,7 @@ In your Vercel project → **Settings → Environment Variables**, add:
 ## Project Structure
 
 ```
-aa-engagement/
+mr-marriage/
 ├── public/
 │   └── videos/          ← Put welcome.mp4 here
 ├── src/
@@ -92,7 +92,7 @@ aa-engagement/
 │   ├── pages/
 │   │   ├── Home.jsx          # Hero, countdown, video, event details
 │   │   ├── Schedule.jsx      # Timeline + calendar invite
-│   │   ├── RSVP.jsx          # 3-step RSVP form
+│   │   ├── RSVP.jsx          # 2-step RSVP form
 │   │   └── Admin.jsx         # Admin dashboard (hidden URL)
 │   ├── App.jsx               # Router + layout
 │   └── index.css             # Tailwind + global styles
@@ -112,5 +112,5 @@ aa-engagement/
 |---------------------|--------------------------------------|
 | `/`                 | Home — names, countdown, video, CTA  |
 | `/schedule`         | Event timeline + calendar invite     |
-| `/rsvp`             | 3-step RSVP form (open to anyone)    |
-| `/admin-aa-2026`    | Admin dashboard (change slug!)       |
+| `/rsvp`             | 2-step RSVP form (open to anyone)    |
+| `/admin-mr-2026`    | Admin dashboard (change slug!)       |
