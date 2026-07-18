@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 const COOKIE_NAME = 'mr_owner_access';
 const TOKEN_TTL_SECONDS = 60 * 60 * 24 * 30;
-const DEFAULT_OWNER_ACCESS_CODE = 'MR-Owner-7K9M-2026-QX4P';
+const DEFAULT_OWNER_ACCESS_CODE = 'manasrupa2026';
 
 function base64Url(input) {
   return Buffer.from(input)

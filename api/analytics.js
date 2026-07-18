@@ -411,6 +411,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (err) {
     console.error('Analytics API error:', err);
+    if (err.message === 'MONGODB_URI is not set') {
+      return res.status(503).json({ error: 'Visitor logs require MONGODB_URI to be configured.' });
+    }
     return res.status(500).json({ error: 'Server error' });
   }
 }

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 
 const VISITOR_PAGE_SIZE = 50;
+const AUTHED_REQUEST = { withCredentials: true };
 
 // ── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ label, value, sub, color = 'mauve' }) {
@@ -413,7 +414,9 @@ export default function Admin() {
     totalVideoPlays: 0,
     uniqueVideoViewers: 0,
   });
+  const [analyticsError, setAnalyticsError] = useState('');
   const [visitors, setVisitors] = useState([]);
+  const [visitorError, setVisitorError] = useState('');
   const [activeTab, setActiveTab] = useState('rsvp');
   const [timeFilter, setTimeFilter] = useState('all'); // all, 15m, 30m, 1h, 6h, 1d
   const [visitorIpInput, setVisitorIpInput] = useState('');
@@ -441,7 +444,7 @@ export default function Admin() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch('/api/access')
+    fetch('/api/access', { credentials: 'same-origin' })
       .then(response => response.ok ? response.json() : { authenticated: false })
       .then(data => {
         if (!cancelled) setAccessStatus(data.authenticated ? 'unlocked' : 'locked');
@@ -463,6 +466,7 @@ export default function Admin() {
     try {
       const response = await fetch('/api/access', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: accessCode }),
       });
@@ -485,7 +489,7 @@ export default function Admin() {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get('/api/guests');
+      const res = await axios.get('/api/guests', AUTHED_REQUEST);
       setRsvps(res.data.rsvps || []);
     } catch {
       const stored = JSON.parse(localStorage.getItem('rsvps') || '[]');
@@ -496,16 +500,19 @@ export default function Admin() {
   }, []);
 
   const fetchAnalytics = useCallback(async () => {
+    setAnalyticsError('');
     try {
       const query = timeFilter === 'all' ? '' : `?timeFilter=${encodeURIComponent(timeFilter)}`;
-      const res = await axios.get(`/api/analytics${query}`);
+      const res = await axios.get(`/api/analytics${query}`, AUTHED_REQUEST);
       setAnalytics(res.data);
-    } catch {
+    } catch (err) {
+      setAnalyticsError(err.response?.data?.error || 'Unable to load analytics summary.');
       console.error('Failed to fetch analytics');
     }
   }, [timeFilter]);
 
   const fetchVisitors = useCallback(async () => {
+    setVisitorError('');
     try {
       const params = new URLSearchParams({
         details: 'true',
@@ -516,7 +523,7 @@ export default function Admin() {
       if (visitorIpFilter) params.set('ip', visitorIpFilter);
       if (visitorLocationFilter) params.set('location', visitorLocationFilter);
 
-      const visitorRes = await axios.get(`/api/analytics?${params.toString()}`);
+      const visitorRes = await axios.get(`/api/analytics?${params.toString()}`, AUTHED_REQUEST);
       setVisitors(visitorRes.data.visitors || []);
       setVisitorPagination(visitorRes.data.pagination || {
         page: 1,
@@ -527,7 +534,9 @@ export default function Admin() {
       if (visitorRes.data.pagination?.page && visitorRes.data.pagination.page !== visitorPage) {
         setVisitorPage(visitorRes.data.pagination.page);
       }
-    } catch {
+    } catch (err) {
+      setVisitorError(err.response?.data?.error || 'Unable to load visitor logs.');
+      setVisitors([]);
       console.error('Failed to fetch visitor logs');
     }
   }, [timeFilter, visitorPage, visitorIpFilter, visitorLocationFilter]);
@@ -550,7 +559,7 @@ export default function Admin() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this RSVP entry?')) return;
     try {
-      await axios.delete(`/api/guests?id=${id}`);
+      await axios.delete(`/api/guests?id=${id}`, AUTHED_REQUEST);
       setRsvps(prev => prev.filter(r => (r._id || r.id) !== id));
     } catch (err) {
       console.error('Delete failed:', err);
@@ -560,7 +569,7 @@ export default function Admin() {
 
   const handleSave = async (id, updatedData) => {
     try {
-      await axios.patch(`/api/guests?id=${id}`, updatedData);
+      await axios.patch(`/api/guests?id=${id}`, updatedData, AUTHED_REQUEST);
     } catch (err) {
       console.error('Save failed:', err);
       alert('Failed to save changes. Please try again.');
@@ -905,6 +914,17 @@ export default function Admin() {
             <StatCard label="Video Plays" value={filteredAnalytics.totalVideoPlays} color="yellow" />
             <StatCard label="Video Viewers (Unique)" value={filteredAnalytics.uniqueVideoViewers} color="red" />
           </div>
+
+          {(analyticsError || visitorError) && (
+            <div className="mb-6 rounded-lg border border-blush-200 bg-blush-50 px-4 py-3">
+              <p className="font-sans text-sm text-blush-700">
+                {visitorError || analyticsError}
+              </p>
+              <p className="font-sans text-xs text-blush-600 mt-1">
+                Visitor logs require MongoDB environment variables on Vercel and a valid admin session.
+              </p>
+            </div>
+          )}
 
           {/* Visit Logs Table */}
           <div className="bg-white rounded-xl border border-mauve-100 overflow-hidden">
