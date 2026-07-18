@@ -44,6 +44,51 @@ function formatActionName(action) {
   return (action.eventType || 'action').replace(/_/g, ' ');
 }
 
+function AdminAccessPrompt({ status, code, error, submitting, onCodeChange, onSubmit }) {
+  return (
+    <div className="min-h-screen bg-mauve-50 flex items-center justify-center px-4 py-12">
+      <section className="w-full max-w-sm rounded-lg bg-white border border-mauve-100 shadow-xl p-6 text-center">
+        <p className="font-sans text-xs tracking-widest uppercase text-mauve-400 mb-3">
+          Manas &amp; Rupa Sri
+        </p>
+        <h1 className="font-serif text-3xl text-mauve-800 mb-3">
+          Admin Access
+        </h1>
+        <p className="font-sans text-sm text-mauve-500 mb-6">
+          Enter the owner code to view RSVPs and visit logs.
+        </p>
+
+        {status === 'checking' ? (
+          <p className="font-sans text-sm text-mauve-500">Checking owner access...</p>
+        ) : (
+          <form onSubmit={onSubmit} className="space-y-3 text-left">
+            <label className="form-label" htmlFor="owner-code">Owner Access</label>
+            <input
+              id="owner-code"
+              type="password"
+              className="form-input"
+              value={code}
+              onChange={event => onCodeChange(event.target.value)}
+              placeholder="Enter owner code"
+              autoComplete="current-password"
+            />
+            {error && (
+              <p className="font-sans text-xs text-red-600 text-center">{error}</p>
+            )}
+            <button
+              type="submit"
+              disabled={submitting || !code.trim()}
+              className={`btn-primary w-full flex items-center justify-center ${submitting || !code.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {submitting ? 'Checking...' : 'Unlock Admin'}
+            </button>
+          </form>
+        )}
+      </section>
+    </div>
+  );
+}
+
 // ── Edit Modal ────────────────────────────────────────────────────────────────
 function EditModal({ rsvp, onSave, onClose }) {
   const g = rsvp.primaryGuest;
@@ -351,6 +396,10 @@ function exportCSV(rsvps) {
 
 // ── Admin page ────────────────────────────────────────────────────────────────
 export default function Admin() {
+  const [accessStatus, setAccessStatus] = useState('checking');
+  const [accessCode,   setAccessCode]   = useState('');
+  const [accessError,  setAccessError]  = useState('');
+  const [accessSubmitting, setAccessSubmitting] = useState(false);
   const [rsvps,       setRsvps]       = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [error,       setError]       = useState('');
@@ -387,6 +436,49 @@ export default function Admin() {
       totalVideoPlays: analytics.totalVideoPlays,
       uniqueVideoViewers: analytics.uniqueVideoViewers,
     };
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch('/api/access')
+      .then(response => response.ok ? response.json() : { authenticated: false })
+      .then(data => {
+        if (!cancelled) setAccessStatus(data.authenticated ? 'unlocked' : 'locked');
+      })
+      .catch(() => {
+        if (!cancelled) setAccessStatus('locked');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleAccessSubmit = async (event) => {
+    event.preventDefault();
+    setAccessSubmitting(true);
+    setAccessError('');
+
+    try {
+      const response = await fetch('/api/access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: accessCode }),
+      });
+
+      if (!response.ok) {
+        setAccessError('Invalid owner code.');
+        return;
+      }
+
+      setAccessStatus('unlocked');
+      setAccessCode('');
+    } catch {
+      setAccessError('Unable to verify access. Please try again.');
+    } finally {
+      setAccessSubmitting(false);
+    }
   };
 
   const fetchRsvps = useCallback(async () => {
@@ -441,16 +533,19 @@ export default function Admin() {
   }, [timeFilter, visitorPage, visitorIpFilter, visitorLocationFilter]);
 
   useEffect(() => {
+    if (accessStatus !== 'unlocked') return;
     fetchRsvps();
-  }, [fetchRsvps]);
+  }, [accessStatus, fetchRsvps]);
 
   useEffect(() => {
+    if (accessStatus !== 'unlocked') return;
     fetchAnalytics();
-  }, [fetchAnalytics]);
+  }, [accessStatus, fetchAnalytics]);
 
   useEffect(() => {
+    if (accessStatus !== 'unlocked') return;
     fetchVisitors();
-  }, [fetchVisitors]);
+  }, [accessStatus, fetchVisitors]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this RSVP entry?')) return;
@@ -532,6 +627,19 @@ export default function Admin() {
     setExpandedVisits({});
   };
   const hasVisitorFilters = Boolean(visitorIpFilter || visitorLocationFilter);
+
+  if (accessStatus !== 'unlocked') {
+    return (
+      <AdminAccessPrompt
+        status={accessStatus}
+        code={accessCode}
+        error={accessError}
+        submitting={accessSubmitting}
+        onCodeChange={setAccessCode}
+        onSubmit={handleAccessSubmit}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-mauve-50/30 pt-16 md:pt-20">
