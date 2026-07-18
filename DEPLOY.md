@@ -68,7 +68,7 @@ In your Vercel project → **Settings → Environment Variables**, add:
 |----------------|-----------------------------------------------------|
 | `MONGODB_URI`  | `mongodb+srv://user:pass@cluster.mongodb.net/`      |
 | `MONGODB_DB`   | `marriage`                                        |
-| `OWNER_ACCESS_CODE` | A private admin code                         |
+| `OWNER_ACCESS_CODE` | `manasrupa2026`                              |
 | `SITE_ACCESS_SECRET` | A long random secret for admin cookies      |
 
 > If you skip this, RSVPs fall back to localStorage on each visitor's own browser

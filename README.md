@@ -41,6 +41,6 @@ Copy `.env.example` to `.env` and set:
 ```text
 MONGODB_URI=mongodb+srv://...
 MONGODB_DB=marriage
-OWNER_ACCESS_CODE=change-this-owner-code
+OWNER_ACCESS_CODE=manasrupa2026
 SITE_ACCESS_SECRET=change-this-random-secret
 ```
