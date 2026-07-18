@@ -56,11 +56,6 @@ function parseCookies(cookieHeader = '') {
     }, {});
 }
 
-export function siteIsInactive() {
-  const value = process.env.SITE_INACTIVE ?? process.env.VITE_SITE_INACTIVE;
-  return value !== 'false';
-}
-
 export function isValidOwnerCode(code) {
   return timingSafeStringEqual(String(code || '').trim(), getOwnerAccessCode());
 }

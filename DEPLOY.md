@@ -33,6 +33,8 @@ The admin page lives at a hidden URL to keep it private:
 https://your-site.vercel.app/admin-mr-2026
 ```
 
+It asks for the owner access code before showing RSVP data or visit logs.
+
 > **Before going live**, change the slug in `src/App.jsx` line with `/admin-mr-2026` to
 > something only you know, e.g. `/admin-secret-xyz`.
 
@@ -66,6 +68,8 @@ In your Vercel project → **Settings → Environment Variables**, add:
 |----------------|-----------------------------------------------------|
 | `MONGODB_URI`  | `mongodb+srv://user:pass@cluster.mongodb.net/`      |
 | `MONGODB_DB`   | `marriage`                                        |
+| `OWNER_ACCESS_CODE` | A private admin code                         |
+| `SITE_ACCESS_SECRET` | A long random secret for admin cookies      |
 
 > If you skip this, RSVPs fall back to localStorage on each visitor's own browser
 > (no cross-device persistence). Add MongoDB whenever you're ready.
