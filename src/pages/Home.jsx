@@ -30,9 +30,9 @@ function useCountdown(targetDate) {
 // ── Countdown block ─────────────────────────────────────────────────────────
 function CountdownBlock({ value, label }) {
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="countdown-block">
       <span className="countdown-digit">{String(value).padStart(2, '0')}</span>
-      <span className="font-sans text-xs tracking-widest uppercase text-mauve-500">{label}</span>
+      <span>{label}</span>
     </div>
   );
 }
@@ -558,160 +558,216 @@ export default function Home() {
   const MARRIAGE_DATE = '2026-09-05T08:00:00';
   const countdown = useCountdown(MARRIAGE_DATE);
   const { visitId, trackAction, handleTrackedClick } = useVisitAnalytics({
-    sections: ['Hero', 'Video', 'Event Details'],
+    sections: ['Hero', 'Blessing', 'Event Details', 'Video', 'RSVP', 'Things To Know', 'Countdown'],
   });
 
+  const inviteCards = [
+    {
+      title: 'Marriage Ceremony',
+      copy: 'Saturday, September 5, 2026',
+      icon: Calendar,
+    },
+    {
+      title: 'Atithi Venue',
+      copy: '9060 Independence Parkway, Plano, TX 75025',
+      icon: MapPin,
+    },
+    {
+      title: '8:00 AM Onwards',
+      copy: 'Breakfast and lunch will be served',
+      icon: Clock,
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-white" onClickCapture={handleTrackedClick}>
+    <div className="city2-page min-h-screen bg-[#fffaf4] text-mauve-900" onClickCapture={handleTrackedClick}>
 
       {/* ── Hero section ───────────────────────────────────── */}
       <section
         data-analytics-section="Hero"
-        className="relative min-h-fit sm:min-h-screen flex flex-col items-center overflow-hidden bg-white"
+        className="invite-hero"
       >
+        <FloralTopBanner className="invite-hero__banner" />
 
-        {/* Floral top banner */}
-        <FloralTopBanner className="absolute top-0 left-0 right-0 z-0" />
-
-        {/* Side florals – narrow on mobile, full width on desktop */}
-        <div className="absolute left-0 top-0 w-10 sm:w-20 lg:w-44 h-full z-0">
+        <div className="invite-hero__side invite-hero__side--left">
           <FloralLeft className="w-full h-full" />
         </div>
-        <div className="absolute right-0 top-0 w-10 sm:w-20 lg:w-44 h-full z-0">
+        <div className="invite-hero__side invite-hero__side--right">
           <FloralRight className="w-full h-full" />
         </div>
 
-        {/* Hero content */}
-        <div className="relative z-10 flex flex-col items-center justify-center flex-1 pt-10 sm:pt-16 lg:pt-28 xl:pt-40 pb-4 sm:pb-12 px-12 sm:px-24 lg:px-52 text-center">
-          <h1 className="animate-fade-in-up delay-200 font-allura text-7xl sm:text-8xl md:text-9xl lg:text-[10rem] text-mauve-800 leading-none mb-2">
-            Manas
-          </h1>
+        <div className="invite-hero__content">
+          <p className="invite-kicker animate-fade-in-up delay-200">Save the date</p>
 
-          <div className="animate-fade-in-up delay-300 flex items-center gap-3 my-2">
-            <FloralSprig />
-            <p className="font-allura text-3xl md:text-4xl text-mauve-500">and</p>
-            <FloralSprig />
+          <div className="invite-hero__names animate-fade-in-up delay-300">
+            <h1>Manas</h1>
+            <div className="invite-hero__amp">
+              <span>Weds</span>
+            </div>
+            <h1>Rupa Sri</h1>
           </div>
 
-          <h1 className="animate-fade-in-up delay-400 font-allura text-7xl sm:text-8xl md:text-9xl lg:text-[10rem] text-mauve-800 leading-none mb-8">
-            Rupa Sri
-          </h1>
+          <p className="invite-hero__copy animate-fade-in-up delay-400">
+            September 5, 2026 · Plano, Texas
+          </p>
 
-          <div className="animate-fade-in-up delay-500 flex items-center gap-3 text-mauve-600 mb-2">
-            <Calendar className="w-4 h-4" />
-            <span className="font-serif text-lg md:text-xl tracking-wider">September 5, 2026</span>
+          <div className="invite-meta animate-fade-in-up delay-500" aria-label="Wedding details">
+            <span><Calendar className="w-4 h-4" /> September 5, 2026</span>
+            <span><Clock className="w-4 h-4" /> 8:00 AM - 2:00 PM</span>
+            <span><MapPin className="w-4 h-4" /> Atithi Venue, Plano</span>
           </div>
 
-          <div className="animate-fade-in-up delay-600 flex items-center gap-3 text-mauve-500 mb-6">
-            <MapPin className="w-4 h-4 flex-shrink-0" />
-            <span className="font-sans text-sm md:text-base">
-              Atithi Venue &nbsp;·&nbsp; Plano, TX
-            </span>
+          <div className="invite-hero__actions animate-fade-in-up delay-600">
+            <Link to="/rsvp" className="btn-primary">
+              RSVP
+            </Link>
+            <Link to="/schedule" className="btn-secondary">
+              Schedule
+            </Link>
           </div>
-
-          {/* Floral divider before countdown */}
-          <div className="animate-fade-in-up floral-divider mb-6">
-            <FloralSprig />
-          </div>
-
-          {/* Countdown */}
-          <div className="animate-fade-in-up delay-700 flex items-center gap-6 sm:gap-10 mb-10">
-            <CountdownBlock value={countdown.days}    label="Days"    />
-            <span className="text-mauve-300 font-serif text-4xl mb-4">·</span>
-            <CountdownBlock value={countdown.hours}   label="Hours"   />
-            <span className="text-mauve-300 font-serif text-4xl mb-4">·</span>
-            <CountdownBlock value={countdown.minutes} label="Minutes" />
-            <span className="text-mauve-300 font-serif text-4xl mb-4">·</span>
-            <CountdownBlock value={countdown.seconds} label="Seconds" />
-          </div>
-
-          {/* CTA */}
-          <Link to="/rsvp" className="animate-fade-in-up delay-800 btn-primary text-base px-12 py-4">
-            RSVP
-          </Link>
         </div>
 
+        <div className="invite-hero__peek" aria-hidden="true">
+          <span>Hindu Wedding</span>
+          <span>Plano, Texas</span>
+          <span>September 5, 2026</span>
+        </div>
+      </section>
+
+      <section data-analytics-section="Blessing" className="invite-section city2-blessing">
+        <div className="invite-section__inner max-w-3xl">
+          <div className="city2-invite-card">
+            <p className="city2-mantra">Om Sri Ganeshaya Namah</p>
+            <p className="city2-small-copy">With the heavenly blessings of their families</p>
+            <div className="city2-rule" />
+            <p className="invite-kicker">Invite</p>
+            <p className="city2-large-copy">
+              You to join us in the wedding celebrations of
+            </p>
+            <h2>Manas <span>&amp;</span> Rupa Sri</h2>
+            <p className="city2-small-copy">On the following event</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Invitation event section ────────────────────────── */}
+      <section data-analytics-section="Event Details" className="invite-section invite-section--sage city2-events">
+        <div className="invite-section__inner">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <p className="invite-kicker">On the following event</p>
+            <h2 className="section-title">Marriage Ceremony</h2>
+            <p className="section-lede mx-auto mt-4">
+              One joyful morning of blessings, rituals, photos, and lunch.
+            </p>
+          </div>
+
+          <div className="city2-event-card">
+            <div className="city2-event-card__image" aria-hidden="true">
+              <span>MR</span>
+            </div>
+            <div className="city2-event-card__content">
+              <p className="invite-kicker">Shaadi</p>
+              <h3>Marriage Ceremony</h3>
+              <p>Saturday, September 5, 2026</p>
+              <p>Atithi Venue, Plano</p>
+              <p>8:00 AM Onwards</p>
+              <a
+                href="https://maps.google.com/?q=Atithi+Venue+9060+Independence+Parkway+Plano+TX+75025"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                See the route
+              </a>
+            </div>
+          </div>
+
+          <div className="invite-card-grid mt-5">
+            {inviteCards.map(({ title, copy, icon: Icon }) => (
+              <article key={title} className="invite-card">
+                <div className="invite-card__icon">
+                  <Icon className="w-5 h-5" />
+                </div>
+                <h3>{title}</h3>
+                <p>{copy}</p>
+              </article>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ── Welcome video section ───────────────────────────── */}
-      <section data-analytics-section="Video" className="pt-2 pb-20 px-4 bg-mauve-50/40">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">A message from</p>
-          <h2 className="section-title mb-3">Manas &amp; Rupa Sri</h2>
-          <div className="floral-divider my-6">
-            <FloralSprig />
+      <section data-analytics-section="Video" className="invite-section bg-[#fffaf4]">
+        <div className="invite-section__inner max-w-5xl">
+          <div className="section-heading-row">
+            <div>
+              <p className="invite-kicker">Meet the</p>
+              <h2 className="section-title text-left">Bride and Groom</h2>
+            </div>
+            <p className="section-lede">
+              We are delighted that you are able to join us in celebrating one of the happiest days of our lives.
+            </p>
           </div>
-          <p className="font-serif italic text-mauve-600 text-lg mb-10 max-w-lg mx-auto">
-            We are so grateful to have you in our lives as we celebrate our marriage. Watch our invitation below.
-          </p>
           <WelcomeVideo visitId={visitId} onAction={trackAction} />
         </div>
       </section>
 
-      {/* ── Event details section ───────────────────────────── */}
-      <section data-analytics-section="Event Details" className="py-20 px-4">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="floral-divider mb-8">
-            <FloralSprig />
-          </div>
-          <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">The celebration</p>
-          <h2 className="section-title mb-8">Marriage Ceremony</h2>
+      <section data-analytics-section="RSVP" className="invite-section city2-rsvp-strip">
+        <div className="invite-section__inner max-w-2xl text-center">
+          <p className="invite-kicker">Please</p>
+          <h2 className="section-title">RSVP</h2>
+          <p className="section-lede mx-auto mt-4">
+            Confirm your attendance and add any accompanying guests.
+          </p>
+          <Link to="/rsvp" className="btn-primary mt-7">
+            Submit RSVP
+          </Link>
+        </div>
+      </section>
 
-          <div className="card text-left space-y-5">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-mauve-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Calendar className="w-5 h-5 text-mauve-600" />
-              </div>
-              <div>
-                <p className="form-label">Date</p>
-                <p className="font-serif text-xl text-mauve-800">Saturday, September 5, 2026</p>
-              </div>
+      <section data-analytics-section="Things To Know" className="invite-section city2-know">
+        <div className="invite-section__inner">
+          <div className="section-heading-row">
+            <div>
+              <p className="invite-kicker">Things to know</p>
+              <h2 className="section-title text-left">For the day</h2>
             </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-mauve-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Clock className="w-5 h-5 text-mauve-600" />
-              </div>
-              <div>
-                <p className="form-label">Time</p>
-                <p className="font-serif text-xl text-mauve-800">8:00 AM — 2:00 PM</p>
-                <p className="font-sans text-sm text-mauve-500 mt-1">Breakfast &amp; Lunch will be served</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-mauve-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <MapPin className="w-5 h-5 text-mauve-600" />
-              </div>
-              <div>
-                <p className="form-label">Venue</p>
-                <p className="font-serif text-xl text-mauve-800">Atithi Venue</p>
-                <p className="font-sans text-sm text-mauve-600 mt-0.5">9060 Independence Parkway, Plano, TX 75025</p>
-                <a
-                  href="https://maps.google.com/?q=Atithi+Venue+9060+Independence+Parkway+Plano+TX+75025"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-2 font-sans text-xs tracking-wider uppercase text-mauve-600 hover:text-mauve-800 underline underline-offset-2"
-                >
-                  View on Maps →
-                </a>
-              </div>
-            </div>
+            <p className="section-lede">
+              A few helpful details for guests before arriving at Atithi Venue.
+            </p>
           </div>
 
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/rsvp" className="btn-primary">
-              RSVP Now
-            </Link>
-            <Link to="/schedule" className="btn-secondary">
-              View Schedule
-            </Link>
+          <div className="city2-info-grid">
+            <article>
+              <h3>Venue</h3>
+              <p>Atithi Venue, 9060 Independence Parkway, Plano, TX 75025.</p>
+            </article>
+            <article>
+              <h3>Timing</h3>
+              <p>The ceremony begins at 8:00 AM. Breakfast and lunch will be served.</p>
+            </article>
+            <article>
+              <h3>RSVP</h3>
+              <p>Please confirm your attendance and add any accompanying guests.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section data-analytics-section="Countdown" className="invite-section city2-countdown">
+        <div className="invite-section__inner max-w-3xl text-center">
+          <p className="invite-kicker">The countdown begins</p>
+          <h2 className="section-title">September 5, 2026</h2>
+          <div className="countdown-panel mt-8" aria-label="Countdown to wedding">
+            <CountdownBlock value={countdown.days}    label="Days"    />
+            <CountdownBlock value={countdown.hours}   label="Hours"   />
+            <CountdownBlock value={countdown.minutes} label="Minutes" />
+            <CountdownBlock value={countdown.seconds} label="Seconds" />
           </div>
         </div>
       </section>
 
       {/* ── Footer ─────────────────────────────────────────── */}
-      <footer className="py-12 text-center border-t border-mauve-100">
+      <footer className="invite-footer">
         <FloralSprig className="mb-4" />
         <p className="font-serif italic text-mauve-500 text-base">
           Manas &amp; Rupa Sri &nbsp;·&nbsp; September 5, 2026

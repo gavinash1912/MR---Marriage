@@ -13,7 +13,7 @@ function StepDot({ step, current, label }) {
     <div className="flex flex-col items-center gap-1.5">
       <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 font-sans text-xs font-bold
         ${done   ? 'bg-mauve-600 text-white' :
-          active ? 'bg-white border-2 border-mauve-600 text-mauve-700' :
+          active ? 'bg-[#fffaf4] border-2 border-mauve-600 text-mauve-700' :
                    'bg-mauve-100 text-mauve-300'}`}>
         {done ? <Check className="w-4 h-4" /> : step}
       </div>
@@ -36,10 +36,10 @@ function AttendOption({ value, label, sub, selected, onClick }) {
     <button
       type="button"
       onClick={() => onClick(value)}
-      className={`flex items-center gap-4 w-full p-4 rounded-xl border-2 transition-all duration-200 text-left
+      className={`choice-card
         ${selected
-          ? 'border-mauve-500 bg-mauve-50 shadow-sm'
-          : 'border-mauve-100 bg-white hover:border-mauve-300 hover:bg-mauve-50/50'}`}
+          ? 'is-selected'
+          : ''}`}
     >
       <div className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors
         ${selected ? 'border-mauve-600 bg-mauve-600' : 'border-mauve-300'}`}>
@@ -182,8 +182,9 @@ export default function RSVP() {
   // ── Success ────────────────────────────────────────────────────────────────
   if (submitted) {
     return (
-      <div className="min-h-screen bg-white pt-16 md:pt-20" onClickCapture={handleTrackedClick}>
-        <div className="max-w-lg mx-auto px-4 py-20 text-center">
+      <div className="city2-page min-h-screen bg-[#fffaf4] pt-24 md:pt-28" onClickCapture={handleTrackedClick}>
+        <div className="max-w-lg mx-auto px-4 py-16 text-center">
+          <div className="invite-card">
           <div className="w-20 h-20 rounded-full bg-mauve-100 flex items-center justify-center mx-auto mb-6">
             <Check className="w-10 h-10 text-mauve-600" />
           </div>
@@ -225,13 +226,14 @@ export default function RSVP() {
               </p>
             </>
           )}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white" onClickCapture={handleTrackedClick}>
+    <div className="city2-page min-h-screen bg-[#fffaf4]" onClickCapture={handleTrackedClick}>
       {showGuestConfirm && (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black/55 p-4"
@@ -240,7 +242,7 @@ export default function RSVP() {
           aria-labelledby="guest-confirm-title"
           aria-describedby="guest-confirm-description"
         >
-          <div className="w-full max-w-sm bg-white rounded-lg shadow-2xl p-6 text-center">
+          <div className="w-full max-w-sm invite-card text-center">
             <div className="w-14 h-14 rounded-full bg-mauve-100 flex items-center justify-center mx-auto mb-4">
               <Users className="w-7 h-7 text-mauve-700" />
             </div>
@@ -254,7 +256,7 @@ export default function RSVP() {
               <button
                 type="button"
                 onClick={addGuestFromConfirmation}
-                className="w-full flex items-center justify-center gap-2 border border-gray-300 bg-gray-100 text-gray-800 px-6 py-3 font-sans text-sm hover:bg-gray-200 transition-colors"
+                className="w-full btn-primary text-sm px-6 py-3"
                 autoFocus
               >
                 <Users className="w-4 h-4" />
@@ -263,7 +265,7 @@ export default function RSVP() {
               <button
                 type="button"
                 onClick={confirmSoloAttendance}
-                className="w-full flex items-center justify-center border border-gray-300 bg-gray-100 text-gray-800 px-6 py-3 font-sans text-sm hover:bg-gray-200 transition-colors"
+                className="w-full btn-secondary text-sm px-6 py-3"
               >
                 Continue Without Guests
               </button>
@@ -273,20 +275,21 @@ export default function RSVP() {
       )}
 
       {/* Top floral */}
-      <div data-analytics-section="RSVP Header" className="pt-16 md:pt-20 relative overflow-hidden">
-        <FloralTopBanner className="absolute top-0 left-0 right-0 opacity-50" />
-        <div className="relative z-10 py-14 px-4 text-center">
-          <p className="font-sans text-xs tracking-widest3 uppercase text-mauve-400 mb-3">
+      <section data-analytics-section="RSVP Header" className="invite-subhero">
+        <FloralTopBanner className="invite-subhero__banner" />
+        <div className="invite-subhero__inner">
+          <p className="invite-kicker">
             Marriage Ceremony · September 5, 2026
           </p>
-          <h1 className="font-serif text-5xl md:text-6xl tracking-widest2 text-mauve-800 uppercase mb-2">
-            RSVP
-          </h1>
+          <h1>RSVP</h1>
+          <p>
+            Let us know if you can celebrate with us, and add any family members joining you.
+          </p>
         </div>
-      </div>
+      </section>
 
       {/* Step indicator — 2 steps now */}
-      <div ref={formStartRef} className="max-w-xs mx-auto px-6 mb-8">
+      <div ref={formStartRef} className="max-w-xs mx-auto px-6 mb-8 -mt-4 relative z-10">
         <div className="flex items-center">
           <StepDot step={1} current={step} label="Your Info" />
           <StepLine done={step > 1} />
@@ -297,9 +300,10 @@ export default function RSVP() {
       {/* ── STEP 1: Name + attendance + additional guests ─────────────────── */}
       {step === 1 && (
         <div data-analytics-section="RSVP Form" className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up">
-          <div className="card">
-            <h2 className="font-serif text-2xl text-mauve-800 mb-1 text-center">Your Details</h2>
-            <p className="font-sans text-sm text-mauve-400 text-center mb-6">
+          <div className="invite-card rsvp-card">
+            <p className="invite-kicker text-center">Step one</p>
+            <h2 className="font-serif text-3xl text-mauve-800 mb-2 text-center">Your Details</h2>
+            <p className="font-sans text-sm text-mauve-500 text-center mb-6">
               Please enter your first and last name below.
             </p>
 
@@ -358,7 +362,7 @@ export default function RSVP() {
             {attending === 'yes' && (
               <div
                 ref={additionalGuestsRef}
-                className="mb-6 rounded-lg border-2 border-mauve-300 bg-white p-4 shadow-sm"
+                className="mb-6 rounded-lg border border-mauve-200 bg-[#fffaf4] p-4 shadow-sm"
               >
                 <div className="flex items-start gap-3 mb-4">
                   <div className="w-10 h-10 rounded-full bg-mauve-100 flex items-center justify-center flex-shrink-0">
@@ -377,14 +381,14 @@ export default function RSVP() {
                   <button
                     type="button"
                     onClick={() => handleAdditionalNumChange(additionalNum - 1)}
-                    className="w-10 h-10 rounded-full border-2 border-mauve-200 text-mauve-600 text-xl
+                    className="w-10 h-10 rounded-full border border-mauve-200 text-mauve-600 text-xl
                                flex items-center justify-center hover:border-mauve-400 transition-colors"
                   >−</button>
                   <span className="font-serif text-3xl text-mauve-700 w-8 text-center">{additionalNum}</span>
                   <button
                     type="button"
                     onClick={() => handleAdditionalNumChange(additionalNum + 1)}
-                    className="w-10 h-10 rounded-full border-2 border-mauve-200 text-mauve-600 text-xl
+                    className="w-10 h-10 rounded-full border border-mauve-200 text-mauve-600 text-xl
                                flex items-center justify-center hover:border-mauve-400 transition-colors"
                   >+</button>
                 </div>
@@ -454,8 +458,9 @@ export default function RSVP() {
       {/* ── STEP 2: Contact + confirm ─────────────────────────────────────── */}
       {step === 2 && (
         <div data-analytics-section="RSVP Form" className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up">
-          <div className="card">
-            <h2 className="font-serif text-2xl text-mauve-800 mb-1 text-center">Final Step: Submit RSVP</h2>
+          <div className="invite-card rsvp-card">
+            <p className="invite-kicker text-center">Step two</p>
+            <h2 className="font-serif text-3xl text-mauve-800 mb-2 text-center">Submit RSVP</h2>
 
             <div className="rounded-lg border border-mauve-800 bg-mauve-800 p-3 mb-6 text-center shadow-sm">
               <p className="font-sans text-sm font-bold text-white">
@@ -506,7 +511,7 @@ export default function RSVP() {
             </div>
 
             {/* Summary */}
-            <div className="bg-mauve-100/60 rounded-xl p-4 mb-6 space-y-2">
+            <div className="bg-[#fffaf4] border border-mauve-100 rounded-lg p-4 mb-6 space-y-2">
               <h3 className="font-serif text-base text-mauve-700 mb-2">Your RSVP Summary</h3>
               <p className="font-sans text-sm text-mauve-600">
                 <span className="font-semibold">{firstName} {lastName}</span>
@@ -557,7 +562,7 @@ export default function RSVP() {
       )}
 
       {/* Footer */}
-      <footer className="py-10 text-center border-t border-mauve-100">
+      <footer className="invite-footer">
         <FloralSprig className="mb-3" />
         <p className="font-serif italic text-mauve-400 text-sm">
           Manas &amp; Rupa Sri &nbsp;·&nbsp; September 5, 2026
