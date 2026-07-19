@@ -60,6 +60,7 @@
 }
 
 .nav-shell {
+  width: 100%;
   min-height: 58px;
   display: flex;
   align-items: center;
@@ -74,6 +75,7 @@
 }
 
 .nav-brand {
+  min-width: 0;
   font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
   font-size: 1rem;
   line-height: 1;
@@ -82,6 +84,8 @@
   text-transform: uppercase;
   letter-spacing: 0.18em;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-link {
@@ -117,17 +121,83 @@
   border: 1px solid rgba(237, 203, 187, 0.9);
   border-radius: 999px;
   background: #fff;
+  flex: 0 0 auto;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.nav-menu-button:active {
+  transform: scale(0.96);
+}
+
+.nav-mobile-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-0.35rem);
+  transition:
+    grid-template-rows 240ms ease,
+    opacity 180ms ease,
+    transform 240ms ease;
+}
+
+.nav-mobile-panel.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .nav-mobile-menu {
-  max-width: calc(100% - 1.5rem);
-  margin: 0.5rem auto 0;
-  padding: 0.35rem 1rem;
+  min-height: 0;
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.5rem;
+  padding: 0.35rem;
   border: 1px solid rgba(237, 203, 187, 0.88);
   border-radius: 8px;
   background: rgba(255, 250, 244, 0.98);
   box-shadow: 0 18px 44px rgba(81, 28, 44, 0.16);
   backdrop-filter: blur(16px);
+}
+
+.nav-mobile-link {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.95rem;
+  border-radius: 6px;
+  color: #642335;
+  font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.nav-mobile-link + .nav-mobile-link {
+  margin-top: 0.15rem;
+}
+
+.nav-mobile-link::after {
+  content: '';
+  width: 0.38rem;
+  height: 0.38rem;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  opacity: 0.58;
+  transform: rotate(45deg);
+}
+
+.nav-mobile-link:hover,
+.nav-mobile-link.is-active {
+  background: #511c2c;
+  color: #fffaf4;
 }
 
 .invite-kicker {
@@ -769,13 +839,20 @@
   }
 }
 
+@media (max-width: 480px) {
+  .nav-brand {
+    max-width: min(66vw, 14.25rem);
+    overflow: hidden;
+    font-size: 0.84rem;
+    letter-spacing: 0.12em;
+    text-overflow: ellipsis;
+  }
+}
+
 @media (max-width: 380px) {
   .nav-brand {
-    max-width: 14.25rem;
-    overflow: hidden;
-    font-size: 0.82rem;
-    letter-spacing: 0.14em;
-    text-overflow: ellipsis;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
   }
 
   .invite-hero {
@@ -977,6 +1054,19 @@ body:has(.city2-page) .nav-menu-button {
 body:has(.city2-page) .nav-mobile-menu {
   border-color: rgba(230, 196, 108, 0.48);
   background: rgba(9, 58, 55, 0.98);
+}
+
+.city2-page .nav-mobile-link,
+body:has(.city2-page) .nav-mobile-link {
+  color: #f8e8b5;
+}
+
+.city2-page .nav-mobile-link:hover,
+.city2-page .nav-mobile-link.is-active,
+body:has(.city2-page) .nav-mobile-link:hover,
+body:has(.city2-page) .nav-mobile-link.is-active {
+  background: #e6c46c;
+  color: #073935;
 }
 
 .city2-page .invite-hero {
@@ -1607,11 +1697,44 @@ body:has(.city2-page) .nav-mobile-menu {
   color: var(--city2-ink);
 }
 
+body:has(.city2-page) {
+  --city2-ink: #073935;
+  --city2-teal: #0d5c58;
+  --city2-teal-soft: #126f68;
+  --city2-gold: #f1d88a;
+  --city2-cream: #fff8ec;
+  --city2-warm: #f8f1e8;
+  --city2-blush: #f1ddd7;
+  --city2-sage: #e6e9c9;
+  --city2-copy: #365c52;
+  --city2-line: rgba(7, 57, 53, 0.13);
+}
+
 .city2-page .nav-shell,
 body:has(.city2-page) .nav-shell {
   border-color: rgba(241, 216, 138, 0.42);
   background: rgba(7, 57, 53, 0.9);
   box-shadow: 0 12px 34px rgba(5, 39, 37, 0.2);
+}
+
+.city2-page .nav-mobile-menu,
+body:has(.city2-page) .nav-mobile-menu {
+  border-color: rgba(241, 216, 138, 0.34);
+  background: rgba(7, 57, 53, 0.96);
+  box-shadow: 0 16px 36px rgba(5, 39, 37, 0.2);
+}
+
+.city2-page .nav-mobile-link,
+body:has(.city2-page) .nav-mobile-link {
+  color: var(--city2-cream);
+}
+
+.city2-page .nav-mobile-link:hover,
+.city2-page .nav-mobile-link.is-active,
+body:has(.city2-page) .nav-mobile-link:hover,
+body:has(.city2-page) .nav-mobile-link.is-active {
+  background: var(--city2-gold);
+  color: var(--city2-ink);
 }
 
 .city2-page .invite-hero {

@@ -60,39 +60,38 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           <button
-            className="nav-menu-button"
+            type="button"
+            className="nav-menu-button md:hidden"
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
           >
             <span className={`block w-6 h-0.5 bg-current transition-all duration-200 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
             <span className={`block w-6 h-0.5 bg-current transition-all duration-200 ${menuOpen ? 'opacity-0' : ''}`} />
             <span className={`block w-6 h-0.5 bg-current transition-all duration-200 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
           </button>
         </div>
-      </div>
 
-      {/* Mobile dropdown menu */}
-      <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ${
-          menuOpen ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <nav className="nav-mobile-menu">
-          {links.map(({ to, label }) => (
-            <Link
-              key={to}
-              to={to}
-              className={`font-sans text-sm tracking-wider py-3 border-b border-mauve-100 last:border-0 ${
-                isActive(to)
-                  ? 'text-mauve-800 font-medium'
-                  : 'text-mauve-600 hover:text-mauve-800'
-              } transition-colors`}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
+        {/* Mobile dropdown menu */}
+        <div
+          id="mobile-navigation"
+          className={`nav-mobile-panel md:hidden ${menuOpen ? 'is-open' : ''}`}
+          aria-hidden={!menuOpen}
+        >
+          <nav className="nav-mobile-menu" aria-label="Mobile navigation">
+            {links.map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className={`nav-mobile-link ${isActive(to) ? 'is-active' : ''}`}
+                tabIndex={menuOpen ? 0 : -1}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </div>
     </header>
   );
