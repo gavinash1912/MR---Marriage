@@ -2,11 +2,12 @@ import { FloralSprig, FloralTopBanner } from '../components/FloralDecor';
 import { Calendar, Clock, MapPin, Utensils, Music, Star, CalendarPlus } from 'lucide-react';
 import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
 import { useVisitAnalytics } from '../utils/analytics';
+import { useScrollReveal } from '../utils/scrollReveal';
 
 // ── Timeline event component ─────────────────────────────────────────────────
-function TimelineEvent({ time, title, description, icon: Icon, accent = false, last = false }) {
+function TimelineEvent({ time, title, description, icon: Icon, accent = false, last = false, delay = '0ms' }) {
   return (
-    <div className="program-row">
+    <div className="program-row" data-reveal="timeline" style={{ '--reveal-delay': delay }}>
       {/* Time column */}
       <div className="program-row__time">
         <span className={accent ? 'text-mauve-700' : 'text-mauve-400'}>
@@ -43,13 +44,14 @@ export default function Schedule() {
   const { handleTrackedClick } = useVisitAnalytics({
     sections: ['Schedule Header', 'Ceremony Program', 'Calendar Links', 'Venue Details'],
   });
+  useScrollReveal();
 
   return (
     <div className="city2-page min-h-screen bg-[#fffaf4]" onClickCapture={handleTrackedClick}>
       {/* Top floral */}
       <section data-analytics-section="Schedule Header" className="invite-subhero">
         <FloralTopBanner className="invite-subhero__banner" />
-        <div className="invite-subhero__inner">
+        <div className="invite-subhero__inner" data-reveal="fade-up">
           <p className="invite-kicker">September 5, 2026</p>
           <h1>Wedding Day Schedule</h1>
           <p>
@@ -73,7 +75,7 @@ export default function Schedule() {
       <section data-analytics-section="Ceremony Program" className="invite-section pt-8">
         <div className="invite-section__inner max-w-4xl">
           <div className="schedule-shell">
-            <div className="schedule-shell__intro">
+            <div className="schedule-shell__intro" data-reveal="slide-right">
               <p className="invite-kicker">Ceremony program</p>
               <h2>Morning Celebration</h2>
               <p>
@@ -88,6 +90,7 @@ export default function Schedule() {
                 description="Family blessings and traditional wedding rituals begin."
                 icon={Star}
                 accent
+                delay="80ms"
               />
               <TimelineEvent
                 time="10:00 AM"
@@ -95,6 +98,7 @@ export default function Schedule() {
                 description="Manas and Rupa Sri are joined in marriage with blessings from family and friends."
                 icon={Star}
                 accent
+                delay="170ms"
               />
               <TimelineEvent
                 time="10:30 AM"
@@ -102,6 +106,7 @@ export default function Schedule() {
                 description="Group photos, family portraits, and celebrations."
                 icon={Music}
                 accent
+                delay="260ms"
               />
               <TimelineEvent
                 time="11:30 AM"
@@ -110,6 +115,7 @@ export default function Schedule() {
                 icon={Utensils}
                 accent
                 last
+                delay="350ms"
               />
             </div>
           </div>
@@ -118,7 +124,7 @@ export default function Schedule() {
 
       {/* Calendar invite section */}
       <section data-analytics-section="Calendar Links" className="invite-section invite-section--sage">
-        <div className="max-w-md mx-auto text-center px-4">
+        <div className="max-w-md mx-auto text-center px-4" data-reveal="fade-up">
           <FloralSprig className="mb-5" />
           <p className="invite-kicker">Save the date</p>
           <h2 className="font-serif text-3xl md:text-4xl text-mauve-800 mb-3">Add it to your calendar</h2>
@@ -156,7 +162,7 @@ export default function Schedule() {
 
       {/* Venue map & details */}
       <section data-analytics-section="Venue Details" className="invite-section">
-        <div className="max-w-xl mx-auto text-center px-4">
+        <div className="max-w-xl mx-auto text-center px-4" data-reveal="fade-up">
           <p className="invite-kicker">Getting there</p>
           <h2 className="font-serif text-3xl md:text-4xl text-mauve-800 mb-6">Atithi Venue</h2>
           <div className="invite-card text-left space-y-4">

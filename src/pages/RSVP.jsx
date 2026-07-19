@@ -4,6 +4,7 @@ import { FloralSprig, FloralTopBanner } from '../components/FloralDecor';
 import { Check, ChevronRight, Users, Phone, Mail, MessageSquare, Calendar, CalendarPlus } from 'lucide-react';
 import { useVisitAnalytics } from '../utils/analytics';
 import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
+import { useScrollReveal } from '../utils/scrollReveal';
 
 // ── Step indicator ──────────────────────────────────────────────────────────
 function StepDot({ step, current, label }) {
@@ -60,6 +61,7 @@ export default function RSVP() {
   const { trackAction, handleTrackedClick } = useVisitAnalytics({
     sections: ['RSVP Header', 'RSVP Form'],
   });
+  useScrollReveal();
   const startedRef = useRef(false);
   const formStartRef = useRef(null);
   const additionalGuestsRef = useRef(null);
@@ -183,7 +185,7 @@ export default function RSVP() {
   if (submitted) {
     return (
       <div className="city2-page min-h-screen bg-[#fffaf4] pt-24 md:pt-28" onClickCapture={handleTrackedClick}>
-        <div className="max-w-lg mx-auto px-4 py-16 text-center">
+        <div className="max-w-lg mx-auto px-4 py-16 text-center" data-reveal="scale-up">
           <div className="invite-card">
           <div className="w-20 h-20 rounded-full bg-mauve-100 flex items-center justify-center mx-auto mb-6">
             <Check className="w-10 h-10 text-mauve-600" />
@@ -277,7 +279,7 @@ export default function RSVP() {
       {/* Top floral */}
       <section data-analytics-section="RSVP Header" className="invite-subhero">
         <FloralTopBanner className="invite-subhero__banner" />
-        <div className="invite-subhero__inner">
+        <div className="invite-subhero__inner" data-reveal="fade-up">
           <p className="invite-kicker">
             Marriage Ceremony · September 5, 2026
           </p>
@@ -289,7 +291,7 @@ export default function RSVP() {
       </section>
 
       {/* Step indicator — 2 steps now */}
-      <div ref={formStartRef} className="max-w-xs mx-auto px-6 mb-8 -mt-4 relative z-10">
+      <div ref={formStartRef} className="max-w-xs mx-auto px-6 mb-8 -mt-4 relative z-10" data-reveal="fade-up" style={{ '--reveal-delay': '80ms' }}>
         <div className="flex items-center">
           <StepDot step={1} current={step} label="Your Info" />
           <StepLine done={step > 1} />
@@ -299,7 +301,7 @@ export default function RSVP() {
 
       {/* ── STEP 1: Name + attendance + additional guests ─────────────────── */}
       {step === 1 && (
-        <div data-analytics-section="RSVP Form" className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up">
+        <div data-analytics-section="RSVP Form" className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up" data-reveal="scale-up" style={{ '--reveal-delay': '140ms' }}>
           <div className="invite-card rsvp-card">
             <p className="invite-kicker text-center">Step one</p>
             <h2 className="font-serif text-3xl text-mauve-800 mb-2 text-center">Your Details</h2>
@@ -457,7 +459,7 @@ export default function RSVP() {
 
       {/* ── STEP 2: Contact + confirm ─────────────────────────────────────── */}
       {step === 2 && (
-        <div data-analytics-section="RSVP Form" className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up">
+        <div data-analytics-section="RSVP Form" className="max-w-lg mx-auto px-4 pb-20 animate-fade-in-up" data-reveal="scale-up">
           <div className="invite-card rsvp-card">
             <p className="invite-kicker text-center">Step two</p>
             <h2 className="font-serif text-3xl text-mauve-800 mb-2 text-center">Submit RSVP</h2>
