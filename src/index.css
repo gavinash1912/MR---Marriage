@@ -1080,6 +1080,166 @@ body:has(.city2-page) .nav-mobile-menu {
   to { transform: translate3d(-0.25rem, 1.25rem, 0); }
 }
 
+.city2-traffic {
+  position: relative;
+  width: min(100%, 780px);
+  height: 4.1rem;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.city2-traffic::before,
+.city2-traffic::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  content: '';
+}
+
+.city2-traffic::before {
+  bottom: 0.7rem;
+  height: 1.75rem;
+  border-top: 1px solid rgba(255, 230, 154, 0.34);
+  border-bottom: 1px solid rgba(255, 230, 154, 0.34);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 1.4rem, rgba(255, 230, 154, 0.58) 1.4rem 2.25rem, transparent 2.25rem 3.6rem),
+    rgba(7, 57, 53, 0.36);
+}
+
+.city2-traffic::after {
+  bottom: 1.54rem;
+  height: 1px;
+  background: repeating-linear-gradient(90deg, rgba(255, 246, 217, 0.72) 0 1.2rem, transparent 1.2rem 2.2rem);
+}
+
+.city2-traffic--hero {
+  position: absolute;
+  left: 50%;
+  bottom: 4.15rem;
+  z-index: 2;
+  width: min(calc(100% - 2rem), 760px);
+  transform: translateX(-50%);
+}
+
+.city2-traffic--event {
+  margin: -1.35rem auto 1.15rem;
+}
+
+.city2-car {
+  --car-color: #d65d43;
+  --car-window: #fff6d9;
+  position: absolute;
+  bottom: 1.35rem;
+  left: -7.5rem;
+  width: 5.7rem;
+  height: 2.25rem;
+  z-index: 2;
+  animation: city2-car-drive-right 12s linear infinite;
+}
+
+.city2-car::before {
+  position: absolute;
+  left: 0.25rem;
+  right: 0.25rem;
+  bottom: 0.18rem;
+  height: 1.18rem;
+  border: 1px solid rgba(255, 230, 154, 0.78);
+  border-radius: 0.72rem 0.88rem 0.42rem 0.42rem;
+  background:
+    linear-gradient(180deg, rgba(255, 246, 217, 0.16), transparent 46%),
+    var(--car-color);
+  box-shadow:
+    inset 0 -0.2rem 0 rgba(7, 57, 53, 0.24),
+    0 0.42rem 0.6rem rgba(7, 57, 53, 0.2);
+  content: '';
+}
+
+.city2-car::after {
+  position: absolute;
+  left: 1.38rem;
+  bottom: 1.08rem;
+  width: 2.75rem;
+  height: 0.9rem;
+  border: 1px solid rgba(255, 230, 154, 0.68);
+  border-bottom: 0;
+  border-radius: 0.86rem 0.86rem 0.18rem 0.18rem;
+  background:
+    linear-gradient(90deg, var(--car-window) 0 43%, rgba(7, 57, 53, 0.5) 43% 50%, var(--car-window) 50% 100%);
+  clip-path: polygon(12% 100%, 28% 8%, 74% 8%, 92% 100%);
+  content: '';
+}
+
+.city2-car__wheel {
+  position: absolute;
+  bottom: 0;
+  width: 0.68rem;
+  height: 0.68rem;
+  border: 2px solid #ffe69a;
+  border-radius: 999px;
+  background: #073935;
+  animation: city2-wheel-spin 560ms linear infinite;
+}
+
+.city2-car__wheel::after {
+  position: absolute;
+  inset: 0.13rem;
+  border-radius: inherit;
+  background: #fff6d9;
+  content: '';
+}
+
+.city2-car__wheel--back {
+  left: 1rem;
+}
+
+.city2-car__wheel--front {
+  right: 0.95rem;
+}
+
+.city2-car--reverse {
+  right: -7.5rem;
+  left: auto;
+  transform: scaleX(-1);
+  animation-name: city2-car-drive-left;
+  animation-duration: 14.5s;
+}
+
+.city2-car--rose {
+  --car-color: #d65d43;
+  animation-delay: -2.2s;
+}
+
+.city2-car--mint {
+  --car-color: #8fd2bf;
+  animation-delay: -6s;
+}
+
+.city2-car--gold {
+  --car-color: #e6c46c;
+  animation-delay: -3.8s;
+  animation-duration: 11.5s;
+}
+
+.city2-car--teal {
+  --car-color: #0f6d67;
+  animation-delay: -8.1s;
+  animation-duration: 15.5s;
+}
+
+@keyframes city2-car-drive-right {
+  from { left: -7.5rem; }
+  to { left: calc(100% + 7.5rem); }
+}
+
+@keyframes city2-car-drive-left {
+  from { right: -7.5rem; }
+  to { right: calc(100% + 7.5rem); }
+}
+
+@keyframes city2-wheel-spin {
+  to { transform: rotate(1turn); }
+}
+
 .city2-mantra {
   margin-bottom: 0.7rem;
   color: #ffe69a;
@@ -1632,8 +1792,20 @@ body:has(.city2-page) .nav-mobile-menu {
   .city2-page .invite-hero::before,
   .city2-page .invite-hero__content::before,
   .city2-page .invite-hero__side--left,
-  .city2-page .invite-hero__side--right {
+  .city2-page .invite-hero__side--right,
+  .city2-car,
+  .city2-car__wheel {
     animation: none !important;
+  }
+
+  .city2-car {
+    left: 12%;
+  }
+
+  .city2-car--reverse {
+    right: 12%;
+    left: auto;
+    transform: scaleX(-1);
   }
 
   .city2-page [data-reveal] {
