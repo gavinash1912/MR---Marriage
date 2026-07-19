@@ -110,17 +110,6 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="city2-traffic city2-traffic--hero" aria-hidden="true">
-          <span className="city2-car city2-car--rose">
-            <span className="city2-car__wheel city2-car__wheel--back" />
-            <span className="city2-car__wheel city2-car__wheel--front" />
-          </span>
-          <span className="city2-car city2-car--mint city2-car--reverse">
-            <span className="city2-car__wheel city2-car__wheel--back" />
-            <span className="city2-car__wheel city2-car__wheel--front" />
-          </span>
-        </div>
-
         <div className="invite-hero__peek" aria-hidden="true">
           <span>Hindu Wedding</span>
           <span>Plano, Texas</span>
@@ -153,17 +142,6 @@ export default function Home() {
             <p className="section-lede mx-auto mt-4">
               One joyful morning of blessings, rituals, photos, and lunch.
             </p>
-          </div>
-
-          <div className="city2-traffic city2-traffic--event" aria-hidden="true" data-reveal="fade-up" style={{ '--reveal-delay': '80ms' }}>
-            <span className="city2-car city2-car--gold">
-              <span className="city2-car__wheel city2-car__wheel--back" />
-              <span className="city2-car__wheel city2-car__wheel--front" />
-            </span>
-            <span className="city2-car city2-car--teal city2-car--reverse">
-              <span className="city2-car__wheel city2-car__wheel--back" />
-              <span className="city2-car__wheel city2-car__wheel--front" />
-            </span>
           </div>
 
           <div className="city2-event-card" data-reveal="scale-up" style={{ '--reveal-delay': '100ms' }}>
