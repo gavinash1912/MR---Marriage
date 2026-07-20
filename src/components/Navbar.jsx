@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { getInvitationConfig, getInvitationModeFromPath } from '../utils/events';
 
 export default function Navbar() {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const invitation = getInvitationConfig(getInvitationModeFromPath(location.pathname));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -18,13 +20,13 @@ export default function Navbar() {
   useEffect(() => { setMenuOpen(false); }, [location]);
 
   const links = [
-    { to: '/',         label: 'Home'     },
-    { to: '/schedule', label: 'Schedule' },
-    { to: '/rsvp',     label: 'RSVP'     },
+    { to: invitation.homePath,     label: 'Home'     },
+    { to: invitation.schedulePath, label: 'Schedule' },
+    { to: invitation.rsvpPath,     label: 'RSVP'     },
   ];
 
   const isActive = (to) => {
-    if (to === '/') return location.pathname === '/';
+    if (to === invitation.homePath) return location.pathname === invitation.homePath;
     return location.pathname.startsWith(to);
   };
 
@@ -39,7 +41,7 @@ export default function Navbar() {
 
           {/* Couple name – links to home */}
           <Link
-            to="/"
+            to={invitation.homePath}
             className="nav-brand"
           >
             Manas &amp; Rupa Sri

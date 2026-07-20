@@ -3,6 +3,7 @@ import { Calendar, Clock, MapPin, Utensils, Music, Star, CalendarPlus } from 'lu
 import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
 import { useVisitAnalytics } from '../utils/analytics';
 import { useScrollReveal } from '../utils/scrollReveal';
+import { WEDDING_EVENT_ID, getInvitationConfig } from '../utils/events';
 
 // ── Timeline event component ─────────────────────────────────────────────────
 function TimelineEvent({ time, title, description, icon: Icon, accent = false, last = false, delay = '0ms' }) {
@@ -40,9 +41,17 @@ function TimelineEvent({ time, title, description, icon: Icon, accent = false, l
 }
 
 // ── Schedule page ─────────────────────────────────────────────────────────────
-export default function Schedule() {
+export default function Schedule({ invitationMode = 'full' }) {
+  const invitation = getInvitationConfig(invitationMode);
+  const analyticsSections = [
+    'Schedule Header',
+    ...(invitation.showAllEvents ? ['All Events Schedule'] : []),
+    'Ceremony Program',
+    'Calendar Links',
+    'Venue Details',
+  ];
   const { handleTrackedClick } = useVisitAnalytics({
-    sections: ['Schedule Header', 'Ceremony Program', 'Calendar Links', 'Venue Details'],
+    sections: analyticsSections,
   });
   useScrollReveal();
 
@@ -53,9 +62,11 @@ export default function Schedule() {
         <FloralTopBanner className="invite-subhero__banner" />
         <div className="invite-subhero__inner" data-reveal="fade-up">
           <p className="invite-kicker">September 5, 2026</p>
-          <h1>Wedding Day Schedule</h1>
+          <h1>{invitation.showAllEvents ? 'Wedding Events Schedule' : 'Wedding Day Schedule'}</h1>
           <p>
-            Ceremony, family blessings, photos, and lunch at Atithi Venue in Plano, Texas.
+            {invitation.showAllEvents
+              ? 'Wedding day details are confirmed. Other event dates and Grandion venue details are placeholders until finalized.'
+              : 'Ceremony, family blessings, photos, and lunch at Atithi Venue in Plano, Texas.'}
           </p>
           <div className="mt-5 flex items-center justify-center gap-2 text-mauve-500">
             <MapPin className="w-4 h-4" />
@@ -70,6 +81,40 @@ export default function Schedule() {
           </div>
         </div>
       </section>
+
+      {invitation.showAllEvents && (
+        <section data-analytics-section="All Events Schedule" className="invite-section pt-8">
+          <div className="invite-section__inner">
+            <div className="section-heading-row" data-reveal="fade-up">
+              <div>
+                <p className="invite-kicker">Full invitation</p>
+                <h2 className="section-title text-left">Events Around the Wedding</h2>
+              </div>
+              <p className="section-lede">
+                RSVP will ask for each event separately. Grandion is a placeholder for the sub-event venue.
+              </p>
+            </div>
+
+            <div className="city2-schedule-event-grid">
+              {invitation.events.map((event, index) => (
+                <article
+                  key={event.id}
+                  className={`city2-schedule-event ${event.id === WEDDING_EVENT_ID ? 'is-featured' : ''}`}
+                  data-reveal="card"
+                  style={{ '--reveal-delay': `${index * 80}ms` }}
+                >
+                  <p className="city2-event-tile__kicker">{event.category}</p>
+                  <h3>{event.name}</h3>
+                  <p>{event.dateLabel}</p>
+                  <p>{event.timeLabel}</p>
+                  <p>{event.venue}</p>
+                  {event.description && <span>{event.description}</span>}
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Timeline */}
       <section data-analytics-section="Ceremony Program" className="invite-section pt-8">

@@ -22,9 +22,12 @@ function AppLayout() {
       <ScrollToTop />
       {!isAdmin && <Navbar />}
       <Routes>
-        <Route path="/"        element={<Home />}     />
-        <Route path="/schedule" element={<Schedule />} />
-        <Route path="/rsvp"    element={<RSVP />}     />
+        <Route path="/"        element={<Home invitationMode="full" />}     />
+        <Route path="/schedule" element={<Schedule invitationMode="full" />} />
+        <Route path="/rsvp"    element={<RSVP invitationMode="full" />}     />
+        <Route path="/wedding"          element={<Home invitationMode="wedding-only" />}     />
+        <Route path="/wedding/schedule" element={<Schedule invitationMode="wedding-only" />} />
+        <Route path="/wedding/rsvp"     element={<RSVP invitationMode="wedding-only" />}     />
         {/* Admin at hidden URL — change this slug before going live */}
         <Route path="/admin-mr-2026" element={<Admin />} />
       </Routes>
