@@ -4,7 +4,7 @@ export const INVITATION_MODES = {
 };
 
 export const WEDDING_EVENT_ID = 'wedding';
-export const FULL_INVITE_BASE_PATH = '/mr-celebrations';
+export const FULL_INVITE_BASE_PATH = '/marriage/celebrations';
 export const WEDDING_ONLY_BASE_PATH = '/wedding';
 
 export const WEDDING_EVENT = {
