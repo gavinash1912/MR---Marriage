@@ -4,6 +4,7 @@ import { FloralLeft, FloralRight, FloralTopBanner, FloralSprig } from '../compon
 import { Calendar, MapPin, Clock } from 'lucide-react';
 import { useVisitAnalytics } from '../utils/analytics';
 import { useScrollReveal } from '../utils/scrollReveal';
+import { WEDDING_EVENT_ID, getInvitationConfig } from '../utils/events';
 
 // ── Countdown hook ──────────────────────────────────────────────────────────
 function useCountdown(targetDate) {
@@ -36,11 +37,22 @@ function CountdownBlock({ value, label }) {
 }
 
 // ── Main Home page ───────────────────────────────────────────────────────────
-export default function Home() {
+export default function Home({ invitationMode = 'full' }) {
   const MARRIAGE_DATE = '2026-09-05T08:00:00';
+  const invitation = getInvitationConfig(invitationMode);
   const countdown = useCountdown(MARRIAGE_DATE);
+  const analyticsSections = [
+    'Hero',
+    'Blessing',
+    ...(invitation.showAllEvents ? ['All Events'] : []),
+    'Event Details',
+    'Couple Photo',
+    'RSVP',
+    'Things To Know',
+    'Countdown',
+  ];
   const { handleTrackedClick } = useVisitAnalytics({
-    sections: ['Hero', 'Blessing', 'Event Details', 'Couple Photo', 'RSVP', 'Things To Know', 'Countdown'],
+    sections: analyticsSections,
   });
   useScrollReveal();
 
@@ -101,10 +113,10 @@ export default function Home() {
           </div>
 
           <div className="invite-hero__actions animate-fade-in-up delay-600">
-            <Link to="/rsvp" className="btn-primary">
+            <Link to={invitation.rsvpPath} className="btn-primary">
               RSVP
             </Link>
-            <Link to="/schedule" className="btn-secondary">
+            <Link to={invitation.schedulePath} className="btn-secondary">
               Schedule
             </Link>
           </div>
@@ -125,19 +137,65 @@ export default function Home() {
             <div className="city2-rule" />
             <p className="invite-kicker">Invite</p>
             <p className="city2-large-copy">
-              You to join us in the wedding celebrations of
+              You to join us {invitation.showAllEvents ? 'in the wedding celebrations of' : 'for the marriage ceremony of'}
             </p>
             <h2>Manas <span>&amp;</span> Rupa Sri</h2>
-            <p className="city2-small-copy">On the following event</p>
+            <p className="city2-small-copy">
+              {invitation.showAllEvents ? 'Across the following events' : 'On the following event'}
+            </p>
           </div>
         </div>
       </section>
+
+      {invitation.showAllEvents && (
+        <section data-analytics-section="All Events" className="invite-section city2-all-events">
+          <div className="invite-section__inner">
+            <div className="section-heading-row" data-reveal="fade-up">
+              <div>
+                <p className="invite-kicker">Wedding weekend</p>
+                <h2 className="section-title text-left">All Events</h2>
+              </div>
+              <p className="section-lede">
+                Please RSVP for each event below. Dates and Grandion venue details are placeholders until finalized.
+              </p>
+            </div>
+
+            <div className="city2-event-tile-grid">
+              {invitation.events.map((event, index) => (
+                <article
+                  key={event.id}
+                  className={`city2-event-tile ${event.id === WEDDING_EVENT_ID ? 'is-featured' : ''}`}
+                  data-reveal="card"
+                  style={{ '--reveal-delay': `${index * 80}ms` }}
+                >
+                  <p className="city2-event-tile__kicker">{event.category}</p>
+                  <h3>{event.name}</h3>
+                  <dl>
+                    <div>
+                      <dt>Date</dt>
+                      <dd>{event.dateLabel}</dd>
+                    </div>
+                    <div>
+                      <dt>Time</dt>
+                      <dd>{event.timeLabel}</dd>
+                    </div>
+                    <div>
+                      <dt>Venue</dt>
+                      <dd>{event.venue}</dd>
+                    </div>
+                  </dl>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Invitation event section ────────────────────────── */}
       <section data-analytics-section="Event Details" className="invite-section invite-section--sage city2-events">
         <div className="invite-section__inner">
           <div className="text-center max-w-2xl mx-auto mb-10" data-reveal="fade-up">
-            <p className="invite-kicker">On the following event</p>
+            <p className="invite-kicker">Wedding day</p>
             <h2 className="section-title">Marriage Ceremony</h2>
             <p className="section-lede mx-auto mt-4">
               One joyful morning of blessings, rituals, photos, and lunch.
@@ -210,9 +268,11 @@ export default function Home() {
           <p className="invite-kicker">Please</p>
           <h2 className="section-title">RSVP</h2>
           <p className="section-lede mx-auto mt-4">
-            Confirm your attendance and add any accompanying guests.
+            {invitation.showAllEvents
+              ? 'Confirm your wedding attendance, add accompanying guests, and respond for each celebration.'
+              : 'Confirm your attendance and add any accompanying guests.'}
           </p>
-          <Link to="/rsvp" className="btn-primary mt-7">
+          <Link to={invitation.rsvpPath} className="btn-primary mt-7">
             Submit RSVP
           </Link>
         </div>
@@ -233,15 +293,27 @@ export default function Home() {
           <div className="city2-info-grid">
             <article data-reveal="card">
               <h3>Venue</h3>
-              <p>Atithi Venue, 9060 Independence Parkway, Plano, TX 75025.</p>
+              <p>
+                {invitation.showAllEvents
+                  ? 'Wedding day is at Atithi Venue. Other event venue details are placeholders at Grandion until finalized.'
+                  : 'Atithi Venue, 9060 Independence Parkway, Plano, TX 75025.'}
+              </p>
             </article>
             <article data-reveal="card" style={{ '--reveal-delay': '90ms' }}>
               <h3>Timing</h3>
-              <p>The ceremony begins at 8:00 AM. Breakfast and lunch will be served.</p>
+              <p>
+                {invitation.showAllEvents
+                  ? 'The wedding ceremony begins at 8:00 AM. Sub-event times are listed above and may be updated.'
+                  : 'The ceremony begins at 8:00 AM. Breakfast and lunch will be served.'}
+              </p>
             </article>
             <article data-reveal="card" style={{ '--reveal-delay': '180ms' }}>
               <h3>RSVP</h3>
-              <p>Please confirm your attendance and add any accompanying guests.</p>
+              <p>
+                {invitation.showAllEvents
+                  ? 'Please respond for each event individually so we can plan each gathering.'
+                  : 'Please confirm your attendance and add any accompanying guests.'}
+              </p>
             </article>
           </div>
         </div>
