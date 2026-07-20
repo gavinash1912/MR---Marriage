@@ -5,7 +5,7 @@ import { Check, ChevronRight, Users, Phone, Mail, MessageSquare, Calendar, Calen
 import { useVisitAnalytics } from '../utils/analytics';
 import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
 import { useScrollReveal } from '../utils/scrollReveal';
-import { WEDDING_EVENT_ID, getAttendanceText, getInvitationConfig } from '../utils/events';
+import { WEDDING_EVENT_ID, getInvitationConfig } from '../utils/events';
 
 // ── Step indicator ──────────────────────────────────────────────────────────
 function StepDot({ step, current, label }) {
@@ -56,7 +56,15 @@ function AttendOption({ value, label, sub, selected, onClick }) {
 }
 
 // ── Main RSVP page ───────────────────────────────────────────────────────────
-const blankGuest = () => ({ firstName: '', lastName: '' });
+const createEventResponseMap = (events = []) => (
+  Object.fromEntries(events.map(event => [event.id, '']))
+);
+
+const blankGuest = (events = []) => ({
+  firstName: '',
+  lastName: '',
+  eventResponses: createEventResponseMap(events),
+});
 
 export default function RSVP({ invitationMode = 'full' }) {
   const invitation = getInvitationConfig(invitationMode);
@@ -64,8 +72,14 @@ export default function RSVP({ invitationMode = 'full' }) {
     ? ['Your Info', 'Events', 'Submit']
     : ['Your Info', 'Submit'];
   const submitStep = invitation.showAllEvents ? 3 : 2;
+  const analyticsMetadata = {
+    invitationMode: invitation.mode,
+    invitationLabel: invitation.label,
+    inviteHomePath: invitation.homePath,
+  };
   const { trackAction, handleTrackedClick } = useVisitAnalytics({
     sections: ['RSVP Header', 'RSVP Form'],
+    metadata: analyticsMetadata,
   });
   useScrollReveal();
   const startedRef = useRef(false);
@@ -77,9 +91,7 @@ export default function RSVP({ invitationMode = 'full' }) {
   const [attending,     setAttending]    = useState('');
   const [additionalNum, setAdditionalNum]= useState(0);
   const [additionals,   setAdditionals]  = useState([]);
-  const [eventResponses, setEventResponses] = useState(() =>
-    Object.fromEntries(invitation.additionalEvents.map(event => [event.id, '']))
-  );
+  const [eventResponses, setEventResponses] = useState(() => createEventResponseMap(invitation.additionalEvents));
   const [showGuestConfirm, setShowGuestConfirm] = useState(false);
   const [confirmedSolo, setConfirmedSolo] = useState(false);
   const [contact,       setContact]      = useState({ phone: '', email: '', notes: '' });
@@ -93,19 +105,29 @@ export default function RSVP({ invitationMode = 'full' }) {
     trackAction('rsvp_started', 'Started RSVP form');
   };
 
+  const normalizeGuestEventResponses = (guest = {}) => ({
+    ...guest,
+    eventResponses: {
+      ...createEventResponseMap(invitation.events),
+      ...(guest.eventResponses || {}),
+    },
+  });
+
   const handleAdditionalNumChange = (n) => {
     trackRsvpStarted();
     const num = Math.max(0, Math.min(8, n));
     setConfirmedSolo(false);
     setAdditionalNum(num);
-    setAdditionals(Array.from({ length: num }, (_, i) => additionals[i] || blankGuest()));
+    setAdditionals(prev => (
+      Array.from({ length: num }, (_, i) => normalizeGuestEventResponses(prev[i] || blankGuest(invitation.events)))
+    ));
   };
 
   const handleWeddingAttendanceChange = (value) => {
     trackRsvpStarted();
     setAttending(value);
     setConfirmedSolo(false);
-    if (value === 'no') {
+    if (value === 'no' && !invitation.showAllEvents) {
       setAdditionalNum(0);
       setAdditionals([]);
     }
@@ -116,15 +138,36 @@ export default function RSVP({ invitationMode = 'full' }) {
     setAdditionals(prev => prev.map((g, idx) => idx === i ? { ...g, [field]: value } : g));
   };
 
+  const getGuestEventResponse = (guest, eventId) => (
+    guest?.eventResponses?.[eventId] || ''
+  );
+
+  const updateGuestEventResponse = (guestIndex, eventId, value) => {
+    trackRsvpStarted();
+    setAdditionals(prev => prev.map((guest, idx) => {
+      if (idx !== guestIndex) return guest;
+      const normalized = normalizeGuestEventResponses(guest);
+      return {
+        ...normalized,
+        eventResponses: {
+          ...normalized.eventResponses,
+          [eventId]: value,
+        },
+      };
+    }));
+  };
+
   const additionalGuestsValid = () => (
     additionalNum === 0 || additionals.every(guest => guest.firstName.trim())
   );
+
+  const additionalGuestSectionActive = () => invitation.showAllEvents || attending === 'yes';
 
   const step1Valid = () => Boolean(
     firstName.trim() &&
     lastName.trim() &&
     attending !== '' &&
-    (attending !== 'yes' || additionalGuestsValid())
+    (!additionalGuestSectionActive() || additionalGuestsValid())
   );
 
   const getEventResponse = (eventId) => (
@@ -142,15 +185,32 @@ export default function RSVP({ invitationMode = 'full' }) {
 
   const eventResponsesValid = () => (
     !invitation.showAllEvents ||
-    invitation.events.every(event => ['yes', 'no'].includes(getEventResponse(event.id)))
+    invitation.events.every(event => (
+      ['yes', 'no'].includes(getEventResponse(event.id)) &&
+      confirmedAdditionalGuests().every(guest => ['yes', 'no'].includes(getGuestEventResponse(guest, event.id)))
+    ))
   );
 
   const confirmedAdditionalGuests = () => additionals.filter(g => g.firstName.trim());
 
   const eventAttendancePayload = () => {
-    const guestCount = 1 + confirmedAdditionalGuests().length;
+    const additionalGuests = confirmedAdditionalGuests();
     return invitation.events.map(event => {
       const response = getEventResponse(event.id);
+      const guestResponses = additionalGuests.map(guest => {
+        const guestResponse = invitation.showAllEvents
+          ? getGuestEventResponse(guest, event.id)
+          : response;
+
+        return {
+          firstName: guest.firstName,
+          lastName: guest.lastName || '',
+          name: `${guest.firstName} ${guest.lastName || ''}`.trim(),
+          attending: guestResponse,
+        };
+      });
+      const guestCount = (response === 'yes' ? 1 : 0) +
+        guestResponses.filter(guest => guest.attending === 'yes').length;
 
       return {
         id: event.id,
@@ -159,7 +219,14 @@ export default function RSVP({ invitationMode = 'full' }) {
         timeLabel: event.timeLabel,
         venue: event.venue,
         attending: response,
-        guestCount: response === 'yes' ? guestCount : 0,
+        primaryGuest: {
+          firstName,
+          lastName,
+          name: `${firstName} ${lastName}`.trim(),
+          attending: response,
+        },
+        guestResponses,
+        guestCount,
       };
     });
   };
@@ -181,7 +248,7 @@ export default function RSVP({ invitationMode = 'full' }) {
   };
 
   const handleContinue = () => {
-    if (attending === 'yes' && additionalNum === 0 && !confirmedSolo) {
+    if (!invitation.showAllEvents && attending === 'yes' && additionalNum === 0 && !confirmedSolo) {
       trackAction('rsvp_guest_confirmation_shown', 'Asked to confirm no additional guests');
       setShowGuestConfirm(true);
       return;
@@ -217,6 +284,7 @@ export default function RSVP({ invitationMode = 'full' }) {
       events: eventAttendancePayload().map(event => ({
         id: event.id,
         attending: event.attending,
+        guestCount: event.guestCount,
       })),
     });
     setStep(submitStep);
@@ -249,7 +317,11 @@ export default function RSVP({ invitationMode = 'full' }) {
         attending,
         invitationMode: invitation.mode,
         additionalGuests: additionalGuests.length,
-        events: eventAttendance.map(event => ({ id: event.id, attending: event.attending })),
+        events: eventAttendance.map(event => ({
+          id: event.id,
+          attending: event.attending,
+          guestCount: event.guestCount,
+        })),
       });
       setSubmitted(true);
     } catch {
@@ -261,7 +333,11 @@ export default function RSVP({ invitationMode = 'full' }) {
         attending,
         invitationMode: invitation.mode,
         additionalGuests: additionalGuests.length,
-        events: eventAttendance.map(event => ({ id: event.id, attending: event.attending })),
+        events: eventAttendance.map(event => ({
+          id: event.id,
+          attending: event.attending,
+          guestCount: event.guestCount,
+        })),
         storage: 'local',
       });
       setSubmitted(true);
@@ -271,7 +347,7 @@ export default function RSVP({ invitationMode = 'full' }) {
   };
 
   // ── Success ────────────────────────────────────────────────────────────────
-  const hasAnyAttendance = attending === 'yes' || Object.values(eventResponses).includes('yes');
+  const hasAnyAttendance = eventAttendancePayload().some(event => event.guestCount > 0);
 
   if (submitted) {
     return (
@@ -456,8 +532,8 @@ export default function RSVP({ invitationMode = 'full' }) {
               </div>
             </div>
 
-            {/* Additional guests — only if attending */}
-            {attending === 'yes' && (
+            {/* Additional guests */}
+            {additionalGuestSectionActive() && (
               <div
                 ref={additionalGuestsRef}
                 className="mb-6 rounded-lg border border-mauve-200 bg-[#fffaf4] p-4 shadow-sm"
@@ -468,10 +544,14 @@ export default function RSVP({ invitationMode = 'full' }) {
                   </div>
                   <div className="text-left">
                     <p className="font-sans text-sm font-semibold text-mauve-800">
-                      Is anyone accompanying you?
+                      {invitation.showAllEvents
+                        ? 'Are any guests included in this invitation?'
+                        : 'Is anyone accompanying you?'}
                     </p>
                     <p className="font-sans text-xs text-mauve-500 mt-1">
-                      Add your spouse, children, family members, or other accompanying guests.
+                      {invitation.showAllEvents
+                        ? 'Add each guest here. On the next step, choose which events each person can attend.'
+                        : 'Add your spouse, children, family members, or other accompanying guests.'}
                     </p>
                   </div>
                 </div>
@@ -566,6 +646,7 @@ export default function RSVP({ invitationMode = 'full' }) {
             <div className="event-rsvp-list">
               {invitation.events.map((event) => {
                 const response = getEventResponse(event.id);
+                const guestRows = confirmedAdditionalGuests();
 
                 return (
                   <article key={event.id} className="event-rsvp-card">
@@ -575,21 +656,58 @@ export default function RSVP({ invitationMode = 'full' }) {
                       <p>{event.dateLabel}</p>
                       <p>{event.timeLabel} · {event.venue}</p>
                     </div>
-                    <div className="event-rsvp-card__choices" aria-label={`${event.name} RSVP`}>
-                      {[
-                        { value: 'yes', label: 'Attending' },
-                        { value: 'no', label: 'Not attending' },
-                      ].map(option => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => updateEventResponse(event.id, option.value)}
-                          className={`event-rsvp-choice ${response === option.value ? 'is-selected' : ''}`}
-                          aria-pressed={response === option.value}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
+                    <div className="event-rsvp-attendee-list" aria-label={`${event.name} RSVP`}>
+                      <div className="event-rsvp-attendee-row">
+                        <div>
+                          <span>Primary guest</span>
+                          <strong>{firstName} {lastName}</strong>
+                        </div>
+                        <div className="event-rsvp-card__choices">
+                          {[
+                            { value: 'yes', label: 'Attending' },
+                            { value: 'no', label: 'Not attending' },
+                          ].map(option => (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => updateEventResponse(event.id, option.value)}
+                              className={`event-rsvp-choice ${response === option.value ? 'is-selected' : ''}`}
+                              aria-pressed={response === option.value}
+                            >
+                              {option.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {guestRows.map((guest, guestIndex) => {
+                        const guestResponse = getGuestEventResponse(guest, event.id);
+
+                        return (
+                          <div key={`${event.id}-${guestIndex}`} className="event-rsvp-attendee-row">
+                            <div>
+                              <span>Guest {guestIndex + 1}</span>
+                              <strong>{guest.firstName} {guest.lastName}</strong>
+                            </div>
+                            <div className="event-rsvp-card__choices">
+                              {[
+                                { value: 'yes', label: 'Attending' },
+                                { value: 'no', label: 'Not attending' },
+                              ].map(option => (
+                                <button
+                                  key={option.value}
+                                  type="button"
+                                  onClick={() => updateGuestEventResponse(guestIndex, event.id, option.value)}
+                                  className={`event-rsvp-choice ${guestResponse === option.value ? 'is-selected' : ''}`}
+                                  aria-pressed={guestResponse === option.value}
+                                >
+                                  {option.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </article>
                 );
@@ -682,7 +800,7 @@ export default function RSVP({ invitationMode = 'full' }) {
                 <span className="font-semibold">{firstName} {lastName}</span>
                 {' — '}
                 <span className={attending === 'yes' ? 'text-sage-600' : 'text-blush-600'}>
-                  {attending === 'yes' ? '✓ Attending' : '✗ Not attending'}
+                  {attending === 'yes' ? '✓ Wedding attending' : '✗ Wedding not attending'}
                 </span>
               </p>
               {confirmedAdditionalGuests().map((g, i) => (
@@ -698,8 +816,8 @@ export default function RSVP({ invitationMode = 'full' }) {
                   {eventAttendancePayload().map(event => (
                     <div key={event.id}>
                       <span>{event.name}</span>
-                      <strong className={event.attending === 'yes' ? 'text-sage-600' : 'text-blush-600'}>
-                        {getAttendanceText(event.attending)}
+                      <strong className={event.guestCount > 0 ? 'text-sage-600' : 'text-blush-600'}>
+                        {event.guestCount} attending
                       </strong>
                     </div>
                   ))}

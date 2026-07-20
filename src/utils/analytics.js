@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
 
 function getOrCreateSessionId() {
@@ -63,22 +63,30 @@ export function trackEvent(eventType, details = {}, options = {}) {
   axios.post('/api/analytics', payload).catch(() => {});
 }
 
-export function useVisitAnalytics({ sections = [], scrollDepths = [25, 50, 100] } = {}) {
+export function useVisitAnalytics({ sections = [], scrollDepths = [25, 50, 100], metadata = null } = {}) {
   const visitIdRef = useRef(createVisitId());
   const visitStartedAtRef = useRef(Date.now());
   const trackedScrollDepthsRef = useRef(new Set());
   const trackedSectionsRef = useRef(new Set());
   const sectionKey = sections.join('|');
   const scrollDepthKey = scrollDepths.join('|');
+  const metadataKey = JSON.stringify(metadata || {});
+  const baseMetadata = useMemo(() => metadata || null, [metadataKey]);
+
+  const mergeMetadata = useCallback((actionMetadata = null) => {
+    if (!baseMetadata) return actionMetadata;
+    if (!actionMetadata) return baseMetadata;
+    return { ...baseMetadata, ...actionMetadata };
+  }, [baseMetadata]);
 
   const trackAction = useCallback((actionName, actionLabel, metadata = null, options = {}) => {
     trackEvent('action', {
       visitId: visitIdRef.current,
       actionName,
       actionLabel,
-      metadata,
+      metadata: mergeMetadata(metadata),
     }, options);
-  }, []);
+  }, [mergeMetadata]);
 
   const handleTrackedClick = useCallback((event) => {
     const target = event.target?.closest?.('a, button, [role="button"]');
@@ -108,7 +116,7 @@ export function useVisitAnalytics({ sections = [], scrollDepths = [25, 50, 100] 
       }, { beacon });
     };
 
-    trackEvent('page_view', { visitId });
+    trackEvent('page_view', { visitId, metadata: baseMetadata });
 
     const durationInterval = setInterval(() => sendDurationUpdate(), 15000);
     const handleVisibilityChange = () => {
@@ -127,7 +135,7 @@ export function useVisitAnalytics({ sections = [], scrollDepths = [25, 50, 100] 
       window.removeEventListener('beforeunload', handleBeforeUnload);
       sendDurationUpdate(true);
     };
-  }, []);
+  }, [baseMetadata]);
 
   useEffect(() => {
     if (!scrollDepthKey) return undefined;

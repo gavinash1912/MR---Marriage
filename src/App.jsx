@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navbar  from './components/Navbar';
 import Home    from './pages/Home';
@@ -22,9 +22,12 @@ function AppLayout() {
       <ScrollToTop />
       {!isAdmin && <Navbar />}
       <Routes>
-        <Route path="/"        element={<Home invitationMode="full" />}     />
-        <Route path="/schedule" element={<Schedule invitationMode="full" />} />
-        <Route path="/rsvp"    element={<RSVP invitationMode="full" />}     />
+        <Route path="/"        element={<Navigate to="/wedding" replace />} />
+        <Route path="/schedule" element={<Navigate to="/wedding/schedule" replace />} />
+        <Route path="/rsvp"    element={<Navigate to="/wedding/rsvp" replace />} />
+        <Route path="/mr-celebrations"          element={<Home invitationMode="full" />}     />
+        <Route path="/mr-celebrations/schedule" element={<Schedule invitationMode="full" />} />
+        <Route path="/mr-celebrations/rsvp"     element={<RSVP invitationMode="full" />}     />
         <Route path="/wedding"          element={<Home invitationMode="wedding-only" />}     />
         <Route path="/wedding/schedule" element={<Schedule invitationMode="wedding-only" />} />
         <Route path="/wedding/rsvp"     element={<RSVP invitationMode="wedding-only" />}     />

@@ -51,8 +51,14 @@ export default function Home({ invitationMode = 'full' }) {
     'Things To Know',
     'Countdown',
   ];
+  const analyticsMetadata = {
+    invitationMode: invitation.mode,
+    invitationLabel: invitation.label,
+    inviteHomePath: invitation.homePath,
+  };
   const { handleTrackedClick } = useVisitAnalytics({
     sections: analyticsSections,
+    metadata: analyticsMetadata,
   });
   useScrollReveal();
 

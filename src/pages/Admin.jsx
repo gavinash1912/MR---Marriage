@@ -5,7 +5,7 @@ import {
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Trash2, Mail, Phone, MessageSquare,
   Pencil, Save, XCircle, Plus, Minus, MapPin, Smartphone, Eye
 } from 'lucide-react';
-import { WEDDING_EVENT_ID, getAttendanceText, normalizeEventAttendance } from '../utils/events';
+import { FULL_EVENT_DETAILS, WEDDING_EVENT_ID, getAttendanceText, normalizeEventAttendance } from '../utils/events';
 
 const VISITOR_PAGE_SIZE = 50;
 const AUTHED_REQUEST = { withCredentials: true };
@@ -55,6 +55,23 @@ function formatInvitationMode(mode) {
 function getWeddingAttendance(rsvp) {
   const weddingEvent = normalizeEventAttendance(rsvp).find(event => event.id === WEDDING_EVENT_ID);
   return weddingEvent?.attending || rsvp.primaryGuest?.attending || '';
+}
+
+function getEventGuestCount(rsvp, eventId) {
+  const event = normalizeEventAttendance(rsvp).find(item => item.id === eventId);
+  return Number(event?.guestCount) || 0;
+}
+
+function getEventGuestNames(rsvp, event) {
+  const primaryGuestName = event.primaryGuest?.name ||
+    `${rsvp.primaryGuest?.firstName || ''} ${rsvp.primaryGuest?.lastName || ''}`.trim();
+  const primary = event.attending === 'yes' && primaryGuestName ? [primaryGuestName] : [];
+  const additional = (event.guestResponses || [])
+    .filter(guest => guest.attending === 'yes')
+    .map(guest => guest.name || `${guest.firstName || ''} ${guest.lastName || ''}`.trim())
+    .filter(Boolean);
+
+  return [...primary, ...additional];
 }
 
 function AdminAccessPrompt({ status, code, error, submitting, onCodeChange, onSubmit }) {
@@ -127,15 +144,35 @@ function EditModal({ rsvp, onSave, onClose }) {
   const handleSave = async () => {
     setSaving(true);
     const filteredAdditionals = additionals.filter(a => a.firstName.trim());
-    const eventAttendance = normalizeEventAttendance(rsvp).map(event => (
-      event.id === WEDDING_EVENT_ID
-        ? {
-            ...event,
-            attending: form.attending,
-            guestCount: form.attending === 'yes' ? 1 + filteredAdditionals.length : 0,
-          }
-        : event
-    ));
+    const eventAttendance = normalizeEventAttendance(rsvp).map(event => {
+      if (event.id !== WEDDING_EVENT_ID) return event;
+
+      const existingGuestResponses = Array.isArray(event.guestResponses) ? event.guestResponses : [];
+      const guestResponses = filteredAdditionals.map((guest, index) => {
+        const existing = existingGuestResponses[index] || {};
+        return {
+          ...existing,
+          firstName: guest.firstName,
+          lastName: guest.lastName || '',
+          name: `${guest.firstName} ${guest.lastName || ''}`.trim(),
+          attending: existing.attending || (form.attending === 'yes' ? 'yes' : 'no'),
+        };
+      });
+
+      return {
+        ...event,
+        attending: form.attending,
+        primaryGuest: {
+          firstName: form.firstName,
+          lastName: form.lastName,
+          name: `${form.firstName} ${form.lastName}`.trim(),
+          attending: form.attending,
+        },
+        guestResponses,
+        guestCount: (form.attending === 'yes' ? 1 : 0) +
+          guestResponses.filter(guest => guest.attending === 'yes').length,
+      };
+    });
     const updated = {
       primaryGuest:    { ...g, ...form },
       additionalGuests: filteredAdditionals,
@@ -374,17 +411,22 @@ function GuestRow({ rsvp, onDelete, onEdit }) {
             <div className="admin-event-rsvp-list">
               <p className="font-sans text-xs tracking-widest uppercase text-mauve-400 mb-3">Event RSVPs</p>
               <div className="admin-event-grid">
-                {eventAttendance.map(event => (
-                  <div key={event.id} className="admin-event-pill">
-                    <span>{event.name}</span>
-                    <strong className={event.attending === 'yes' ? 'text-sage-700' : 'text-blush-700'}>
-                      {getAttendanceText(event.attending)}
-                    </strong>
-                    {event.attending === 'yes' && (
-                      <em>{event.guestCount || 1} guest{(event.guestCount || 1) === 1 ? '' : 's'}</em>
-                    )}
-                  </div>
-                ))}
+                {eventAttendance.map(event => {
+                  const guestNames = getEventGuestNames(rsvp, event);
+                  const guestCount = Number(event.guestCount) || guestNames.length;
+
+                  return (
+                    <div key={event.id} className="admin-event-pill">
+                      <span>{event.name}</span>
+                      <strong className={guestCount > 0 ? 'text-sage-700' : 'text-blush-700'}>
+                        {guestCount} attending
+                      </strong>
+                      {guestNames.length > 0 && (
+                        <em>{guestNames.join(', ')}</em>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -422,7 +464,7 @@ function exportCSV(rsvps) {
     const g = r.primaryGuest;
     const extras = (r.additionalGuests || []).map(e => `${e.firstName} ${e.lastName}`).join('; ');
     const eventSummary = normalizeEventAttendance(r)
-      .map(event => `${event.name}: ${getAttendanceText(event.attending)}${event.guestCount ? ` (${event.guestCount})` : ''}`)
+      .map(event => `${event.name}: ${Number(event.guestCount) || 0} attending`)
       .join('; ');
     rows.push([
       g.firstName, g.lastName, getWeddingAttendance(r) === 'yes' ? 'Yes' : 'No',
@@ -633,10 +675,10 @@ export default function Admin() {
   const totalPrimary   = rsvps.length;
   const attending      = rsvps.filter(r => getWeddingAttendance(r) === 'yes');
   const declined       = rsvps.filter(r => getWeddingAttendance(r) === 'no');
-  const fullInviteRsvps = rsvps.filter(r => r.invitationMode === 'full');
-  const weddingOnlyRsvps = rsvps.filter(r => r.invitationMode === 'wedding-only');
-  const totalHeadcount = attending.reduce((acc, r) =>
-    acc + 1 + (r.additionalGuests?.filter(g => g.firstName)?.length || 0), 0);
+  const eventStats = FULL_EVENT_DETAILS.map(event => ({
+    ...event,
+    guestCount: rsvps.reduce((acc, rsvp) => acc + getEventGuestCount(rsvp, event.id), 0),
+  }));
 
   // ── Filtering + sorting ────────────────────────────────────────────────────
   const filtered = rsvps
@@ -846,13 +888,16 @@ export default function Admin() {
         {activeTab === 'rsvp' && (
         <div>
           {/* RSVP Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-            <StatCard label="Total RSVPs"  value={totalPrimary}     color="mauve" />
-            <StatCard label="Wedding Yes"  value={attending.length} color="green" sub={`${totalHeadcount} total guests`} />
-            <StatCard label="Declined"     value={declined.length}  color="red"   />
-            <StatCard label="Head Count"   value={totalHeadcount}   color="yellow" sub="primary + additional" />
-            <StatCard label="Full Invites" value={fullInviteRsvps.length} color="mauve" sub="multi-event RSVP" />
-            <StatCard label="Wedding Only" value={weddingOnlyRsvps.length} color="mauve" sub="single-event RSVP" />
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+            {eventStats.map((event, index) => (
+              <StatCard
+                key={event.id}
+                label={event.shortName}
+                value={event.guestCount}
+                color={event.id === WEDDING_EVENT_ID ? 'green' : index % 2 === 0 ? 'mauve' : 'yellow'}
+                sub="guests attending"
+              />
+            ))}
           </div>
 
           {/* RSVP Table */}
@@ -1067,6 +1112,7 @@ export default function Admin() {
                                   <div className="flex flex-wrap items-center gap-x-5 gap-y-1 mb-3">
                                     <span className="font-medium text-mauve-800">Time spent: {formatDuration(visitor.durationSeconds)}</span>
                                     {visitor.pagePath && <span>Page: {visitor.pagePath}</span>}
+                                    {visitor.metadata?.invitationLabel && <span>Invite: {visitor.metadata.invitationLabel}</span>}
                                   </div>
 
                                   {visitor.actions?.length ? (

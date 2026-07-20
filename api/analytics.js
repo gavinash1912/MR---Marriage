@@ -376,6 +376,7 @@ export default async function handler(req, res) {
           location: event.location,
           deviceInfo: event.deviceInfo,
           pagePath: event.pagePath,
+          metadata: event.metadata,
           durationSeconds: event.durationSeconds || 0,
           actions: actionsByVisitId.get(event.visitId) || [],
           visitedAt: event.timestamp,
