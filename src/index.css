@@ -2138,8 +2138,41 @@ body:has(.city2-page) .nav-mobile-link.is-active {
 
 .event-rsvp-card__choices {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.event-rsvp-attendee-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.event-rsvp-attendee-row {
+  display: grid;
   grid-template-columns: 1fr;
   gap: 0.65rem;
+  padding: 0.8rem;
+  border: 1px solid var(--city2-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.event-rsvp-attendee-row span {
+  display: block;
+  color: rgba(54, 92, 82, 0.72);
+  font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.event-rsvp-attendee-row strong {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--city2-ink);
+  font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.92rem;
 }
 
 .event-rsvp-choice {
@@ -2231,7 +2264,12 @@ body:has(.city2-page) .nav-mobile-link.is-active {
   }
 
   .event-rsvp-card {
-    grid-template-columns: minmax(0, 1fr) 12rem;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .event-rsvp-attendee-row {
+    grid-template-columns: minmax(0, 1fr) 14rem;
     align-items: center;
   }
 

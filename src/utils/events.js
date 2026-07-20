@@ -4,6 +4,8 @@ export const INVITATION_MODES = {
 };
 
 export const WEDDING_EVENT_ID = 'wedding';
+export const FULL_INVITE_BASE_PATH = '/mr-celebrations';
+export const WEDDING_ONLY_BASE_PATH = '/wedding';
 
 export const WEDDING_EVENT = {
   id: WEDDING_EVENT_ID,
@@ -88,9 +90,9 @@ export const FULL_EVENT_DETAILS = [
 ];
 
 export function getInvitationModeFromPath(pathname = '') {
-  return pathname === '/wedding' || pathname.startsWith('/wedding/')
-    ? INVITATION_MODES.WEDDING_ONLY
-    : INVITATION_MODES.FULL;
+  return pathname === FULL_INVITE_BASE_PATH || pathname.startsWith(`${FULL_INVITE_BASE_PATH}/`)
+    ? INVITATION_MODES.FULL
+    : INVITATION_MODES.WEDDING_ONLY;
 }
 
 export function getInvitationConfig(mode = INVITATION_MODES.FULL) {
@@ -100,9 +102,9 @@ export function getInvitationConfig(mode = INVITATION_MODES.FULL) {
     mode: weddingOnly ? INVITATION_MODES.WEDDING_ONLY : INVITATION_MODES.FULL,
     label: weddingOnly ? 'Wedding-only invite' : 'Full celebration invite',
     showAllEvents: !weddingOnly,
-    homePath: weddingOnly ? '/wedding' : '/',
-    schedulePath: weddingOnly ? '/wedding/schedule' : '/schedule',
-    rsvpPath: weddingOnly ? '/wedding/rsvp' : '/rsvp',
+    homePath: weddingOnly ? WEDDING_ONLY_BASE_PATH : FULL_INVITE_BASE_PATH,
+    schedulePath: weddingOnly ? `${WEDDING_ONLY_BASE_PATH}/schedule` : `${FULL_INVITE_BASE_PATH}/schedule`,
+    rsvpPath: weddingOnly ? `${WEDDING_ONLY_BASE_PATH}/rsvp` : `${FULL_INVITE_BASE_PATH}/rsvp`,
     events: weddingOnly ? [WEDDING_EVENT] : FULL_EVENT_DETAILS,
     additionalEvents: weddingOnly ? [] : ADDITIONAL_EVENT_DETAILS,
   };
@@ -116,7 +118,18 @@ export function getAttendanceText(value) {
 
 export function normalizeEventAttendance(rsvp) {
   if (Array.isArray(rsvp?.eventAttendance) && rsvp.eventAttendance.length > 0) {
-    return rsvp.eventAttendance;
+    return rsvp.eventAttendance.map(event => {
+      const guestResponses = Array.isArray(event.guestResponses) ? event.guestResponses : [];
+      const inferredGuestCount = (event.attending === 'yes' ? 1 : 0) +
+        guestResponses.filter(guest => guest.attending === 'yes').length;
+      const storedGuestCount = Number(event.guestCount);
+
+      return {
+        ...event,
+        guestResponses,
+        guestCount: Number.isFinite(storedGuestCount) ? storedGuestCount : inferredGuestCount,
+      };
+    });
   }
 
   const attending = rsvp?.primaryGuest?.attending || '';

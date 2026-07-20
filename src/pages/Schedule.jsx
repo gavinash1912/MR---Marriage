@@ -50,8 +50,14 @@ export default function Schedule({ invitationMode = 'full' }) {
     'Calendar Links',
     'Venue Details',
   ];
+  const analyticsMetadata = {
+    invitationMode: invitation.mode,
+    invitationLabel: invitation.label,
+    inviteHomePath: invitation.homePath,
+  };
   const { handleTrackedClick } = useVisitAnalytics({
     sections: analyticsSections,
+    metadata: analyticsMetadata,
   });
   useScrollReveal();
 
