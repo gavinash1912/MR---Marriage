@@ -25,9 +25,9 @@ function AppLayout() {
         <Route path="/"        element={<Navigate to="/wedding" replace />} />
         <Route path="/schedule" element={<Navigate to="/wedding/schedule" replace />} />
         <Route path="/rsvp"    element={<Navigate to="/wedding/rsvp" replace />} />
-        <Route path="/mr-celebrations"          element={<Home invitationMode="full" />}     />
-        <Route path="/mr-celebrations/schedule" element={<Schedule invitationMode="full" />} />
-        <Route path="/mr-celebrations/rsvp"     element={<RSVP invitationMode="full" />}     />
+        <Route path="/marriage/celebrations"          element={<Home invitationMode="full" />}     />
+        <Route path="/marriage/celebrations/schedule" element={<Schedule invitationMode="full" />} />
+        <Route path="/marriage/celebrations/rsvp"     element={<RSVP invitationMode="full" />}     />
         <Route path="/wedding"          element={<Home invitationMode="wedding-only" />}     />
         <Route path="/wedding/schedule" element={<Schedule invitationMode="wedding-only" />} />
         <Route path="/wedding/rsvp"     element={<RSVP invitationMode="wedding-only" />}     />
