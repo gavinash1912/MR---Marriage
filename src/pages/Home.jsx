@@ -105,7 +105,7 @@ export default function Home({ invitationMode = 'full' }) {
             <div className="invite-hero__amp">
               <span>Weds</span>
             </div>
-            <h1>Rupa Sri</h1>
+            <h1>Rupa Sree</h1>
           </div>
 
           <p className="invite-hero__copy animate-fade-in-up delay-400">
@@ -156,7 +156,7 @@ export default function Home({ invitationMode = 'full' }) {
             <p className="city2-large-copy">
               You to join us {invitation.showAllEvents ? 'in the wedding celebrations of' : 'for the marriage ceremony of'}
             </p>
-            <h2>Manas <span>&amp;</span> Rupa Sri</h2>
+            <h2>Manas <span>&amp;</span> Rupa Sree</h2>
             <p className="city2-small-copy">
               {invitation.showAllEvents ? 'Across the following events' : 'On the following event'}
             </p>
@@ -284,9 +284,9 @@ export default function Home({ invitationMode = 'full' }) {
           <figure className="city2-photo-frame" data-reveal="photo" style={{ '--reveal-delay': '120ms' }}>
             <img
               src="/videos/DSC00833.jpg"
-              alt="Manas and Rupa Sri holding hands on a bridge"
+              alt="Manas and Rupa Sree holding hands on a bridge"
             />
-            <figcaption>Manas &amp; Rupa Sri</figcaption>
+            <figcaption>Manas &amp; Rupa Sree</figcaption>
           </figure>
         </div>
       </section>
@@ -364,7 +364,7 @@ export default function Home({ invitationMode = 'full' }) {
       <footer className="invite-footer">
         <FloralSprig className="mb-4" />
         <p className="font-serif italic text-mauve-500 text-base">
-          Manas &amp; Rupa Sri &nbsp;·&nbsp; September 5, 2026
+          Manas &amp; Rupa Sree &nbsp;·&nbsp; September 5, 2026
         </p>
         <p className="font-sans text-xs text-mauve-300 mt-2">Plano, Texas</p>
       </footer>

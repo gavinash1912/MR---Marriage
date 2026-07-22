@@ -44,7 +44,7 @@ export default function Navbar() {
             to={invitation.homePath}
             className="nav-brand"
           >
-            Manas &amp; Rupa Sri
+            Manas &amp; Rupa Sree
           </Link>
 
           {/* Desktop nav */}

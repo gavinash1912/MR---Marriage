@@ -860,7 +860,7 @@ export default function RSVP({ invitationMode = 'full' }) {
       <footer className="invite-footer">
         <FloralSprig className="mb-3" />
         <p className="font-serif italic text-mauve-400 text-sm">
-          Manas &amp; Rupa Sri &nbsp;·&nbsp; September 5, 2026
+          Manas &amp; Rupa Sree &nbsp;·&nbsp; September 5, 2026
         </p>
       </footer>
     </div>

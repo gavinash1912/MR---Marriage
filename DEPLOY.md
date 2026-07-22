@@ -1,4 +1,4 @@
-# Manas & Rupa Sri — Marriage Website
+# Manas & Rupa Sree — Marriage Website
 
 ## Quick Start (local)
 
