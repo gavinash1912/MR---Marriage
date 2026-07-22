@@ -1,6 +1,6 @@
-# Manas & Rupa Sri Marriage Website
+# Manas & Rupa Sree Marriage Website
 
-RSVP website for Manas and Rupa Sri's marriage celebration, built with React, Vite, Tailwind CSS, Vercel serverless functions, and optional MongoDB persistence.
+RSVP website for Manas and Rupa Sree's marriage celebration, built with React, Vite, Tailwind CSS, Vercel serverless functions, and optional MongoDB persistence.
 
 ## Local Development
 

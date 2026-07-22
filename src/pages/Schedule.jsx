@@ -146,7 +146,7 @@ export default function Schedule({ invitationMode = 'full' }) {
               <TimelineEvent
                 time="10:00 AM"
                 title="Muhurtham and Wedding Rituals"
-                description="Manas and Rupa Sri are joined in marriage with blessings from family and friends."
+                description="Manas and Rupa Sree are joined in marriage with blessings from family and friends."
                 icon={Star}
                 accent
                 delay="170ms"
@@ -249,7 +249,7 @@ export default function Schedule({ invitationMode = 'full' }) {
       <footer className="invite-footer">
         <FloralSprig className="mb-3" />
         <p className="font-serif italic text-mauve-400 text-sm">
-          Manas &amp; Rupa Sri &nbsp;·&nbsp; September 5, 2026
+          Manas &amp; Rupa Sree &nbsp;·&nbsp; September 5, 2026
         </p>
       </footer>
     </div>

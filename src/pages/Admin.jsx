@@ -79,7 +79,7 @@ function AdminAccessPrompt({ status, code, error, submitting, onCodeChange, onSu
     <div className="min-h-screen bg-mauve-50 flex items-center justify-center px-4 py-12">
       <section className="w-full max-w-sm rounded-lg bg-white border border-mauve-100 shadow-xl p-6 text-center">
         <p className="font-sans text-xs tracking-widest uppercase text-mauve-400 mb-3">
-          Manas &amp; Rupa Sri
+          Manas &amp; Rupa Sree
         </p>
         <h1 className="font-serif text-3xl text-mauve-800 mb-3">
           Admin Access
@@ -767,7 +767,7 @@ export default function Admin() {
           <div>
             <h1 className="font-serif text-3xl md:text-4xl text-mauve-800">Admin Dashboard</h1>
             <p className="font-sans text-sm text-mauve-400 mt-1">
-              Manas &amp; Rupa Sri — Marriage · September 5, 2026
+              Manas &amp; Rupa Sree — Marriage · September 5, 2026
             </p>
           </div>
           <div className="flex items-center gap-3">

@@ -1,7 +1,7 @@
-const EVENT_TITLE = 'Manas & Rupa Sri - Marriage Ceremony';
+const EVENT_TITLE = 'Manas & Rupa Sree - Marriage Ceremony';
 const EVENT_LOCATION = 'Atithi Venue, 9060 Independence Parkway, Plano, TX 75025';
 const EVENT_DETAILS = [
-  'Join us to celebrate the marriage of Manas and Rupa Sri!',
+  'Join us to celebrate the marriage of Manas and Rupa Sree!',
   '',
   'Breakfast & Lunch will be served.',
   'Attire: Indian Traditional',
@@ -23,7 +23,7 @@ export function downloadCalendarInvite() {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Manas & Rupa Sri Marriage//EN',
+    'PRODID:-//Manas & Rupa Sree Marriage//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
@@ -37,7 +37,7 @@ export function downloadCalendarInvite() {
     'BEGIN:VALARM',
     'TRIGGER:-P1D',
     'ACTION:DISPLAY',
-    'DESCRIPTION:Manas & Rupa Sri Marriage - Tomorrow!',
+    'DESCRIPTION:Manas & Rupa Sree Marriage - Tomorrow!',
     'END:VALARM',
     'END:VEVENT',
     'END:VCALENDAR',
@@ -47,7 +47,7 @@ export function downloadCalendarInvite() {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = 'manas-rupa-sri-marriage.ics';
+  anchor.download = 'manas-rupa-sree-marriage.ics';
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);
