@@ -2506,3 +2506,888 @@ body:has(.city2-page) .nav-mobile-link.is-active {
     transition: none;
   }
 }
+
+/* RSVP template visual layer: UI-only overrides. */
+.city2-page {
+  --template-ink: #641025;
+  --template-ink-soft: #8f2037;
+  --template-rose: #bd3f56;
+  --template-rose-soft: #e8a2a5;
+  --template-paper: #fff9ea;
+  --template-vellum: #f7ecd2;
+  --template-cream: #fffdf5;
+  --template-gold: #b9904d;
+  --template-olive: #5c673f;
+  --template-line: rgba(159, 84, 52, 0.24);
+  --template-shadow: rgba(100, 16, 37, 0.12);
+  background:
+    radial-gradient(circle at 50% -8%, rgba(185, 144, 77, 0.16), transparent 24rem),
+    linear-gradient(180deg, var(--template-paper) 0%, var(--template-vellum) 52%, var(--template-paper) 100%);
+  color: var(--template-ink);
+}
+
+body:has(.city2-page) {
+  --city2-ink: var(--template-ink);
+  --city2-teal: var(--template-ink);
+  --city2-teal-soft: var(--template-ink-soft);
+  --city2-gold: var(--template-gold);
+  --city2-cream: var(--template-paper);
+  --city2-warm: var(--template-vellum);
+  --city2-blush: #f5d9d4;
+  --city2-sage: #e9e2bf;
+  --city2-copy: #6f4b43;
+  --city2-line: var(--template-line);
+  background: var(--template-paper);
+}
+
+.city2-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, rgba(100, 16, 37, 0.055) 1px, transparent 1.15px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(247, 236, 210, 0.32));
+  background-size: 18px 18px, auto;
+}
+
+.city2-page .nav-shell,
+body:has(.city2-page) .nav-shell {
+  min-height: 56px;
+  border-color: rgba(185, 144, 77, 0.34);
+  background: rgba(255, 249, 234, 0.94);
+  box-shadow: 0 14px 34px rgba(100, 16, 37, 0.1);
+  backdrop-filter: blur(18px);
+}
+
+.city2-page .nav-brand,
+body:has(.city2-page) .nav-brand {
+  color: var(--template-ink);
+  letter-spacing: 0.14em;
+}
+
+.city2-page .nav-link,
+body:has(.city2-page) .nav-link {
+  color: var(--template-ink-soft);
+}
+
+.city2-page .nav-link:hover,
+.city2-page .nav-link.is-active,
+body:has(.city2-page) .nav-link:hover,
+body:has(.city2-page) .nav-link.is-active {
+  background: var(--template-ink);
+  color: var(--template-paper);
+}
+
+.city2-page .nav-menu-button,
+body:has(.city2-page) .nav-menu-button {
+  width: 40px;
+  height: 40px;
+  border-color: rgba(185, 144, 77, 0.34);
+  background: rgba(255, 253, 245, 0.95);
+  color: var(--template-ink);
+}
+
+.city2-page .nav-mobile-menu,
+body:has(.city2-page) .nav-mobile-menu {
+  gap: 0.25rem;
+  margin-top: 0.55rem;
+  padding: 0.45rem;
+  border-color: rgba(185, 144, 77, 0.34);
+  border-radius: 8px;
+  background: rgba(255, 249, 234, 0.98);
+  box-shadow: 0 18px 44px rgba(100, 16, 37, 0.14);
+}
+
+.city2-page .nav-mobile-link,
+body:has(.city2-page) .nav-mobile-link {
+  min-height: 48px;
+  border-radius: 6px;
+  color: var(--template-ink);
+}
+
+.city2-page .nav-mobile-link:hover,
+.city2-page .nav-mobile-link.is-active,
+body:has(.city2-page) .nav-mobile-link:hover,
+body:has(.city2-page) .nav-mobile-link.is-active {
+  background: var(--template-ink);
+  color: var(--template-paper);
+}
+
+.city2-page .invite-hero {
+  min-height: 100svh;
+  padding: 7rem 1rem 4.2rem;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 245, 0.28), rgba(255, 249, 234, 0.84)),
+    radial-gradient(circle at 50% 8%, rgba(185, 144, 77, 0.18), transparent 24rem),
+    radial-gradient(circle at 18% 82%, rgba(189, 63, 86, 0.1), transparent 18rem),
+    var(--template-paper);
+}
+
+.city2-page .invite-hero::before {
+  inset: 5.7rem 1rem 1.05rem;
+  border: 1px solid rgba(185, 144, 77, 0.4);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle, rgba(100, 16, 37, 0.045) 1px, transparent 1.1px);
+  background-size: 18px 18px;
+  box-shadow: inset 0 0 0 6px rgba(255, 253, 245, 0.56);
+}
+
+.city2-page .invite-hero__banner {
+  top: -1.35rem;
+  opacity: 0.72;
+  filter: saturate(1.08) contrast(1.02);
+}
+
+.city2-page .invite-hero__side {
+  top: 4.6rem;
+  bottom: -1rem;
+  width: 5.4rem;
+  opacity: 0.48;
+  filter: saturate(1.08) contrast(1.02);
+}
+
+.city2-page .invite-hero__side--left {
+  left: -1.25rem;
+}
+
+.city2-page .invite-hero__side--right {
+  right: -1.25rem;
+}
+
+.city2-page .invite-hero__content {
+  width: min(100%, 820px);
+  padding: 1rem 1rem 0;
+}
+
+.city2-page .invite-hero__content::before {
+  display: none;
+}
+
+.city2-page .invite-hero__names {
+  position: relative;
+  margin-top: 7.3rem;
+}
+
+.city2-page .invite-hero__names::before {
+  content: 'MR';
+  position: absolute;
+  left: 50%;
+  top: -7.35rem;
+  width: 6.1rem;
+  height: 6.1rem;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--template-ink-soft);
+  border-radius: 50%;
+  color: var(--template-ink-soft);
+  font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  font-size: 2.45rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow:
+    0 0 0 0.42rem rgba(255, 249, 234, 0.9),
+    0 0 0 0.52rem rgba(143, 32, 55, 0.32),
+    0 16px 34px rgba(100, 16, 37, 0.1);
+  transform: translateX(-50%);
+}
+
+.city2-page .invite-hero__names::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -7.86rem;
+  width: 7.1rem;
+  height: 7.1rem;
+  border: 1px solid rgba(143, 32, 55, 0.32);
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.city2-page .invite-kicker,
+.city2-page .city2-mantra {
+  color: var(--template-ink-soft);
+  letter-spacing: 0.22em;
+}
+
+.city2-page .invite-hero__names h1 {
+  color: var(--template-ink-soft);
+  font-size: clamp(4.35rem, 12vw, 8.8rem);
+  line-height: 0.82;
+  text-shadow: 0 14px 34px rgba(100, 16, 37, 0.08);
+}
+
+.city2-page .invite-hero__amp {
+  margin: 0.15rem 0 0.05rem;
+  color: var(--template-gold);
+}
+
+.city2-page .invite-hero__amp span {
+  color: var(--template-gold);
+  font-size: 2rem;
+}
+
+.city2-page .invite-hero__copy {
+  color: #7a3a40;
+  font-size: 1.38rem;
+}
+
+.city2-page .invite-meta {
+  width: min(100%, 700px);
+  gap: 0.5rem;
+}
+
+.city2-page .invite-meta span {
+  min-height: 42px;
+  border-color: rgba(185, 144, 77, 0.32);
+  background: rgba(255, 253, 245, 0.72);
+  color: #70423b;
+  box-shadow: none;
+}
+
+.city2-page .btn-primary,
+.city2-page .btn-secondary {
+  min-height: 46px;
+  border-radius: 999px;
+  letter-spacing: 0.14em;
+}
+
+.city2-page .btn-primary {
+  background: var(--template-ink-soft);
+  color: var(--template-paper);
+  box-shadow: 0 13px 28px rgba(100, 16, 37, 0.18);
+}
+
+.city2-page .btn-primary:hover {
+  background: var(--template-ink);
+}
+
+.city2-page .btn-secondary,
+.city2-page .invite-hero .btn-secondary,
+.city2-page .invite-subhero .btn-secondary,
+.city2-rsvp-strip .btn-secondary,
+.city2-countdown .btn-secondary {
+  border-color: rgba(143, 32, 55, 0.36);
+  background: rgba(255, 253, 245, 0.58);
+  color: var(--template-ink-soft);
+}
+
+.city2-page .btn-secondary:hover {
+  background: rgba(255, 253, 245, 0.95);
+  border-color: var(--template-ink-soft);
+}
+
+.city2-page .invite-hero__peek {
+  width: min(calc(100% - 2rem), 850px);
+  border-color: rgba(185, 144, 77, 0.36);
+  background: rgba(185, 144, 77, 0.34);
+}
+
+.city2-page .invite-hero__peek span {
+  background: rgba(255, 249, 234, 0.92);
+  color: var(--template-ink);
+}
+
+.city2-traffic {
+  display: none;
+}
+
+.city2-page .invite-section,
+.city2-page .city2-blessing,
+.city2-page .invite-section--sage,
+.city2-page .city2-know,
+.city2-all-events {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(185, 144, 77, 0.12), transparent 22rem),
+    var(--template-paper) !important;
+}
+
+.city2-page .invite-section {
+  padding-top: clamp(4.25rem, 7vw, 6.4rem);
+  padding-bottom: clamp(4.25rem, 7vw, 6.4rem);
+}
+
+.city2-page .section-title,
+.city2-page .invite-subhero h1,
+.city2-page .schedule-shell__intro h2,
+.city2-page .event-panel__intro h2,
+.city2-info-grid h3,
+.city2-page .invite-card h3,
+.city2-event-tile h3,
+.city2-schedule-event h3,
+.event-rsvp-card__details h3,
+.city2-event-card__content h3 {
+  color: var(--template-ink);
+}
+
+.city2-page .section-title {
+  font-size: clamp(2.65rem, 6vw, 4.9rem);
+  line-height: 0.95;
+}
+
+.city2-page .section-lede,
+.city2-page .invite-card > p,
+.city2-page .event-panel__intro p:not(.invite-kicker),
+.city2-page .schedule-shell__intro p:not(.invite-kicker),
+.city2-page .program-row__content p,
+.city2-info-grid p,
+.city2-event-card__content p,
+.city2-event-tile dd,
+.city2-schedule-event p,
+.city2-schedule-event span,
+.event-rsvp-card__details p:not(.invite-kicker) {
+  color: #745147;
+}
+
+.city2-invite-card,
+.city2-page .invite-card,
+.city2-page .event-panel__intro,
+.city2-page .event-panel__details,
+.city2-page .schedule-shell__intro,
+.city2-page .schedule-shell__timeline,
+.city2-page .rsvp-card,
+.city2-page .invite-card.text-left,
+.city2-event-tile,
+.city2-schedule-event,
+.event-rsvp-card {
+  border: 1px solid rgba(185, 144, 77, 0.32);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 245, 0.92), rgba(255, 249, 234, 0.86));
+  box-shadow: 0 18px 42px var(--template-shadow);
+}
+
+.city2-invite-card {
+  position: relative;
+  overflow: hidden;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 3.4rem) clamp(1.2rem, 5vw, 3rem);
+}
+
+.city2-invite-card::before,
+.city2-invite-card::after {
+  border-color: rgba(143, 32, 55, 0.16);
+}
+
+.city2-invite-card h2 {
+  color: var(--template-ink-soft);
+  font-size: clamp(3rem, 8vw, 5.6rem);
+  line-height: 0.9;
+}
+
+.city2-rule {
+  background: linear-gradient(90deg, transparent, rgba(143, 32, 55, 0.38), transparent);
+}
+
+.city2-all-events .section-heading-row,
+.city2-know .section-heading-row {
+  align-items: start;
+}
+
+.city2-event-tile-grid,
+.city2-schedule-event-grid {
+  gap: 0.85rem;
+}
+
+.city2-event-tile,
+.city2-schedule-event {
+  min-height: 13rem;
+  padding: 1.25rem;
+}
+
+.city2-event-tile.is-featured,
+.city2-schedule-event.is-featured {
+  border-color: rgba(143, 32, 55, 0.4);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(189, 63, 86, 0.12), transparent 11rem),
+    linear-gradient(180deg, rgba(255, 253, 245, 0.94), rgba(247, 236, 210, 0.88));
+}
+
+.city2-event-tile__kicker {
+  color: var(--template-ink-soft);
+}
+
+.city2-event-card {
+  position: relative;
+  grid-template-columns: 1fr;
+  overflow: hidden;
+  width: min(100%, 720px);
+  margin: 0 auto;
+  border: 1px solid rgba(185, 144, 77, 0.34);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 245, 0.96), rgba(255, 249, 234, 0.9));
+  box-shadow: 0 20px 48px var(--template-shadow);
+}
+
+.city2-event-card__image {
+  min-height: 12.75rem;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 253, 245, 0.7), transparent 5.5rem),
+    radial-gradient(circle, rgba(100, 16, 37, 0.045) 1px, transparent 1.1px),
+    linear-gradient(180deg, var(--template-vellum), var(--template-paper));
+  background-size: auto, 18px 18px, auto;
+}
+
+.city2-event-card__image::before {
+  width: 7.6rem;
+  height: 7.6rem;
+  border: 2px solid var(--template-ink-soft);
+  border-color: var(--template-ink-soft);
+  border-radius: 50%;
+  background: rgba(255, 249, 234, 0.76);
+  box-shadow:
+    0 0 0 0.48rem rgba(255, 249, 234, 0.82),
+    0 0 0 0.6rem rgba(143, 32, 55, 0.24),
+    0 16px 34px rgba(100, 16, 37, 0.12);
+  opacity: 1;
+  transform: none;
+}
+
+.city2-event-card__image span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  color: var(--template-ink-soft);
+  font-size: 3rem;
+  letter-spacing: 0.02em;
+  transform: translate(-50%, -50%);
+}
+
+.city2-event-card__content {
+  padding: 1.9rem 1.25rem 2.15rem;
+  text-align: center;
+}
+
+.city2-event-card__content h3 {
+  font-size: clamp(2.2rem, 5vw, 3.3rem);
+}
+
+.city2-event-card__content a {
+  color: var(--template-ink-soft);
+}
+
+.city2-page .invite-card__icon {
+  background: rgba(143, 32, 55, 0.1);
+  color: var(--template-ink-soft);
+}
+
+.city2-photo-frame {
+  max-width: 780px;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid rgba(185, 144, 77, 0.42);
+  border-radius: 8px;
+  background: var(--template-paper);
+  box-shadow: 0 20px 46px rgba(100, 16, 37, 0.14);
+}
+
+.city2-photo-frame::after {
+  border-color: rgba(143, 32, 55, 0.24);
+}
+
+.city2-photo-frame img {
+  aspect-ratio: 16 / 10;
+  object-position: center 42%;
+}
+
+.city2-photo-frame figcaption {
+  color: var(--template-ink-soft);
+  background: rgba(255, 249, 234, 0.92);
+}
+
+.city2-rsvp-strip {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(185, 144, 77, 0.12), transparent 23rem),
+    var(--template-paper) !important;
+}
+
+.city2-rsvp-strip .invite-section__inner {
+  position: relative;
+  overflow: hidden;
+  width: min(100%, 920px);
+  max-width: 920px !important;
+  min-height: 34rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 21rem 1.2rem 3rem;
+  border: 1px solid rgba(185, 144, 77, 0.32);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 245, 0.95), rgba(255, 249, 234, 0.9));
+  box-shadow: 0 22px 50px rgba(100, 16, 37, 0.14);
+}
+
+.city2-rsvp-strip .invite-section__inner::before,
+.city2-rsvp-strip .invite-section__inner::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  height: 18.5rem;
+}
+
+.city2-rsvp-strip .invite-section__inner::before {
+  left: 0;
+  width: 46%;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255, 249, 234, 0.18), transparent 8rem),
+    var(--template-ink-soft);
+}
+
+.city2-rsvp-strip .invite-section__inner::after {
+  right: 0;
+  width: 54%;
+  background:
+    linear-gradient(90deg, rgba(100, 16, 37, 0.18), transparent 38%),
+    url('/videos/DSC00833.jpg') center 42% / cover no-repeat;
+  filter: saturate(0.86) contrast(1.03);
+}
+
+.city2-rsvp-strip .invite-kicker,
+.city2-rsvp-strip .section-title,
+.city2-rsvp-strip .section-lede,
+.city2-rsvp-strip .btn-primary {
+  position: relative;
+  z-index: 1;
+}
+
+.city2-rsvp-strip .section-title {
+  color: var(--template-ink-soft) !important;
+  font-size: clamp(3.4rem, 9vw, 5.8rem);
+}
+
+.city2-rsvp-strip .section-lede {
+  color: #745147 !important;
+}
+
+.city2-countdown {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(189, 63, 86, 0.1), transparent 18rem),
+    var(--template-vellum) !important;
+}
+
+.city2-page .countdown-panel {
+  border-color: rgba(185, 144, 77, 0.32);
+  background: rgba(255, 253, 245, 0.82);
+  box-shadow: 0 18px 42px rgba(100, 16, 37, 0.1);
+}
+
+.city2-page .countdown-block {
+  background: var(--template-paper);
+}
+
+.city2-page .countdown-digit {
+  color: var(--template-ink-soft);
+}
+
+.city2-page .countdown-block span:last-child {
+  color: #8c5c48;
+}
+
+.city2-page .invite-subhero {
+  min-height: 26rem;
+  padding: 8rem 1rem 4.6rem;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(185, 144, 77, 0.17), transparent 22rem),
+    radial-gradient(circle, rgba(100, 16, 37, 0.045) 1px, transparent 1.1px),
+    var(--template-paper);
+  background-size: auto, 18px 18px, auto;
+}
+
+.city2-page .invite-subhero::after {
+  content: '';
+  position: absolute;
+  inset: 5.8rem 1rem 1.1rem;
+  border: 1px solid rgba(185, 144, 77, 0.32);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.city2-page .invite-subhero__banner {
+  top: -1.25rem;
+  opacity: 0.68;
+}
+
+.city2-page .invite-subhero h1 {
+  color: var(--template-ink-soft);
+  font-size: clamp(3.4rem, 8vw, 5.7rem);
+}
+
+.city2-page .invite-subhero p:not(.invite-kicker),
+.city2-page .invite-subhero a {
+  color: #745147;
+}
+
+.city2-page .schedule-shell__intro,
+.city2-page .schedule-shell__timeline {
+  background: rgba(255, 253, 245, 0.88);
+}
+
+.city2-page .program-row__dot {
+  background: var(--template-ink-soft);
+  border-color: var(--template-paper);
+  box-shadow: 0 0 0 1px rgba(143, 32, 55, 0.3);
+}
+
+.city2-page .program-row__line {
+  background: rgba(143, 32, 55, 0.18);
+}
+
+.city2-info-grid {
+  gap: 0.85rem;
+}
+
+.city2-info-grid article {
+  min-height: 10rem;
+  border-color: rgba(185, 144, 77, 0.3);
+  background: rgba(255, 253, 245, 0.78);
+}
+
+.city2-page .rsvp-card {
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 245, 0.96), rgba(255, 249, 234, 0.92));
+}
+
+.city2-page .form-label {
+  color: var(--template-ink-soft);
+  letter-spacing: 0.12em;
+}
+
+.city2-page .form-input {
+  border-color: rgba(143, 32, 55, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 253, 245, 0.94);
+  color: var(--template-ink);
+  box-shadow: none;
+}
+
+.city2-page .form-input:focus {
+  border-color: rgba(143, 32, 55, 0.54);
+  box-shadow: 0 0 0 3px rgba(189, 63, 86, 0.12);
+}
+
+.city2-page .choice-card,
+.event-rsvp-attendee-row,
+.event-rsvp-choice {
+  border-color: rgba(185, 144, 77, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 253, 245, 0.72);
+}
+
+.city2-page .choice-card:hover,
+.city2-page .choice-card.is-selected {
+  border-color: rgba(143, 32, 55, 0.5);
+  background: rgba(247, 236, 210, 0.82);
+  box-shadow: 0 12px 28px rgba(100, 16, 37, 0.08);
+}
+
+.event-rsvp-choice:hover,
+.event-rsvp-choice.is-selected {
+  border-color: var(--template-ink-soft);
+  background: var(--template-ink-soft);
+  color: var(--template-paper);
+}
+
+.city2-page .bg-mauve-50,
+.city2-page .bg-mauve-100 {
+  background-color: rgba(247, 236, 210, 0.82);
+}
+
+.city2-page .bg-mauve-600,
+.city2-page .bg-mauve-800 {
+  background-color: var(--template-ink-soft);
+}
+
+.city2-page .text-mauve-900,
+.city2-page .text-mauve-800,
+.city2-page .text-mauve-700,
+.city2-page .text-mauve-600 {
+  color: var(--template-ink);
+}
+
+.city2-page .text-mauve-500,
+.city2-page .text-mauve-400,
+.city2-page .text-mauve-300 {
+  color: #745147;
+}
+
+.city2-page .border-mauve-100,
+.city2-page .border-mauve-200,
+.city2-page .border-mauve-300,
+.city2-page .border-mauve-600,
+.city2-page .border-mauve-800 {
+  border-color: rgba(185, 144, 77, 0.3);
+}
+
+.city2-page [data-reveal] {
+  filter: blur(6px);
+  transform: translate3d(0, 42px, 0) scale(0.982);
+  transition-duration: 900ms, 900ms, 1100ms, 1100ms;
+}
+
+.city2-page [data-reveal="photo"] {
+  clip-path: inset(14% 0 10% 0 round 8px);
+  transform: translate3d(0, 52px, 0) scale(0.96);
+}
+
+.city2-page [data-reveal="card"] {
+  transform: translate3d(0, 36px, 0) scale(0.975);
+}
+
+.city2-page .invite-footer {
+  border-top-color: rgba(185, 144, 77, 0.3);
+  background: var(--template-paper);
+}
+
+.city2-page .invite-footer p {
+  color: var(--template-ink-soft);
+}
+
+@media (min-width: 768px) {
+  .city2-page .invite-hero__side {
+    width: 8.2rem;
+    opacity: 0.56;
+  }
+
+  .city2-page .invite-hero__names::before {
+    width: 7rem;
+    height: 7rem;
+    top: -8rem;
+    font-size: 2.8rem;
+  }
+
+  .city2-page .invite-hero__names::after {
+    width: 8.1rem;
+    height: 8.1rem;
+    top: -8.55rem;
+  }
+
+  .city2-page .invite-hero__names {
+    margin-top: 8.1rem;
+  }
+
+  .city2-event-card {
+    grid-template-columns: 0.84fr 1fr;
+  }
+
+  .city2-event-card__image {
+    min-height: 100%;
+  }
+
+  .city2-event-card__content {
+    text-align: left;
+    padding: 2.2rem 2.1rem;
+  }
+
+  .city2-rsvp-strip .invite-section__inner {
+    padding: 22rem 2.5rem 3.2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .city2-page .invite-hero__side {
+    width: 11rem;
+    opacity: 0.62;
+  }
+}
+
+@media (max-width: 640px) {
+  .city2-page .nav-shell,
+  body:has(.city2-page) .nav-shell {
+    gap: 0.65rem;
+    padding-left: 0.85rem;
+  }
+
+  .city2-page .nav-brand,
+  body:has(.city2-page) .nav-brand {
+    max-width: min(64vw, 13.5rem);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+  }
+
+  .city2-page .invite-hero {
+    padding-top: 6.5rem;
+  }
+
+  .city2-page .invite-hero::before {
+    inset: 5.25rem 0.65rem 0.85rem;
+  }
+
+  .city2-page .invite-hero__banner {
+    top: -0.85rem;
+  }
+
+  .city2-page .invite-hero__side {
+    width: 4.2rem;
+    opacity: 0.42;
+  }
+
+  .city2-page .invite-hero__names h1 {
+    font-size: clamp(4rem, 19vw, 5.2rem);
+  }
+
+  .city2-page .invite-hero__copy {
+    font-size: 1.15rem;
+  }
+
+  .city2-page .invite-meta span {
+    border-radius: 8px;
+  }
+
+  .section-heading-row {
+    gap: 0.8rem;
+  }
+
+  .city2-event-tile,
+  .city2-schedule-event {
+    min-height: auto;
+  }
+
+  .city2-rsvp-strip .invite-section__inner {
+    min-height: 31rem;
+    padding-top: 18.25rem;
+  }
+
+  .city2-rsvp-strip .invite-section__inner::before,
+  .city2-rsvp-strip .invite-section__inner::after {
+    height: 15.8rem;
+  }
+
+  .city2-rsvp-strip .invite-section__inner::before {
+    width: 38%;
+  }
+
+  .city2-rsvp-strip .invite-section__inner::after {
+    width: 62%;
+  }
+
+  .event-rsvp-card__choices {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 380px) {
+  .city2-page .invite-hero__names::before {
+    width: 5.5rem;
+    height: 5.5rem;
+    top: -6.75rem;
+    font-size: 2.2rem;
+  }
+
+  .city2-page .invite-hero__names::after {
+    width: 6.4rem;
+    height: 6.4rem;
+    top: -7.2rem;
+  }
+
+  .city2-page .invite-hero__names {
+    margin-top: 6.8rem;
+  }
+}
