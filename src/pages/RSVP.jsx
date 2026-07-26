@@ -459,10 +459,27 @@ export default function RSVP({ invitationMode = 'full' }) {
         </div>
       </section>
 
+      <section className="rsvp-editorial-wrap" aria-label="RSVP invitation preview">
+        <div className="rsvp-editorial" data-reveal="photo">
+          <div className="rsvp-editorial__panel">
+            <span>Manas</span>
+            <em>&amp;</em>
+            <span>Rupa Sree</span>
+          </div>
+          <figure className="rsvp-editorial__photo">
+            <img
+              src="/videos/DSC00833.jpg"
+              alt="Manas and Rupa Sree holding hands on a bridge"
+            />
+          </figure>
+          <div className="rsvp-editorial__title">RSVP</div>
+        </div>
+      </section>
+
       {/* Step indicator */}
       <div
         ref={formStartRef}
-        className={`${stepLabels.length === 3 ? 'max-w-md' : 'max-w-xs'} mx-auto px-6 mb-8 -mt-4 relative z-10`}
+        className={`${stepLabels.length === 3 ? 'max-w-md' : 'max-w-xs'} mx-auto px-6 mb-8 relative z-10`}
         data-reveal="fade-up"
         style={{ '--reveal-delay': '80ms' }}
       >

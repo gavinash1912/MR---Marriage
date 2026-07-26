@@ -3613,3 +3613,755 @@ body:has(.city2-page) .nav-mobile-link.is-active {
     width: 58%;
   }
 }
+
+/* Reference-video stationery pass. */
+.city2-page {
+  --ref-ink: #5d061d;
+  --ref-red: #a70f2f;
+  --ref-red-deep: #6c061e;
+  --ref-rose: #db536b;
+  --ref-paper: #fff8e7;
+  --ref-paper-bright: #fffdf4;
+  --ref-vellum: #f2dfb9;
+  --ref-gold: #c49a38;
+  --ref-gold-soft: #edd38a;
+  --ref-leaf: #4c6031;
+  --ref-copy: #6e4638;
+  --ref-line: rgba(196, 154, 56, 0.46);
+  --ref-shadow: rgba(93, 6, 29, 0.15);
+  background:
+    radial-gradient(circle at 50% -8%, rgba(196, 154, 56, 0.22), transparent 25rem),
+    radial-gradient(circle at 12% 25%, rgba(219, 83, 107, 0.12), transparent 18rem),
+    radial-gradient(circle at 88% 30%, rgba(76, 96, 49, 0.1), transparent 18rem),
+    linear-gradient(180deg, var(--ref-paper-bright), var(--ref-paper) 44%, var(--ref-vellum));
+  color: var(--ref-ink);
+}
+
+body:has(.city2-page) {
+  background: var(--ref-paper);
+}
+
+.city2-page::before {
+  background-image:
+    radial-gradient(circle, rgba(93, 6, 29, 0.05) 1px, transparent 1.18px),
+    radial-gradient(circle, rgba(196, 154, 56, 0.08) 1px, transparent 1.2px),
+    linear-gradient(180deg, rgba(255, 253, 244, 0.88), rgba(242, 223, 185, 0.22));
+  background-position: 0 0, 9px 9px, 0 0;
+  background-size: 18px 18px, 18px 18px, auto;
+}
+
+.city2-page .nav-shell,
+body:has(.city2-page) .nav-shell {
+  min-height: 54px;
+  border: 1px solid var(--ref-line);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 244, 0.98), rgba(255, 248, 231, 0.96));
+  box-shadow:
+    0 14px 34px rgba(93, 6, 29, 0.11),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.56);
+}
+
+.city2-page .nav-brand,
+body:has(.city2-page) .nav-brand {
+  color: var(--ref-red-deep);
+  font-family: 'Allura', cursive;
+  font-size: 1.45rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.city2-page .nav-link,
+body:has(.city2-page) .nav-link,
+.city2-page .nav-mobile-link,
+body:has(.city2-page) .nav-mobile-link {
+  color: var(--ref-red);
+  letter-spacing: 0.11em;
+}
+
+.city2-page .nav-link:hover,
+.city2-page .nav-link.is-active,
+body:has(.city2-page) .nav-link:hover,
+body:has(.city2-page) .nav-link.is-active,
+.city2-page .nav-mobile-link:hover,
+.city2-page .nav-mobile-link.is-active,
+body:has(.city2-page) .nav-mobile-link:hover,
+body:has(.city2-page) .nav-mobile-link.is-active {
+  background: linear-gradient(180deg, #b7173d, var(--ref-red));
+  color: var(--ref-paper-bright);
+}
+
+.city2-page .nav-menu-button,
+body:has(.city2-page) .nav-menu-button,
+.city2-page .nav-mobile-menu,
+body:has(.city2-page) .nav-mobile-menu {
+  border-color: var(--ref-line);
+  background: rgba(255, 253, 244, 0.98);
+  color: var(--ref-red-deep);
+}
+
+.city2-page .invite-hero {
+  min-height: 100svh;
+  padding-top: 7.4rem;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 244, 0.4), rgba(255, 248, 231, 0.88)),
+    radial-gradient(circle at 50% 14%, rgba(196, 154, 56, 0.2), transparent 23rem),
+    radial-gradient(circle at 12% 78%, rgba(219, 83, 107, 0.14), transparent 17rem),
+    radial-gradient(circle at 88% 78%, rgba(76, 96, 49, 0.11), transparent 18rem),
+    var(--ref-paper);
+}
+
+.city2-page .invite-hero::before {
+  inset: 5.85rem 1rem 1.08rem;
+  border: 2px solid rgba(196, 154, 56, 0.48);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle, rgba(93, 6, 29, 0.045) 1px, transparent 1.1px);
+  background-size: 18px 18px;
+  box-shadow:
+    inset 0 0 0 1px rgba(93, 6, 29, 0.12),
+    inset 0 0 0 8px rgba(255, 253, 244, 0.72);
+}
+
+.city2-page .invite-hero::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 1.35rem;
+  z-index: 0;
+  width: min(92vw, 720px);
+  height: 5.5rem;
+  pointer-events: none;
+  opacity: 0.62;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(ellipse at 9% 68%, rgba(219, 83, 107, 0.84) 0 0.82rem, transparent 0.88rem),
+    radial-gradient(ellipse at 18% 52%, rgba(255, 216, 222, 0.92) 0 1.08rem, transparent 1.15rem),
+    radial-gradient(ellipse at 28% 70%, rgba(219, 83, 107, 0.82) 0 0.9rem, transparent 0.96rem),
+    radial-gradient(ellipse at 72% 70%, rgba(219, 83, 107, 0.82) 0 0.9rem, transparent 0.96rem),
+    radial-gradient(ellipse at 82% 52%, rgba(255, 216, 222, 0.92) 0 1.08rem, transparent 1.15rem),
+    radial-gradient(ellipse at 91% 68%, rgba(219, 83, 107, 0.84) 0 0.82rem, transparent 0.88rem),
+    linear-gradient(90deg, transparent, rgba(76, 96, 49, 0.34) 16% 84%, transparent);
+}
+
+.city2-page .invite-hero__banner {
+  top: 0.4rem;
+  opacity: 0.96;
+  filter: none;
+}
+
+.city2-page .invite-hero__side {
+  top: 5.4rem;
+  bottom: 0.4rem;
+  width: 7rem;
+  opacity: 0.78;
+  filter: none;
+}
+
+.city2-page .invite-hero__side--left {
+  left: -1.8rem;
+}
+
+.city2-page .invite-hero__side--right {
+  right: -1.8rem;
+}
+
+.city2-page .invite-hero__content {
+  width: min(100%, 820px);
+  padding: 1.1rem 1rem 0;
+}
+
+.city2-page .invite-hero__names {
+  margin-top: 0.9rem;
+}
+
+.city2-page .invite-hero__names::before,
+.city2-page .invite-hero__names::after {
+  display: none;
+}
+
+.template-crest {
+  position: relative;
+  width: clamp(5.8rem, 15vw, 7.6rem);
+  height: clamp(5.8rem, 15vw, 7.6rem);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 1.1rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--ref-paper-bright) 0 55%, transparent 56%),
+    repeating-conic-gradient(from 0deg, var(--ref-red) 0 8deg, var(--ref-gold) 8deg 12deg, transparent 12deg 17deg);
+  box-shadow:
+    0 0 0 0.28rem var(--ref-paper),
+    0 0 0 0.42rem var(--ref-red),
+    0 0 0 0.62rem rgba(196, 154, 56, 0.54),
+    0 18px 38px rgba(93, 6, 29, 0.17);
+}
+
+.template-crest::before,
+.template-crest::after {
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.template-crest::before {
+  inset: 0.78rem;
+  border: 1px solid rgba(196, 154, 56, 0.66);
+}
+
+.template-crest::after {
+  inset: -0.95rem;
+  border: 1px solid rgba(93, 6, 29, 0.18);
+}
+
+.template-crest span {
+  color: var(--ref-red);
+  font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  font-size: clamp(2.35rem, 6vw, 3.2rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.city2-page .invite-kicker,
+.city2-page .city2-mantra,
+.city2-event-tile__kicker {
+  color: var(--ref-red);
+  letter-spacing: 0.2em;
+}
+
+.city2-page .invite-hero__names h1 {
+  color: var(--ref-red);
+  font-family: 'Allura', cursive;
+  font-size: clamp(5.25rem, 15vw, 10rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.72;
+  text-transform: none;
+  text-shadow: 0 15px 34px rgba(93, 6, 29, 0.12);
+}
+
+.city2-page .invite-hero__amp {
+  margin: 0.1rem 0;
+  color: var(--ref-gold);
+}
+
+.city2-page .invite-hero__amp span {
+  color: var(--ref-gold);
+  font-family: 'Allura', cursive;
+  font-size: clamp(2.1rem, 6vw, 3.2rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.city2-page .invite-hero__copy {
+  max-width: 34rem;
+  margin-top: 1rem;
+  color: var(--ref-copy);
+  font-size: clamp(1.08rem, 3vw, 1.45rem);
+}
+
+.template-section-nav {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.1rem;
+  margin: 1.35rem auto 0;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid rgba(196, 154, 56, 0.38);
+  border-bottom: 1px solid rgba(196, 154, 56, 0.38);
+}
+
+.template-section-nav a {
+  color: #7a3a40;
+  font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  font-size: 0.92rem;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  transition: color 160ms ease;
+}
+
+.template-section-nav a:hover {
+  color: var(--ref-red);
+}
+
+.city2-page .invite-meta {
+  margin-top: 1.15rem;
+}
+
+.city2-page .invite-meta span,
+.city2-page .invite-card,
+.city2-invite-card,
+.city2-event-card,
+.city2-event-tile,
+.city2-schedule-event,
+.city2-page .rsvp-card,
+.event-rsvp-card,
+.city2-page .schedule-shell__intro,
+.city2-page .schedule-shell__timeline,
+.city2-page .invite-card.text-left,
+.city2-info-grid article {
+  border-color: var(--ref-line);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 244, 0.95), rgba(255, 248, 231, 0.88));
+  box-shadow:
+    0 18px 44px var(--ref-shadow),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.52);
+}
+
+.city2-page .invite-section,
+.city2-page .city2-blessing,
+.city2-page .invite-section--sage,
+.city2-page .city2-know,
+.city2-all-events {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(196, 154, 56, 0.13), transparent 22rem),
+    var(--ref-paper) !important;
+}
+
+.city2-page .section-title,
+.city2-page .invite-subhero h1,
+.city2-page .schedule-shell__intro h2,
+.city2-page .event-panel__intro h2,
+.city2-info-grid h3,
+.city2-page .invite-card h3,
+.city2-event-tile h3,
+.city2-schedule-event h3,
+.event-rsvp-card__details h3,
+.city2-event-card__content h3 {
+  color: var(--ref-ink);
+}
+
+.city2-page .section-title {
+  font-size: clamp(2.75rem, 6vw, 5rem);
+  line-height: 0.96;
+}
+
+.city2-page .section-lede,
+.city2-page .invite-card > p,
+.city2-page .event-panel__intro p:not(.invite-kicker),
+.city2-page .schedule-shell__intro p:not(.invite-kicker),
+.city2-page .program-row__content p,
+.city2-info-grid p,
+.city2-event-card__content p,
+.city2-event-tile dd,
+.city2-schedule-event p,
+.city2-schedule-event span,
+.event-rsvp-card__details p:not(.invite-kicker) {
+  color: var(--ref-copy);
+}
+
+.city2-invite-card {
+  border-width: 2px;
+}
+
+.city2-invite-card::before {
+  inset: 0.65rem;
+  width: auto;
+  height: auto;
+  border: 1px solid rgba(93, 6, 29, 0.2);
+  border-radius: 6px;
+  background:
+    linear-gradient(90deg, transparent, rgba(196, 154, 56, 0.22), transparent) top / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent, rgba(196, 154, 56, 0.22), transparent) bottom / 100% 1px no-repeat;
+  transform: none;
+}
+
+.city2-invite-card::after {
+  inset: 1.1rem;
+  width: auto;
+  height: auto;
+  border: 1px solid rgba(196, 154, 56, 0.3);
+  border-radius: 5px;
+  background:
+    radial-gradient(circle at 8% 8%, rgba(219, 83, 107, 0.18), transparent 4rem),
+    radial-gradient(circle at 92% 92%, rgba(76, 96, 49, 0.14), transparent 4rem);
+  transform: none;
+}
+
+.city2-invite-card h2 {
+  color: var(--ref-red);
+  font-family: 'Allura', cursive;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.city2-invite-card h2 span {
+  color: var(--ref-gold);
+}
+
+.city2-page .btn-primary {
+  background: linear-gradient(180deg, #b91a3f, var(--ref-red));
+  color: var(--ref-paper-bright);
+  box-shadow: 0 13px 28px rgba(93, 6, 29, 0.18);
+}
+
+.city2-page .btn-primary:hover {
+  background: linear-gradient(180deg, var(--ref-red), var(--ref-red-deep));
+}
+
+.city2-page .btn-secondary,
+.city2-page .invite-hero .btn-secondary,
+.city2-page .invite-subhero .btn-secondary,
+.city2-rsvp-strip .btn-secondary,
+.city2-countdown .btn-secondary {
+  border-color: rgba(93, 6, 29, 0.38);
+  background: rgba(255, 253, 244, 0.66);
+  color: var(--ref-red);
+}
+
+.city2-event-card {
+  max-width: 760px;
+}
+
+.city2-event-card__image {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 120%, rgba(255, 216, 222, 0.35), transparent 7rem),
+    radial-gradient(circle at 50% 22%, rgba(196, 154, 56, 0.22), transparent 8rem),
+    linear-gradient(180deg, var(--ref-red), var(--ref-red-deep));
+}
+
+.city2-event-card__image::after {
+  content: '';
+  position: absolute;
+  inset: 1.2rem 1.45rem;
+  border: 2px solid rgba(237, 211, 138, 0.78);
+  border-bottom-width: 1px;
+  border-radius: 48% 48% 8px 8px / 62% 62% 8px 8px;
+  opacity: 0.72;
+}
+
+.city2-event-card__image::before {
+  z-index: 1;
+  border-color: var(--ref-gold-soft);
+  background: var(--ref-paper);
+  box-shadow:
+    0 0 0 0.45rem rgba(93, 6, 29, 0.2),
+    0 0 0 0.62rem rgba(237, 211, 138, 0.56),
+    0 18px 34px rgba(27, 0, 8, 0.22);
+}
+
+.city2-event-card__image span {
+  z-index: 2;
+  color: var(--ref-red);
+}
+
+.city2-photo-frame {
+  border-width: 2px;
+  border-color: rgba(196, 154, 56, 0.58);
+}
+
+.city2-photo-frame::after {
+  inset: 0.7rem;
+  border: 1px solid rgba(93, 6, 29, 0.28);
+}
+
+.city2-rsvp-strip .invite-section__inner::before {
+  background:
+    radial-gradient(circle at 50% 28%, rgba(237, 211, 138, 0.16), transparent 5rem),
+    repeating-radial-gradient(circle at 50% 52%, rgba(237, 211, 138, 0.2) 0 1px, transparent 1px 10px),
+    linear-gradient(180deg, var(--ref-red), var(--ref-red-deep));
+}
+
+.city2-rsvp-strip .invite-section__inner::after {
+  border-left: 4px solid rgba(196, 154, 56, 0.58);
+}
+
+.city2-page .invite-subhero {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(196, 154, 56, 0.2), transparent 23rem),
+    radial-gradient(circle, rgba(93, 6, 29, 0.052) 1px, transparent 1.16px),
+    var(--ref-paper);
+  background-size: auto, 18px 18px, auto;
+}
+
+.city2-page .invite-subhero::after {
+  border-color: rgba(196, 154, 56, 0.48);
+}
+
+.city2-page .invite-subhero h1 {
+  color: var(--ref-red);
+}
+
+.city2-page .invite-subhero p:not(.invite-kicker),
+.city2-page .invite-subhero a {
+  color: var(--ref-copy);
+}
+
+.city2-page .form-input,
+.city2-page .choice-card,
+.event-rsvp-attendee-row,
+.event-rsvp-choice {
+  border-color: rgba(93, 6, 29, 0.2);
+  background: rgba(255, 253, 244, 0.9);
+}
+
+.city2-page .form-input:focus {
+  border-color: rgba(167, 15, 47, 0.58);
+  box-shadow: 0 0 0 3px rgba(219, 83, 107, 0.13);
+}
+
+.city2-page .choice-card:hover,
+.city2-page .choice-card.is-selected {
+  border-color: rgba(167, 15, 47, 0.52);
+  background: rgba(242, 223, 185, 0.72);
+}
+
+.event-rsvp-choice:hover,
+.event-rsvp-choice.is-selected {
+  border-color: var(--ref-red);
+  background: var(--ref-red);
+  color: var(--ref-paper-bright);
+}
+
+.rsvp-editorial-wrap {
+  position: relative;
+  z-index: 2;
+  width: min(100% - 2rem, 880px);
+  margin: -2.6rem auto 2rem;
+}
+
+.rsvp-editorial {
+  position: relative;
+  overflow: hidden;
+  min-height: 22rem;
+  display: grid;
+  grid-template-columns: 42% 58%;
+  border: 1px solid var(--ref-line);
+  border-radius: 8px;
+  background: var(--ref-paper-bright);
+  box-shadow:
+    0 22px 54px rgba(93, 6, 29, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.62);
+}
+
+.rsvp-editorial::after {
+  content: '';
+  position: absolute;
+  inset: 0.75rem;
+  border: 1px solid rgba(93, 6, 29, 0.18);
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.rsvp-editorial__panel {
+  position: relative;
+  min-height: 16rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+  padding: 2rem clamp(1rem, 4vw, 2.4rem);
+  background:
+    radial-gradient(circle at 50% 10%, rgba(237, 211, 138, 0.18), transparent 6rem),
+    linear-gradient(180deg, var(--ref-red), var(--ref-red-deep));
+  color: var(--ref-paper-bright);
+}
+
+.rsvp-editorial__panel::before {
+  content: 'MR';
+  position: absolute;
+  right: 1.2rem;
+  bottom: 1rem;
+  color: rgba(255, 248, 231, 0.12);
+  font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  font-size: 8rem;
+  line-height: 0.8;
+}
+
+.rsvp-editorial__panel span,
+.rsvp-editorial__panel em {
+  position: relative;
+  z-index: 1;
+}
+
+.rsvp-editorial__panel span {
+  font-family: 'Allura', cursive;
+  font-size: clamp(3rem, 8vw, 5.1rem);
+  line-height: 0.82;
+}
+
+.rsvp-editorial__panel em {
+  color: var(--ref-gold-soft);
+  font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+  font-style: italic;
+  line-height: 0.9;
+}
+
+.rsvp-editorial__photo {
+  min-height: 16rem;
+  margin: 0;
+  background: #efe0c3;
+}
+
+.rsvp-editorial__photo img {
+  width: 100%;
+  height: 100%;
+  min-height: 22rem;
+  display: block;
+  object-fit: cover;
+  object-position: center 42%;
+  filter: saturate(0.92) contrast(1.03);
+}
+
+.rsvp-editorial__title {
+  position: absolute;
+  left: 50%;
+  bottom: 1.35rem;
+  z-index: 2;
+  width: min(82%, 18rem);
+  padding: 0.65rem 1rem 0.72rem;
+  border: 1px solid rgba(196, 154, 56, 0.5);
+  border-radius: 999px;
+  background: rgba(255, 253, 244, 0.92);
+  color: var(--ref-red);
+  font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  font-size: clamp(2.1rem, 5vw, 3.4rem);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-align: center;
+  transform: translateX(-50%);
+  box-shadow: 0 12px 30px rgba(93, 6, 29, 0.12);
+}
+
+.city2-page .rsvp-card {
+  padding: clamp(1.35rem, 4vw, 2rem);
+}
+
+@media (min-width: 768px) {
+  .city2-page .invite-hero__side {
+    width: 10rem;
+  }
+
+  .city2-page .invite-hero__side--left {
+    left: -2.7rem;
+  }
+
+  .city2-page .invite-hero__side--right {
+    right: -2.7rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .city2-page .invite-hero__side {
+    width: 13rem;
+  }
+
+  .city2-page .invite-hero__side--left {
+    left: -3.6rem;
+  }
+
+  .city2-page .invite-hero__side--right {
+    right: -3.6rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .city2-page .nav-brand,
+  body:has(.city2-page) .nav-brand {
+    max-width: min(62vw, 13.5rem);
+    font-size: 1.22rem;
+  }
+
+  .city2-page .invite-hero {
+    padding-top: 6.8rem;
+  }
+
+  .city2-page .invite-hero::before {
+    inset: 5.45rem 0.65rem 0.88rem;
+  }
+
+  .city2-page .invite-hero__names h1 {
+    font-size: clamp(4.25rem, 17vw, 5.35rem);
+  }
+
+  .city2-page .invite-hero__amp span {
+    font-size: 2.15rem;
+  }
+
+  .template-crest {
+    width: 5.65rem;
+    height: 5.65rem;
+  }
+
+  .city2-page .invite-hero__banner {
+    top: 3.85rem;
+  }
+
+  .city2-page .invite-subhero__banner {
+    top: 4.1rem;
+  }
+
+  .city2-page .invite-hero__side {
+    top: 7rem;
+    width: 5.7rem;
+    opacity: 0.7;
+  }
+
+  .city2-page .invite-hero__side--left {
+    left: -2.35rem;
+  }
+
+  .city2-page .invite-hero__side--right {
+    right: -2.35rem;
+  }
+
+  .template-section-nav {
+    gap: 0.45rem 0.8rem;
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+  }
+
+  .template-section-nav a {
+    font-size: 0.78rem;
+  }
+
+  .rsvp-editorial-wrap {
+    width: min(100% - 1.2rem, 880px);
+    margin-top: -2rem;
+  }
+
+  .rsvp-editorial {
+    min-height: 29rem;
+    grid-template-columns: 1fr;
+  }
+
+  .rsvp-editorial__panel {
+    min-height: 12.5rem;
+    padding: 1.55rem 1.2rem 2rem;
+  }
+
+  .rsvp-editorial__photo img {
+    min-height: 16rem;
+  }
+
+  .rsvp-editorial__title {
+    bottom: 1rem;
+    width: min(84%, 15rem);
+  }
+}
+
+@media (max-width: 380px) {
+  .city2-page .invite-hero__names h1 {
+    font-size: 3.85rem;
+  }
+
+  .template-crest {
+    width: 5.25rem;
+    height: 5.25rem;
+  }
+
+  .template-crest span {
+    font-size: 2.15rem;
+  }
+}

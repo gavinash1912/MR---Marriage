@@ -30,13 +30,13 @@ Supported format: **MP4** (H.264, any resolution — recommended 1080p or 720p).
 The admin page lives at a hidden URL to keep it private:
 
 ```
-https://your-site.vercel.app/admin-mr-2026
+https://your-site.vercel.app/owner-rsvp-mr-2026
 ```
 
 It asks for the owner access code before showing RSVP data or visit logs.
 
-> **Before going live**, change the slug in `src/App.jsx` line with `/admin-mr-2026` to
-> something only you know, e.g. `/admin-secret-xyz`.
+> **Before going live**, set `VITE_ADMIN_PATH` to a private path only you know.
+> The hidden URL is only a convenience layer; the owner code still protects the dashboard.
 
 ---
 
@@ -68,7 +68,8 @@ In your Vercel project → **Settings → Environment Variables**, add:
 |----------------|-----------------------------------------------------|
 | `MONGODB_URI`  | `mongodb+srv://user:pass@cluster.mongodb.net/`      |
 | `MONGODB_DB`   | `marriage`                                        |
-| `OWNER_ACCESS_CODE` | `manasrupa2026`                              |
+| `VITE_ADMIN_PATH` | `/owner-rsvp-mr-2026` or your private admin path |
+| `OWNER_ACCESS_CODE` | A private owner access code                  |
 | `SITE_ACCESS_SECRET` | A long random secret for admin cookies      |
 
 > If you skip this, RSVPs fall back to localStorage on each visitor's own browser
@@ -114,7 +115,10 @@ mr-marriage/
 
 | Route               | Description                          |
 |---------------------|--------------------------------------|
-| `/`                 | Home — names, countdown, video, CTA  |
-| `/schedule`         | Event timeline + calendar invite     |
-| `/rsvp`             | 2-step RSVP form (open to anyone)    |
-| `/admin-mr-2026`    | Admin dashboard (change slug!)       |
+| `/wedding`          | Wedding-only home — names, countdown, photo, CTA |
+| `/wedding/schedule` | Wedding-only event timeline + calendar invite |
+| `/wedding/rsvp`     | Wedding-only RSVP form |
+| `/marriage/celebrations` | Full celebration invite |
+| `/marriage/celebrations/schedule` | Full celebration timeline |
+| `/marriage/celebrations/rsvp` | Full celebration RSVP form |
+| `/owner-rsvp-mr-2026` | Admin dashboard; override with `VITE_ADMIN_PATH` |

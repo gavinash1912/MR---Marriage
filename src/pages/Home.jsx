@@ -79,6 +79,12 @@ export default function Home({ invitationMode = 'full' }) {
       icon: Clock,
     },
   ];
+  const invitationLinks = [
+    { href: '#event-details', label: 'Event Details' },
+    { href: '#photos', label: 'Photos' },
+    { href: invitation.schedulePath, label: 'Schedule' },
+    { href: invitation.rsvpPath, label: 'RSVP' },
+  ];
 
   return (
     <div className="city2-page min-h-screen bg-[#fffaf4] text-mauve-900" onClickCapture={handleTrackedClick}>
@@ -98,6 +104,9 @@ export default function Home({ invitationMode = 'full' }) {
         </div>
 
         <div className="invite-hero__content">
+          <div className="template-crest animate-fade-in-up delay-100" aria-hidden="true">
+            <span>MR</span>
+          </div>
           <p className="invite-kicker animate-fade-in-up delay-200">Save the date</p>
 
           <div className="invite-hero__names animate-fade-in-up delay-300">
@@ -111,6 +120,16 @@ export default function Home({ invitationMode = 'full' }) {
           <p className="invite-hero__copy animate-fade-in-up delay-400">
             September 5, 2026 · Plano, Texas
           </p>
+
+          <nav className="template-section-nav animate-fade-in-up delay-500" aria-label="Invitation sections">
+            {invitationLinks.map(link => (
+              link.href.startsWith('#') ? (
+                <a key={link.href} href={link.href}>{link.label}</a>
+              ) : (
+                <Link key={link.href} to={link.href}>{link.label}</Link>
+              )
+            ))}
+          </nav>
 
           <div className="invite-meta animate-fade-in-up delay-500" aria-label="Wedding details">
             <span><Calendar className="w-4 h-4" /> September 5, 2026</span>
@@ -154,7 +173,7 @@ export default function Home({ invitationMode = 'full' }) {
       </section>
 
       {invitation.showAllEvents && (
-        <section data-analytics-section="All Events" className="invite-section city2-all-events">
+        <section id="events" data-analytics-section="All Events" className="invite-section city2-all-events">
           <div className="invite-section__inner">
             <div className="section-heading-row" data-reveal="fade-up">
               <div>
@@ -198,7 +217,7 @@ export default function Home({ invitationMode = 'full' }) {
       )}
 
       {/* ── Invitation event section ────────────────────────── */}
-      <section data-analytics-section="Event Details" className="invite-section invite-section--sage city2-events">
+      <section id="event-details" data-analytics-section="Event Details" className="invite-section invite-section--sage city2-events">
         <div className="invite-section__inner">
           <div className="text-center max-w-2xl mx-auto mb-10" data-reveal="fade-up">
             <p className="invite-kicker">Wedding day</p>
@@ -248,7 +267,7 @@ export default function Home({ invitationMode = 'full' }) {
       </section>
 
       {/* ── Couple photo section ───────────────────────────── */}
-      <section data-analytics-section="Couple Photo" className="invite-section bg-[#fffaf4]">
+      <section id="photos" data-analytics-section="Couple Photo" className="invite-section bg-[#fffaf4]">
         <div className="invite-section__inner max-w-5xl">
           <div className="section-heading-row" data-reveal="fade-up">
             <div>
@@ -269,7 +288,7 @@ export default function Home({ invitationMode = 'full' }) {
         </div>
       </section>
 
-      <section data-analytics-section="RSVP" className="invite-section city2-rsvp-strip">
+      <section id="rsvp" data-analytics-section="RSVP" className="invite-section city2-rsvp-strip">
         <div className="invite-section__inner max-w-2xl text-center" data-reveal="fade-up">
           <p className="invite-kicker">Please</p>
           <h2 className="section-title">RSVP</h2>

@@ -6,6 +6,16 @@ import Schedule from './pages/Schedule';
 import RSVP   from './pages/RSVP';
 import Admin   from './pages/Admin';
 
+const DEFAULT_ADMIN_PATH = '/owner-rsvp-mr-2026';
+
+function normalizeAdminPath(path) {
+  const cleanPath = String(path || '').trim();
+  if (!cleanPath) return DEFAULT_ADMIN_PATH;
+  return cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+}
+
+const ADMIN_PATH = normalizeAdminPath(import.meta.env.VITE_ADMIN_PATH);
+
 // Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -15,7 +25,7 @@ function ScrollToTop() {
 
 function AppLayout() {
   const { pathname } = useLocation();
-  const isAdmin = pathname.startsWith('/admin');
+  const isAdmin = pathname === ADMIN_PATH || pathname.startsWith(`${ADMIN_PATH}/`);
 
   return (
     <>
@@ -31,8 +41,7 @@ function AppLayout() {
         <Route path="/wedding"          element={<Home invitationMode="wedding-only" />}     />
         <Route path="/wedding/schedule" element={<Schedule invitationMode="wedding-only" />} />
         <Route path="/wedding/rsvp"     element={<RSVP invitationMode="wedding-only" />}     />
-        {/* Admin at hidden URL — change this slug before going live */}
-        <Route path="/admin-mr-2026" element={<Admin />} />
+        <Route path={ADMIN_PATH} element={<Admin />} />
       </Routes>
     </>
   );
