@@ -2,7 +2,6 @@ import crypto from 'crypto';
 
 const COOKIE_NAME = 'mr_owner_access';
 const TOKEN_TTL_SECONDS = 60 * 60 * 24 * 30;
-const DEFAULT_OWNER_ACCESS_CODE = 'manasrupa2026';
 
 function base64Url(input) {
   return Buffer.from(input)
@@ -24,17 +23,22 @@ function timingSafeStringEqual(a, b) {
 }
 
 function getOwnerAccessCode() {
-  return process.env.OWNER_ACCESS_CODE || DEFAULT_OWNER_ACCESS_CODE;
+  return String(process.env.OWNER_ACCESS_CODE || '').trim();
 }
 
 function getSigningSecret() {
-  return process.env.SITE_ACCESS_SECRET || getOwnerAccessCode();
+  return String(process.env.SITE_ACCESS_SECRET || getOwnerAccessCode()).trim();
 }
 
 function signPayload(payload) {
+  const signingSecret = getSigningSecret();
+  if (!signingSecret) {
+    throw new Error('SITE_ACCESS_SECRET or OWNER_ACCESS_CODE is required');
+  }
+
   return base64Url(
     crypto
-      .createHmac('sha256', getSigningSecret())
+      .createHmac('sha256', signingSecret)
       .update(payload)
       .digest()
   );
@@ -57,7 +61,13 @@ function parseCookies(cookieHeader = '') {
 }
 
 export function isValidOwnerCode(code) {
-  return timingSafeStringEqual(String(code || '').trim(), getOwnerAccessCode());
+  const configuredCode = getOwnerAccessCode();
+  const submittedCode = String(code || '').trim();
+  return Boolean(
+    configuredCode &&
+    submittedCode &&
+    timingSafeStringEqual(submittedCode, configuredCode)
+  );
 }
 
 export function createOwnerToken() {
@@ -72,6 +82,7 @@ export function createOwnerToken() {
 export function isValidOwnerToken(token) {
   const [payload, signature] = String(token || '').split('.');
   if (!payload || !signature) return false;
+  if (!getSigningSecret()) return false;
 
   if (!timingSafeStringEqual(signature, signPayload(payload))) {
     return false;

@@ -15,10 +15,13 @@ The local site runs at `http://localhost:5173`.
 
 | Route | Description |
 | --- | --- |
-| `/` | Home page with names, countdown, invitation video, and event details |
-| `/schedule` | Event schedule, venue details, and calendar links |
-| `/rsvp` | RSVP form for guests and additional attendees |
-| `/admin-mr-2026` | Hidden admin dashboard for RSVPs and visitor logs |
+| `/wedding` | Wedding-only home page with names, countdown, photo, and event details |
+| `/wedding/schedule` | Wedding-only schedule, venue details, and calendar links |
+| `/wedding/rsvp` | Wedding-only RSVP form for guests and additional attendees |
+| `/marriage/celebrations` | Full celebration invite with all wedding events |
+| `/marriage/celebrations/schedule` | Full celebration schedule |
+| `/marriage/celebrations/rsvp` | Full celebration RSVP form |
+| `/owner-rsvp-mr-2026` | Hidden admin dashboard for RSVPs and visitor logs |
 
 The public site is open by default. The admin dashboard asks for the owner access code before showing RSVP data.
 
@@ -41,6 +44,7 @@ Copy `.env.example` to `.env` and set:
 ```text
 MONGODB_URI=mongodb+srv://...
 MONGODB_DB=marriage
-OWNER_ACCESS_CODE=manasrupa2026
-SITE_ACCESS_SECRET=change-this-random-secret
+VITE_ADMIN_PATH=/owner-rsvp-mr-2026
+OWNER_ACCESS_CODE=replace-with-a-private-owner-code
+SITE_ACCESS_SECRET=replace-with-a-long-random-cookie-secret
 ```
