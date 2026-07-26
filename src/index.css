@@ -3391,3 +3391,397 @@ body:has(.city2-page) .nav-mobile-link.is-active {
     margin-top: 6.8rem;
   }
 }
+
+/* Traditional Indian invitation correction layer. */
+.city2-page {
+  --template-ink: #69051f;
+  --template-ink-soft: #a11234;
+  --template-rose: #d84e67;
+  --template-paper: #fff6df;
+  --template-vellum: #f4dfb2;
+  --template-cream: #fffdf2;
+  --template-gold: #c59a38;
+  --template-gold-soft: #ebcb75;
+  --template-green: #315928;
+  --template-line: rgba(105, 5, 31, 0.22);
+  --template-shadow: rgba(105, 5, 31, 0.15);
+  background:
+    radial-gradient(circle at 50% -12%, rgba(197, 154, 56, 0.24), transparent 26rem),
+    radial-gradient(circle at 8% 28%, rgba(49, 89, 40, 0.1), transparent 20rem),
+    linear-gradient(180deg, var(--template-paper), #fffaf0 42%, var(--template-vellum) 100%);
+}
+
+body:has(.city2-page) {
+  --city2-ink: var(--template-ink);
+  --city2-teal: var(--template-ink);
+  --city2-teal-soft: var(--template-ink-soft);
+  --city2-gold: var(--template-gold);
+  --city2-cream: var(--template-paper);
+  --city2-warm: var(--template-vellum);
+  --city2-copy: #6b4736;
+  --city2-line: var(--template-line);
+}
+
+.city2-page::before {
+  background-image:
+    radial-gradient(circle, rgba(105, 5, 31, 0.055) 1px, transparent 1.2px),
+    radial-gradient(circle, rgba(197, 154, 56, 0.075) 1px, transparent 1.3px),
+    linear-gradient(180deg, rgba(255, 253, 242, 0.82), rgba(244, 223, 178, 0.24));
+  background-position: 0 0, 9px 9px, 0 0;
+  background-size: 18px 18px, 18px 18px, auto;
+}
+
+.city2-page .nav-shell,
+body:has(.city2-page) .nav-shell {
+  border-color: rgba(197, 154, 56, 0.5);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 242, 0.98), rgba(255, 246, 223, 0.96));
+  box-shadow:
+    0 12px 32px rgba(105, 5, 31, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+
+.city2-page .nav-link:hover,
+.city2-page .nav-link.is-active,
+body:has(.city2-page) .nav-link:hover,
+body:has(.city2-page) .nav-link.is-active,
+.city2-page .nav-mobile-link:hover,
+.city2-page .nav-mobile-link.is-active,
+body:has(.city2-page) .nav-mobile-link:hover,
+body:has(.city2-page) .nav-mobile-link.is-active {
+  background: var(--template-ink-soft);
+  color: var(--template-paper);
+}
+
+.city2-page .invite-hero {
+  padding-top: 7.35rem;
+  background:
+    radial-gradient(circle at 50% 13%, rgba(197, 154, 56, 0.2), transparent 23rem),
+    radial-gradient(circle at 10% 72%, rgba(216, 78, 103, 0.12), transparent 18rem),
+    radial-gradient(circle at 90% 72%, rgba(49, 89, 40, 0.1), transparent 18rem),
+    linear-gradient(180deg, rgba(255, 253, 242, 0.92), rgba(255, 246, 223, 0.96));
+}
+
+.city2-page .invite-hero::before,
+.city2-page .invite-subhero::after {
+  border: 2px solid rgba(197, 154, 56, 0.46);
+  box-shadow:
+    inset 0 0 0 1px rgba(105, 5, 31, 0.12),
+    inset 0 0 0 8px rgba(255, 253, 242, 0.72);
+}
+
+.city2-page .invite-hero::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 1.4rem;
+  z-index: 0;
+  width: min(92vw, 720px);
+  height: 5.4rem;
+  pointer-events: none;
+  opacity: 0.58;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(ellipse at 10% 68%, rgba(216, 78, 103, 0.8) 0 0.8rem, transparent 0.85rem),
+    radial-gradient(ellipse at 18% 52%, rgba(255, 216, 222, 0.9) 0 1.1rem, transparent 1.16rem),
+    radial-gradient(ellipse at 28% 70%, rgba(216, 78, 103, 0.78) 0 0.9rem, transparent 0.95rem),
+    radial-gradient(ellipse at 72% 70%, rgba(216, 78, 103, 0.78) 0 0.9rem, transparent 0.95rem),
+    radial-gradient(ellipse at 82% 52%, rgba(255, 216, 222, 0.9) 0 1.1rem, transparent 1.16rem),
+    radial-gradient(ellipse at 90% 68%, rgba(216, 78, 103, 0.8) 0 0.8rem, transparent 0.85rem),
+    linear-gradient(90deg, transparent, rgba(49, 89, 40, 0.34) 16% 84%, transparent);
+  filter: blur(0.2px);
+}
+
+.city2-page .invite-hero__banner {
+  top: 0.6rem;
+  opacity: 0.98;
+  filter: none;
+}
+
+.city2-page .invite-subhero__banner {
+  top: 0.15rem;
+  opacity: 0.92;
+  filter: none;
+}
+
+.city2-page .invite-hero__side {
+  top: 5.35rem;
+  width: 7rem;
+  opacity: 0.82;
+  filter: none;
+}
+
+.city2-page .invite-hero__side--left {
+  left: -1.8rem;
+}
+
+.city2-page .invite-hero__side--right {
+  right: -1.8rem;
+}
+
+.city2-page .invite-hero__names::before {
+  border: 0;
+  color: var(--template-ink-soft);
+  background:
+    radial-gradient(circle, var(--template-paper) 0 54%, transparent 55%),
+    repeating-conic-gradient(from 0deg, var(--template-ink-soft) 0 8deg, var(--template-gold) 8deg 12deg, transparent 12deg 17deg);
+  box-shadow:
+    0 0 0 0.28rem var(--template-paper),
+    0 0 0 0.42rem var(--template-ink-soft),
+    0 0 0 0.62rem rgba(197, 154, 56, 0.52),
+    0 18px 36px rgba(105, 5, 31, 0.18);
+}
+
+.city2-page .invite-hero__names::after {
+  border: 1px solid rgba(105, 5, 31, 0.22);
+  box-shadow:
+    0 0 0 0.28rem rgba(255, 253, 242, 0.62),
+    0 0 0 0.42rem rgba(197, 154, 56, 0.22);
+}
+
+.city2-page .invite-hero__names h1,
+.city2-invite-card h2 {
+  color: var(--template-ink-soft);
+  text-shadow: 0 13px 30px rgba(105, 5, 31, 0.12);
+}
+
+.city2-page .invite-hero__amp span {
+  color: var(--template-gold);
+}
+
+.city2-page .invite-kicker,
+.city2-page .city2-mantra,
+.city2-event-tile__kicker {
+  color: var(--template-ink-soft);
+}
+
+.city2-page .invite-meta span,
+.city2-page .invite-card,
+.city2-invite-card,
+.city2-event-card,
+.city2-event-tile,
+.city2-schedule-event,
+.city2-page .rsvp-card,
+.event-rsvp-card,
+.city2-page .schedule-shell__intro,
+.city2-page .schedule-shell__timeline,
+.city2-page .invite-card.text-left {
+  border-color: rgba(197, 154, 56, 0.42);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 242, 0.95), rgba(255, 246, 223, 0.88));
+  box-shadow:
+    0 18px 44px rgba(105, 5, 31, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.52);
+}
+
+.city2-invite-card {
+  border-width: 2px;
+}
+
+.city2-invite-card::before {
+  inset: 0.65rem;
+  border: 1px solid rgba(105, 5, 31, 0.22);
+  background:
+    linear-gradient(90deg, transparent, rgba(197, 154, 56, 0.2), transparent) top / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent, rgba(197, 154, 56, 0.2), transparent) bottom / 100% 1px no-repeat;
+}
+
+.city2-invite-card::after {
+  inset: 1.1rem;
+  border: 1px solid rgba(197, 154, 56, 0.3);
+  background:
+    radial-gradient(circle at 8% 8%, rgba(216, 78, 103, 0.18), transparent 4rem),
+    radial-gradient(circle at 92% 92%, rgba(49, 89, 40, 0.14), transparent 4rem);
+}
+
+.city2-page .btn-primary {
+  background: linear-gradient(180deg, #b51a3d, var(--template-ink-soft));
+  color: var(--template-paper);
+}
+
+.city2-page .btn-secondary,
+.city2-page .invite-hero .btn-secondary,
+.city2-page .invite-subhero .btn-secondary,
+.city2-rsvp-strip .btn-secondary,
+.city2-countdown .btn-secondary {
+  border-color: rgba(105, 5, 31, 0.38);
+  color: var(--template-ink-soft);
+}
+
+.city2-event-card {
+  max-width: 760px;
+}
+
+.city2-event-card::before,
+.city2-event-card::after {
+  content: '';
+  position: absolute;
+  top: 1.15rem;
+  bottom: 1.15rem;
+  z-index: 1;
+  width: 1px;
+  background:
+    linear-gradient(var(--template-gold), var(--template-gold)) top / 1px 100% no-repeat;
+  opacity: 0.34;
+  pointer-events: none;
+}
+
+.city2-event-card::before {
+  left: 1.1rem;
+}
+
+.city2-event-card::after {
+  right: 1.1rem;
+}
+
+.city2-event-card__image {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 120%, rgba(255, 216, 222, 0.35), transparent 7rem),
+    radial-gradient(circle at 50% 22%, rgba(197, 154, 56, 0.22), transparent 8rem),
+    linear-gradient(180deg, #891230, #5f071f);
+}
+
+.city2-event-card__image::after {
+  content: '';
+  position: absolute;
+  inset: 1.2rem 1.45rem;
+  border: 2px solid rgba(235, 203, 117, 0.78);
+  border-bottom-width: 1px;
+  border-radius: 48% 48% 8px 8px / 62% 62% 8px 8px;
+  opacity: 0.72;
+}
+
+.city2-event-card__image::before {
+  z-index: 1;
+  border-color: var(--template-gold-soft);
+  background: var(--template-paper);
+  box-shadow:
+    0 0 0 0.45rem rgba(105, 5, 31, 0.2),
+    0 0 0 0.62rem rgba(235, 203, 117, 0.56),
+    0 18px 34px rgba(27, 0, 8, 0.22);
+}
+
+.city2-event-card__image span {
+  z-index: 2;
+  color: var(--template-ink-soft);
+}
+
+.city2-photo-frame {
+  border-width: 2px;
+  border-color: rgba(197, 154, 56, 0.56);
+}
+
+.city2-photo-frame::after {
+  inset: 0.7rem;
+  border: 1px solid rgba(105, 5, 31, 0.28);
+}
+
+.city2-rsvp-strip .invite-section__inner::before {
+  background:
+    radial-gradient(circle at 50% 28%, rgba(235, 203, 117, 0.16), transparent 5rem),
+    repeating-radial-gradient(circle at 50% 52%, rgba(235, 203, 117, 0.2) 0 1px, transparent 1px 10px),
+    linear-gradient(180deg, #a11234, #69051f);
+}
+
+.city2-rsvp-strip .invite-section__inner::after {
+  border-left: 4px solid rgba(197, 154, 56, 0.58);
+}
+
+.city2-page .invite-subhero {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(197, 154, 56, 0.2), transparent 23rem),
+    radial-gradient(circle, rgba(105, 5, 31, 0.052) 1px, transparent 1.16px),
+    var(--template-paper);
+  background-size: auto, 18px 18px, auto;
+}
+
+.city2-page .form-input,
+.city2-page .choice-card,
+.event-rsvp-attendee-row,
+.event-rsvp-choice {
+  border-color: rgba(105, 5, 31, 0.2);
+  background: rgba(255, 253, 242, 0.9);
+}
+
+.city2-page .choice-card:hover,
+.city2-page .choice-card.is-selected,
+.event-rsvp-choice:hover,
+.event-rsvp-choice.is-selected {
+  border-color: var(--template-ink-soft);
+}
+
+.event-rsvp-choice:hover,
+.event-rsvp-choice.is-selected {
+  background: var(--template-ink-soft);
+  color: var(--template-paper);
+}
+
+@media (min-width: 768px) {
+  .city2-page .invite-hero__banner {
+    top: 0.2rem;
+  }
+
+  .city2-page .invite-hero__side {
+    width: 10rem;
+  }
+
+  .city2-page .invite-hero__side--left {
+    left: -2.7rem;
+  }
+
+  .city2-page .invite-hero__side--right {
+    right: -2.7rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .city2-page .invite-hero__side {
+    width: 13rem;
+  }
+
+  .city2-page .invite-hero__side--left {
+    left: -3.6rem;
+  }
+
+  .city2-page .invite-hero__side--right {
+    right: -3.6rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .city2-page .invite-hero__banner {
+    top: 3.9rem;
+  }
+
+  .city2-page .invite-subhero__banner {
+    top: 4.2rem;
+  }
+
+  .city2-page .invite-hero__side {
+    top: 7.2rem;
+    width: 5.6rem;
+    opacity: 0.7;
+  }
+
+  .city2-page .invite-hero__side--left {
+    left: -2.35rem;
+  }
+
+  .city2-page .invite-hero__side--right {
+    right: -2.35rem;
+  }
+
+  .city2-page .invite-hero__names {
+    margin-top: 8rem;
+  }
+
+  .city2-rsvp-strip .invite-section__inner::before {
+    width: 42%;
+  }
+
+  .city2-rsvp-strip .invite-section__inner::after {
+    width: 58%;
+  }
+}
