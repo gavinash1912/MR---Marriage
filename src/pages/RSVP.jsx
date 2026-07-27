@@ -1,11 +1,12 @@
 import { Fragment, useRef, useState } from 'react';
 import axios from 'axios';
-import { FloralSprig, FloralTopBanner } from '../components/FloralDecor';
+import { FloralSprig } from '../components/FloralDecor';
 import { Check, ChevronRight, Users, Phone, Mail, MessageSquare, Calendar, CalendarPlus } from 'lucide-react';
 import { useVisitAnalytics } from '../utils/analytics';
 import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
 import { useScrollReveal } from '../utils/scrollReveal';
 import { WEDDING_EVENT_ID, getInvitationConfig } from '../utils/events';
+import { OrnateInvitation } from '../components/OrnateInvitation';
 
 // ── Step indicator ──────────────────────────────────────────────────────────
 function StepDot({ step, current, label }) {
@@ -443,20 +444,20 @@ export default function RSVP({ invitationMode = 'full' }) {
         </div>
       )}
 
-      {/* Top floral */}
-      <section data-analytics-section="RSVP Header" className="invite-subhero">
-        <FloralTopBanner className="invite-subhero__banner" />
-        <div className="invite-subhero__inner" data-reveal="fade-up">
-          <p className="invite-kicker">
-            {invitation.showAllEvents ? 'Wedding Celebrations' : 'Marriage Ceremony'} · September 5, 2026
-          </p>
-          <h1>RSVP</h1>
-          <p>
-            {invitation.showAllEvents
-              ? 'Let us know which events you can attend, and add any family members joining you.'
-              : 'Let us know if you can celebrate with us, and add any family members joining you.'}
-          </p>
-        </div>
+      <section data-analytics-section="RSVP Header" className="ornate-subpage-shell">
+        <OrnateInvitation compact>
+          <div className="ornate-subhead" data-reveal="fade-up">
+            <p className="invite-kicker">
+              {invitation.showAllEvents ? 'Wedding Celebrations' : 'Marriage Ceremony'} · September 5, 2026
+            </p>
+            <h1>RSVP</h1>
+            <p>
+              {invitation.showAllEvents
+                ? 'Let us know which events you can attend, and add any family members joining you.'
+                : 'Let us know if you can celebrate with us, and add any family members joining you.'}
+            </p>
+          </div>
+        </OrnateInvitation>
       </section>
 
       <section className="rsvp-editorial-wrap" aria-label="RSVP invitation preview">
