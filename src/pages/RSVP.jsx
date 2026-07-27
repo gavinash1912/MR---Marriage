@@ -6,7 +6,6 @@ import { useVisitAnalytics } from '../utils/analytics';
 import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
 import { useScrollReveal } from '../utils/scrollReveal';
 import { WEDDING_EVENT_ID, getInvitationConfig } from '../utils/events';
-import { OrnateInvitation } from '../components/OrnateInvitation';
 
 // ── Step indicator ──────────────────────────────────────────────────────────
 function StepDot({ step, current, label }) {
@@ -444,20 +443,19 @@ export default function RSVP({ invitationMode = 'full' }) {
         </div>
       )}
 
-      <section data-analytics-section="RSVP Header" className="ornate-subpage-shell">
-        <OrnateInvitation compact>
-          <div className="ornate-subhead" data-reveal="fade-up">
-            <p className="invite-kicker">
-              {invitation.showAllEvents ? 'Wedding Celebrations' : 'Marriage Ceremony'} · September 5, 2026
-            </p>
-            <h1>RSVP</h1>
-            <p>
-              {invitation.showAllEvents
-                ? 'Let us know which events you can attend, and add any family members joining you.'
-                : 'Let us know if you can celebrate with us, and add any family members joining you.'}
-            </p>
-          </div>
-        </OrnateInvitation>
+      <section data-analytics-section="RSVP Header" className="inv-subpage-hero">
+        <img src="/images/invitation-card.png" alt="" className="inv-subpage-hero__img" aria-hidden="true" />
+        <div className="inv-subpage-hero__content" data-reveal="fade-up">
+          <p className="invite-kicker">
+            {invitation.showAllEvents ? 'Wedding Celebrations' : 'Marriage Ceremony'} · September 5, 2026
+          </p>
+          <h1>RSVP</h1>
+          <p>
+            {invitation.showAllEvents
+              ? 'Let us know which events you can attend, and add any family members joining you.'
+              : 'Let us know if you can celebrate with us, and add any family members joining you.'}
+          </p>
+        </div>
       </section>
 
       <section className="rsvp-editorial-wrap" aria-label="RSVP invitation preview">

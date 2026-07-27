@@ -4,7 +4,6 @@ import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar'
 import { useVisitAnalytics } from '../utils/analytics';
 import { useScrollReveal } from '../utils/scrollReveal';
 import { WEDDING_EVENT_ID, getInvitationConfig } from '../utils/events';
-import { OrnateInvitation } from '../components/OrnateInvitation';
 
 // ── Timeline event component ─────────────────────────────────────────────────
 function TimelineEvent({ time, title, description, icon: Icon, accent = false, last = false, delay = '0ms' }) {
@@ -63,30 +62,29 @@ export default function Schedule({ invitationMode = 'full' }) {
   useScrollReveal();
 
   return (
-    <div className="city2-page ornate-page min-h-screen" onClickCapture={handleTrackedClick}>
-      <section data-analytics-section="Schedule Header" className="ornate-subpage-shell">
-        <OrnateInvitation compact>
-          <div className="ornate-subhead" data-reveal="fade-up">
-            <p className="invite-kicker">September 5, 2026</p>
-            <h1>{invitation.showAllEvents ? 'Wedding Events Schedule' : 'Wedding Day Schedule'}</h1>
-            <p>
-              {invitation.showAllEvents
-                ? 'Wedding day details are confirmed. Other event dates and Grandion venue details are placeholders until finalized.'
-                : 'Ceremony, family blessings, photos, and lunch at Atithi Venue in Plano, Texas.'}
-            </p>
-            <div className="mt-5 flex items-center justify-center gap-2 text-mauve-500">
-              <MapPin className="w-4 h-4" />
-              <a
-                href="https://maps.google.com/?q=Atithi+Venue+9060+Independence+Parkway+Plano+TX+75025"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-sans text-sm hover:text-mauve-700 underline underline-offset-2"
-              >
-                9060 Independence Parkway, Plano, TX 75025
-              </a>
-            </div>
+    <div className="city2-page min-h-screen" onClickCapture={handleTrackedClick}>
+      <section data-analytics-section="Schedule Header" className="inv-subpage-hero">
+        <img src="/images/invitation-card.png" alt="" className="inv-subpage-hero__img" aria-hidden="true" />
+        <div className="inv-subpage-hero__content" data-reveal="fade-up">
+          <p className="invite-kicker">September 5, 2026</p>
+          <h1>{invitation.showAllEvents ? 'Wedding Events Schedule' : 'Wedding Day Schedule'}</h1>
+          <p>
+            {invitation.showAllEvents
+              ? 'Wedding day details are confirmed. Other event dates and Grandion venue details are placeholders until finalized.'
+              : 'Ceremony, family blessings, photos, and lunch at Atithi Venue in Plano, Texas.'}
+          </p>
+          <div className="mt-5 flex items-center justify-center gap-2 text-mauve-500">
+            <MapPin className="w-4 h-4" />
+            <a
+              href="https://maps.google.com/?q=Atithi+Venue+9060+Independence+Parkway+Plano+TX+75025"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-sans text-sm hover:text-mauve-700 underline underline-offset-2"
+            >
+              9060 Independence Parkway, Plano, TX 75025
+            </a>
           </div>
-        </OrnateInvitation>
+        </div>
       </section>
 
       {invitation.showAllEvents && (

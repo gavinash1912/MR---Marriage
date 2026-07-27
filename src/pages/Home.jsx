@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useVisitAnalytics } from '../utils/analytics';
 import { getInvitationConfig } from '../utils/events';
-import { OrnateInvitation } from '../components/OrnateInvitation';
 
 export default function Home({ invitationMode = 'full' }) {
   const invitation = getInvitationConfig(invitationMode);
@@ -15,36 +14,64 @@ export default function Home({ invitationMode = 'full' }) {
   });
 
   return (
-    <div className="city2-page ornate-page min-h-screen" onClickCapture={handleTrackedClick}>
-      <main className="ornate-home-shell" data-analytics-section="Invitation Card">
-        <OrnateInvitation>
-          <div className="ornate-invite-content">
-            <p className="ornate-parents">With the heavenly blessings of their families</p>
-            <p className="ornate-line ornate-line--accent">cordially invite you for the marriage ceremony of</p>
+    <div className="invitation-page" onClickCapture={handleTrackedClick}>
+      <main className="invitation-card" data-analytics-section="Invitation Card">
+        {/* The actual invitation card image as the decorative frame */}
+        <img
+          src="/images/invitation-card.png"
+          alt=""
+          aria-hidden="true"
+          className="invitation-card__bg"
+          draggable="false"
+        />
 
-            <h1 className="ornate-couple">Manas</h1>
-            <p className="ornate-amp">&amp;</p>
-            <h1 className="ornate-couple ornate-couple--second">Rupa Sree</h1>
+        {/* Real wedding content overlaid on the card */}
+        <div className="invitation-card__overlay">
+          <p className="inv-parents">
+            With the heavenly blessings of their families
+          </p>
 
-            <p className="ornate-line ornate-line--accent">to join us in the wedding celebrations</p>
+          <p className="inv-invite-line">
+            cordially invite you for the marriage ceremony of
+          </p>
 
-            <p className="ornate-line ornate-line--accent ornate-conducted">which will be conducted on</p>
+          <h1 className="inv-name">Manas</h1>
+          <p className="inv-amp">&amp;</p>
+          <h1 className="inv-name">Rupa Sree</h1>
 
-            <div className="ornate-date-wrap" aria-label="Wedding date and time">
-              <span>SEPTEMBER</span>
-              <span>SATURDAY 5 AT 8 AM</span>
-              <span>2026</span>
+          <p className="inv-invite-line">which will be conducted on</p>
+
+          <div className="inv-date" aria-label="Wedding date and time">
+            <span className="inv-date__line" />
+            <span className="inv-date__month">SEPTEMBER</span>
+            <span className="inv-date__line" />
+            <div className="inv-date__row">
+              <span>SATURDAY</span>
+              <span className="inv-date__day">5</span>
+              <span>AT 8 AM</span>
             </div>
-
-            <p className="ornate-at">at</p>
-            <p className="ornate-address">Atithi Venue,<br />9060 Independence Parkway, Plano, TX 75025</p>
-
-            <nav className="ornate-actions" aria-label="Invitation links">
-              <Link to={invitation.schedulePath}>Schedule</Link>
-              <Link to={invitation.rsvpPath}>RSVP</Link>
-            </nav>
+            <span className="inv-date__line" />
+            <span className="inv-date__year">2026</span>
+            <span className="inv-date__line" />
           </div>
-        </OrnateInvitation>
+
+          <p className="inv-at">at</p>
+          <p className="inv-address">
+            Atithi Venue,<br />
+            9060 Independence Parkway,<br />
+            Plano, TX 75025
+          </p>
+        </div>
+
+        {/* Action buttons below the card */}
+        <nav className="invitation-actions" aria-label="Invitation links">
+          <Link to={invitation.schedulePath} className="btn-primary">
+            Schedule
+          </Link>
+          <Link to={invitation.rsvpPath} className="btn-primary">
+            RSVP
+          </Link>
+        </nav>
       </main>
     </div>
   );
