@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FloralLeft, FloralRight, FloralTopBanner, FloralSprig } from '../components/FloralDecor';
+import { FloralLeft, FloralRight, FloralTopBanner, FloralDivider, FloralSprig } from '../components/FloralDecor';
 import { Calendar, MapPin, Clock } from 'lucide-react';
 import { useVisitAnalytics } from '../utils/analytics';
 import { useScrollReveal } from '../utils/scrollReveal';
@@ -96,6 +96,13 @@ export default function Home({ invitationMode = 'full' }) {
       >
         <FloralTopBanner className="invite-hero__banner" />
 
+        <div className="invite-hero__peacock invite-hero__peacock--left" aria-hidden="true">
+          <img src="/images/peacock.png" alt="" loading="lazy" decoding="async" />
+        </div>
+        <div className="invite-hero__peacock invite-hero__peacock--right" aria-hidden="true">
+          <img src="/images/peacock.png" alt="" loading="lazy" decoding="async" />
+        </div>
+
         <div className="invite-hero__side invite-hero__side--left">
           <FloralLeft className="w-full h-full" />
         </div>
@@ -157,6 +164,28 @@ export default function Home({ invitationMode = 'full' }) {
       <section data-analytics-section="Blessing" className="invite-section city2-blessing">
         <div className="invite-section__inner max-w-3xl">
           <div className="city2-invite-card" data-reveal="arch">
+            <img
+              src="/images/ganesh.png"
+              alt=""
+              aria-hidden="true"
+              className="city2-invite-card__ganesh"
+              loading="lazy"
+              decoding="async"
+            />
+            <span className="city2-invite-card__corner city2-invite-card__corner--tl" aria-hidden="true">
+              <img src="/images/rose-cluster.png" alt="" loading="lazy" decoding="async" />
+            </span>
+            <span className="city2-invite-card__corner city2-invite-card__corner--tr" aria-hidden="true">
+              <img src="/images/rose-cluster.png" alt="" loading="lazy" decoding="async" />
+            </span>
+            <span className="city2-invite-card__corner city2-invite-card__corner--bl" aria-hidden="true">
+              <img src="/images/rose-cluster.png" alt="" loading="lazy" decoding="async" />
+            </span>
+            <span className="city2-invite-card__corner city2-invite-card__corner--br" aria-hidden="true">
+              <img src="/images/rose-cluster.png" alt="" loading="lazy" decoding="async" />
+            </span>
+            <span className="city2-invite-card__chain city2-invite-card__chain--left" aria-hidden="true" />
+            <span className="city2-invite-card__chain city2-invite-card__chain--right" aria-hidden="true" />
             <p className="city2-mantra">Om Sri Ganeshaya Namah</p>
             <p className="city2-small-copy">With the heavenly blessings of their families</p>
             <div className="city2-rule" />
@@ -172,48 +201,53 @@ export default function Home({ invitationMode = 'full' }) {
         </div>
       </section>
 
-      {invitation.showAllEvents && (
-        <section id="events" data-analytics-section="All Events" className="invite-section city2-all-events">
-          <div className="invite-section__inner">
-            <div className="section-heading-row" data-reveal="fade-up">
-              <div>
-                <p className="invite-kicker">Wedding weekend</p>
-                <h2 className="section-title text-left">All Events</h2>
-              </div>
-              <p className="section-lede">
-                Please RSVP for each event below. Dates and Grandion venue details are placeholders until finalized.
-              </p>
-            </div>
+      <FloralDivider />
 
-            <div className="city2-event-tile-grid">
-              {invitation.events.map((event, index) => (
-                <article
-                  key={event.id}
-                  className={`city2-event-tile ${event.id === WEDDING_EVENT_ID ? 'is-featured' : ''}`}
-                  data-reveal="card"
-                  style={{ '--reveal-delay': `${index * 80}ms` }}
-                >
-                  <p className="city2-event-tile__kicker">{event.category}</p>
-                  <h3>{event.name}</h3>
-                  <dl>
-                    <div>
-                      <dt>Date</dt>
-                      <dd>{event.dateLabel}</dd>
-                    </div>
-                    <div>
-                      <dt>Time</dt>
-                      <dd>{event.timeLabel}</dd>
-                    </div>
-                    <div>
-                      <dt>Venue</dt>
-                      <dd>{event.venue}</dd>
-                    </div>
-                  </dl>
-                </article>
-              ))}
+      {invitation.showAllEvents && (
+        <>
+          <section id="events" data-analytics-section="All Events" className="invite-section city2-all-events">
+            <div className="invite-section__inner">
+              <div className="section-heading-row" data-reveal="fade-up">
+                <div>
+                  <p className="invite-kicker">Wedding weekend</p>
+                  <h2 className="section-title text-left">All Events</h2>
+                </div>
+                <p className="section-lede">
+                  Please RSVP for each event below. Dates and Grandion venue details are placeholders until finalized.
+                </p>
+              </div>
+
+              <div className="city2-event-tile-grid">
+                {invitation.events.map((event, index) => (
+                  <article
+                    key={event.id}
+                    className={`city2-event-tile ${event.id === WEDDING_EVENT_ID ? 'is-featured' : ''}`}
+                    data-reveal="card"
+                    style={{ '--reveal-delay': `${index * 80}ms` }}
+                  >
+                    <p className="city2-event-tile__kicker">{event.category}</p>
+                    <h3>{event.name}</h3>
+                    <dl>
+                      <div>
+                        <dt>Date</dt>
+                        <dd>{event.dateLabel}</dd>
+                      </div>
+                      <div>
+                        <dt>Time</dt>
+                        <dd>{event.timeLabel}</dd>
+                      </div>
+                      <div>
+                        <dt>Venue</dt>
+                        <dd>{event.venue}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+          <FloralDivider />
+        </>
       )}
 
       {/* ── Invitation event section ────────────────────────── */}
@@ -266,6 +300,8 @@ export default function Home({ invitationMode = 'full' }) {
         </div>
       </section>
 
+      <FloralDivider />
+
       {/* ── Couple photo section ───────────────────────────── */}
       <section id="photos" data-analytics-section="Couple Photo" className="invite-section bg-[#fffaf4]">
         <div className="invite-section__inner max-w-5xl">
@@ -288,6 +324,8 @@ export default function Home({ invitationMode = 'full' }) {
         </div>
       </section>
 
+      <FloralDivider />
+
       <section id="rsvp" data-analytics-section="RSVP" className="invite-section city2-rsvp-strip">
         <div className="invite-section__inner max-w-2xl text-center" data-reveal="fade-up">
           <p className="invite-kicker">Please</p>
@@ -302,6 +340,8 @@ export default function Home({ invitationMode = 'full' }) {
           </Link>
         </div>
       </section>
+
+      <FloralDivider />
 
       <section data-analytics-section="Things To Know" className="invite-section city2-know">
         <div className="invite-section__inner">
@@ -344,6 +384,8 @@ export default function Home({ invitationMode = 'full' }) {
         </div>
       </section>
 
+      <FloralDivider />
+
       <section data-analytics-section="Countdown" className="invite-section city2-countdown">
         <div className="invite-section__inner max-w-3xl text-center" data-reveal="fade-up">
           <p className="invite-kicker">The countdown begins</p>
@@ -357,6 +399,8 @@ export default function Home({ invitationMode = 'full' }) {
         </div>
       </section>
 
+      <FloralDivider />
+
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="invite-footer">
         <FloralSprig className="mb-4" />
@@ -365,7 +409,6 @@ export default function Home({ invitationMode = 'full' }) {
         </p>
         <p className="font-sans text-xs text-mauve-300 mt-2">Plano, Texas</p>
       </footer>
-
     </div>
   );
 }
