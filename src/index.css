@@ -3807,10 +3807,12 @@ body:has(.city2-page) .nav-mobile-link.is-active {
     radial-gradient(circle at 88% 30%, rgba(76, 96, 49, 0.1), transparent 18rem),
     linear-gradient(180deg, var(--ref-paper-bright), var(--ref-paper) 44%, var(--ref-vellum));
   color: var(--ref-ink);
+  overflow-x: hidden;
 }
 
 body:has(.city2-page) {
   background: var(--ref-paper);
+  overflow-x: hidden;
 }
 
 .city2-page::before {
@@ -4454,7 +4456,7 @@ body:has(.city2-page) .nav-mobile-menu {
   }
 
   .city2-page .invite-hero__names h1 {
-    font-size: clamp(4.25rem, 17vw, 5.35rem);
+    font-size: clamp(3.45rem, 14vw, 4.2rem);
   }
 
   .city2-page .invite-hero__amp span {
@@ -4488,6 +4490,23 @@ body:has(.city2-page) .nav-mobile-menu {
     right: -2.35rem;
   }
 
+  .city2-page .invite-subhero__inner {
+    max-width: calc(100vw - 2rem);
+  }
+
+  .city2-page .invite-subhero .invite-kicker {
+    max-width: 18rem;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-wrap: anywhere;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+  }
+
+  .city2-page .invite-subhero p:not(.invite-kicker) {
+    max-width: min(100%, 20rem);
+  }
+
   .template-section-nav {
     gap: 0.45rem 0.8rem;
     padding-left: 0.4rem;
@@ -4513,6 +4532,15 @@ body:has(.city2-page) .nav-mobile-menu {
     padding: 1.55rem 1.2rem 2rem;
   }
 
+  .rsvp-editorial__panel::before {
+    right: 0.55rem;
+    font-size: 6.5rem;
+  }
+
+  .rsvp-editorial__panel span {
+    font-size: clamp(2.65rem, 14vw, 3.65rem);
+  }
+
   .rsvp-editorial__photo img {
     min-height: 16rem;
   }
@@ -4525,7 +4553,7 @@ body:has(.city2-page) .nav-mobile-menu {
 
 @media (max-width: 380px) {
   .city2-page .invite-hero__names h1 {
-    font-size: 3.85rem;
+    font-size: 3.35rem;
   }
 
   .template-crest {
