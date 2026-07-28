@@ -446,7 +446,7 @@ export default function RSVP({ invitationMode = 'full' }) {
       <section data-analytics-section="RSVP Header" className="inv-subpage-hero">
         <img src="/images/invitation-card.png" alt="" className="inv-subpage-hero__img" aria-hidden="true" />
         <div className="inv-subpage-hero__content" data-reveal="fade-up">
-          <p className="invite-kicker">
+          <p className="invite-kicker rsvp-hero-kicker">
             {invitation.showAllEvents ? 'Wedding Celebrations' : 'Marriage Ceremony'} · September 5, 2026
           </p>
           <h1>RSVP</h1>
@@ -512,7 +512,9 @@ export default function RSVP({ invitationMode = 'full' }) {
             </div>
 
             <div className="mb-6">
-              <label className="form-label mb-3">Will you attend the wedding ceremony? *</label>
+              <label className="form-label mb-3">
+                Will you attend the wedding ceremony?<span className="required-marker" aria-hidden="true">*</span>
+              </label>
               <div className="space-y-3">
                 <AttendOption
                   value="yes"

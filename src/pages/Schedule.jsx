@@ -120,7 +120,6 @@ function WeddingVenuePage({ event, handleTrackedClick }) {
 
       <section data-analytics-section="Calendar Links" className="invite-section">
         <div className="max-w-md mx-auto text-center px-4" data-reveal="fade-up">
-          <FloralSprig className="mb-5" />
           <p className="invite-kicker">Save the date</p>
           <h2 className="font-serif text-3xl md:text-4xl text-mauve-800 mb-3">Add it to your calendar</h2>
           <p className="section-lede mb-8">
@@ -150,7 +149,6 @@ function WeddingVenuePage({ event, handleTrackedClick }) {
       </section>
 
       <footer className="invite-footer">
-        <FloralSprig className="mb-3" />
         <p className="font-serif italic text-mauve-400 text-sm">
           Manas &amp; Rupa Sree &nbsp;·&nbsp; September 5, 2026
         </p>

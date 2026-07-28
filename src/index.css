@@ -1778,6 +1778,22 @@
   font-weight: 600;
 }
 
+.rsvp-page .rsvp-hero-kicker {
+  display: inline-block;
+  max-width: 100%;
+  font-size: clamp(0.76rem, 3vw, 0.9rem);
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.rsvp-page .form-label .required-marker {
+  display: inline-block;
+  margin-left: 0.24em;
+  white-space: nowrap;
+}
+
 .rsvp-page .text-mauve-300,
 .venue-page .text-mauve-300 {
   color: rgba(108, 6, 30, 0.72) !important;
@@ -1802,6 +1818,48 @@
 .rsvp-page .event-rsvp-card__details p,
 .venue-page .program-row__content p {
   color: var(--maroon-800);
+}
+
+.rsvp-page .form-label {
+  color: var(--maroon-900);
+  font-weight: 800;
+}
+
+.rsvp-page .form-input {
+  border-color: rgba(108, 6, 30, 0.36);
+  background: #fffefb;
+  color: var(--maroon-900);
+}
+
+.rsvp-page .form-input::placeholder {
+  color: rgba(108, 6, 30, 0.58);
+}
+
+.rsvp-page .form-input:focus {
+  border-color: var(--maroon-700);
+  box-shadow: 0 0 0 3px rgba(167, 15, 47, 0.14);
+}
+
+.rsvp-page .choice-card,
+.rsvp-page .event-rsvp-card {
+  border-color: rgba(108, 6, 30, 0.28);
+  background: #fffefb;
+}
+
+.rsvp-page .choice-card.is-selected {
+  border-color: rgba(108, 6, 30, 0.66);
+}
+
+.rsvp-page .choice-card p,
+.rsvp-page .event-rsvp-card__details p,
+.rsvp-page .event-rsvp-attendee-row span,
+.rsvp-page .rsvp-event-summary div {
+  color: var(--maroon-800);
+}
+
+.rsvp-page .event-rsvp-attendee-row strong,
+.rsvp-page .rsvp-event-summary span {
+  color: var(--maroon-900);
 }
 
 .rsvp-page .invite-card,
