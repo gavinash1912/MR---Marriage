@@ -7,7 +7,7 @@ import Schedule from './pages/Schedule';
 import RSVP   from './pages/RSVP';
 import Admin   from './pages/Admin';
 
-const DEFAULT_ADMIN_PATH = '/owner-rsvp-mr-2026';
+const DEFAULT_ADMIN_PATH = '/admin-mr-2026';
 
 function normalizeAdminPath(path) {
   const cleanPath = String(path || '').trim();
@@ -15,7 +15,14 @@ function normalizeAdminPath(path) {
   return cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
 }
 
-const ADMIN_PATH = normalizeAdminPath(import.meta.env.VITE_ADMIN_PATH);
+const ADMIN_PATHS = Array.from(new Set([
+  normalizeAdminPath(import.meta.env.VITE_ADMIN_PATH),
+  DEFAULT_ADMIN_PATH,
+].map(normalizeAdminPath)));
+
+function isAdminPath(pathname) {
+  return ADMIN_PATHS.some(path => pathname === path || pathname.startsWith(`${path}/`));
+}
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -26,7 +33,7 @@ function ScrollToTop() {
 
 function AppLayout() {
   const { pathname } = useLocation();
-  const isAdmin = pathname === ADMIN_PATH || pathname.startsWith(`${ADMIN_PATH}/`);
+  const isAdmin = isAdminPath(pathname);
 
   return (
     <>
@@ -44,7 +51,9 @@ function AppLayout() {
         <Route path="/wedding/venue"    element={<Schedule invitationMode="wedding-only" />} />
         <Route path="/wedding/schedule" element={<Navigate to="/wedding/venue" replace />} />
         <Route path="/wedding/rsvp"     element={<RSVP invitationMode="wedding-only" />}     />
-        <Route path={ADMIN_PATH} element={<Admin />} />
+        {ADMIN_PATHS.map(path => (
+          <Route key={path} path={`${path}/*`} element={<Admin />} />
+        ))}
       </Routes>
     </>
   );

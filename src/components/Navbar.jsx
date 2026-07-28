@@ -9,7 +9,7 @@ export default function Navbar() {
   const invitation = getInvitationConfig(getInvitationModeFromPath(location.pathname));
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener('scroll', onScroll, { passive: true });
     // Set initial state in case page loads mid-scroll
     onScroll();
@@ -32,8 +32,8 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? 'pt-2' : 'pt-4'
+      className={`site-header fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled ? 'is-scrolled pt-2' : 'pt-4'
       }`}
     >
       <div className="max-w-6xl mx-auto px-3 sm:px-6">
