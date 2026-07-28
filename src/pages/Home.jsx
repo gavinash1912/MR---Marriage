@@ -4,7 +4,6 @@ import { ChevronRight, Clock, MapPin } from 'lucide-react';
 import { useVisitAnalytics } from '../utils/analytics';
 import { useScrollReveal } from '../utils/scrollReveal';
 import { WEDDING_EVENT_ID, getInvitationConfig } from '../utils/events';
-import EventModal from '../components/EventModal';
 
 function useCountdown(targetDate) {
   const calc = () => {
@@ -45,7 +44,7 @@ function RsvpStrip({ rsvpPath }) {
   );
 }
 
-function HomeVenueDetails({ event, venuePath }) {
+function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details' }) {
   return (
     <section data-analytics-section="Venue Details" className="home-venue-section" data-reveal="fade-up">
       <p className="invite-kicker">Venue details</p>
@@ -72,7 +71,7 @@ function HomeVenueDetails({ event, venuePath }) {
 
         <div className="home-venue-card__actions">
           <Link to={venuePath} className="btn-primary home-venue-card__primary">
-            Venue Details <ChevronRight className="w-4 h-4" aria-hidden="true" />
+            {primaryLabel} <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </Link>
           <a
             href={event.mapUrl}
@@ -88,29 +87,15 @@ function HomeVenueDetails({ event, venuePath }) {
   );
 }
 
-function groupEventsByDate(events) {
-  const groups = {};
-  for (const event of events) {
-    const dateKey = event.dateTime.split('T')[0];
-    if (!groups[dateKey]) {
-      groups[dateKey] = { dateLabel: event.dateLabel, events: [] };
-    }
-    groups[dateKey].events.push(event);
-  }
-  return Object.values(groups);
-}
-
 export default function Home({ invitationMode = 'full' }) {
   const invitation = getInvitationConfig(invitationMode);
   const weddingEvent = invitation.events.find(event => event.id === WEDDING_EVENT_ID) || invitation.events[0];
   const countdown = useCountdown('2026-09-05T19:00:00');
-  const [selectedEvent, setSelectedEvent] = useState(null);
   const homeSections = [
     'Hero',
     'Countdown',
     'Venue Details',
-    ...(invitation.showAllEvents ? ['Timeline'] : []),
-    'Bottom RSVP',
+    ...(!invitation.showAllEvents ? ['Bottom RSVP'] : []),
   ];
 
   const { handleTrackedClick } = useVisitAnalytics({
@@ -122,9 +107,6 @@ export default function Home({ invitationMode = 'full' }) {
     },
   });
   useScrollReveal();
-
-  const dateGroups = groupEventsByDate(invitation.events);
-  const isSingleEventTimeline = dateGroups.length === 1 && dateGroups[0].events.length === 1;
 
   return (
     <div className="home-page" onClickCapture={handleTrackedClick}>
@@ -155,45 +137,17 @@ export default function Home({ invitationMode = 'full' }) {
         </div>
       </section>
 
-      <HomeVenueDetails event={weddingEvent} venuePath={invitation.schedulePath} />
+      <HomeVenueDetails
+        event={weddingEvent}
+        venuePath={invitation.schedulePath}
+        primaryLabel={invitation.showAllEvents ? 'View Timeline' : 'Venue Details'}
+      />
 
-      {invitation.showAllEvents && (
-        <section data-analytics-section="Timeline" className="event-timeline">
-          <h2 className="section-title" data-reveal="fade-up">Events Around the Wedding</h2>
-
-          <div className={`timeline-track ${isSingleEventTimeline ? 'timeline-track--single' : ''}`}>
-            {dateGroups.map((group) => (
-              <div key={group.dateLabel} className="timeline-date-group" data-reveal="fade-up">
-                <div className="timeline-date-label">{group.dateLabel}</div>
-
-                {group.events.map((event) => (
-                  <div
-                    key={event.id}
-                    className="timeline-event"
-                    data-reveal="card"
-                    onClick={() => setSelectedEvent(event)}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedEvent(event); }}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`${event.name} — ${event.timeLabel}. Tap for details.`}
-                  >
-                    <span className="timeline-event__time">{event.timeLabel}</span>
-                    <span className="timeline-event__name">{event.name}</span>
-                    <span className="timeline-event__venue">{event.venue}</span>
-                    <span className="timeline-event__tap">
-                      View details <ChevronRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+      {!invitation.showAllEvents && (
+        <section data-analytics-section="Bottom RSVP">
+          <RsvpStrip rsvpPath={invitation.rsvpPath} />
         </section>
       )}
-
-      <section data-analytics-section="Bottom RSVP">
-        <RsvpStrip rsvpPath={invitation.rsvpPath} />
-      </section>
 
       <footer className="invite-footer">
         <p className="font-serif italic text-mauve-400 text-sm">
@@ -201,12 +155,6 @@ export default function Home({ invitationMode = 'full' }) {
         </p>
       </footer>
 
-      {selectedEvent && (
-        <EventModal
-          event={selectedEvent}
-          onClose={() => setSelectedEvent(null)}
-        />
-      )}
     </div>
   );
 }
