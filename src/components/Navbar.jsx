@@ -21,7 +21,7 @@ export default function Navbar() {
 
   const links = [
     { to: invitation.homePath,     label: 'Home'     },
-    { to: invitation.schedulePath, label: 'Schedule' },
+    { to: invitation.schedulePath, label: invitation.showAllEvents ? 'Schedule' : 'Venue' },
     { to: invitation.rsvpPath,     label: 'RSVP'     },
   ];
 

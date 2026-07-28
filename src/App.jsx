@@ -35,13 +35,14 @@ function AppLayout() {
       {!isAdmin && <Navbar />}
       <Routes>
         <Route path="/"        element={<Navigate to="/wedding" replace />} />
-        <Route path="/schedule" element={<Navigate to="/wedding/schedule" replace />} />
+        <Route path="/schedule" element={<Navigate to="/wedding/venue" replace />} />
         <Route path="/rsvp"    element={<Navigate to="/wedding/rsvp" replace />} />
         <Route path="/marriage/celebrations"          element={<Home invitationMode="full" />}     />
         <Route path="/marriage/celebrations/schedule" element={<Schedule invitationMode="full" />} />
         <Route path="/marriage/celebrations/rsvp"     element={<RSVP invitationMode="full" />}     />
         <Route path="/wedding"          element={<Home invitationMode="wedding-only" />}     />
-        <Route path="/wedding/schedule" element={<Schedule invitationMode="wedding-only" />} />
+        <Route path="/wedding/venue"    element={<Schedule invitationMode="wedding-only" />} />
+        <Route path="/wedding/schedule" element={<Navigate to="/wedding/venue" replace />} />
         <Route path="/wedding/rsvp"     element={<RSVP invitationMode="wedding-only" />}     />
         <Route path={ADMIN_PATH} element={<Admin />} />
       </Routes>

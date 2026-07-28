@@ -40,16 +40,181 @@ function TimelineEvent({ time, title, description, icon: Icon, accent = false, l
   );
 }
 
+function WeddingVenuePage({ event, handleTrackedClick }) {
+  return (
+    <div className="city2-page venue-page min-h-screen" onClickCapture={handleTrackedClick}>
+      <section data-analytics-section="Venue Header" className="inv-subpage-hero venue-hero">
+        <img src="/images/invitation-card.png" alt="" className="inv-subpage-hero__img" aria-hidden="true" />
+        <div className="inv-subpage-hero__content" data-reveal="fade-up">
+          <p className="invite-kicker">Venue</p>
+          <h1>{event.venue}</h1>
+          <p>
+            The wedding ceremony will be held at {event.venue} in Plano, Texas.
+            Doors open at 7:00 PM, and Muhurtham is at 9:30 PM.
+          </p>
+          <div className="venue-hero__address">
+            <MapPin className="w-4 h-4" aria-hidden="true" />
+            <a
+              href={event.mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {event.address}
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section data-analytics-section="Venue Details" className="invite-section venue-priority-section">
+        <div className="invite-section__inner">
+          <div className="venue-priority-panel">
+            <div className="venue-priority-panel__copy" data-reveal="slide-right">
+              <p className="invite-kicker">Getting there</p>
+              <h2>{event.venue}</h2>
+              <p>
+                Please use the main entrance at {event.venue}. The address and map link are below for easy navigation.
+              </p>
+            </div>
+
+            <div className="venue-detail-list" data-reveal="card">
+              <div className="venue-detail-item">
+                <MapPin className="w-5 h-5" aria-hidden="true" />
+                <div>
+                  <span>Address</span>
+                  <p>{event.address}</p>
+                </div>
+              </div>
+
+              <div className="venue-detail-item">
+                <Clock className="w-5 h-5" aria-hidden="true" />
+                <div>
+                  <span>Arrival</span>
+                  <p>Evening 7:00 PM onwards</p>
+                </div>
+              </div>
+
+              <div className="venue-detail-item">
+                <Star className="w-5 h-5" aria-hidden="true" />
+                <div>
+                  <span>Muhurtham</span>
+                  <p>9:30 PM</p>
+                </div>
+              </div>
+
+              <a
+                href={event.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary venue-map-button"
+              >
+                Open in Google Maps
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-analytics-section="Wedding Schedule" className="invite-section invite-section--sage venue-schedule-section">
+        <div className="invite-section__inner max-w-4xl">
+          <div className="schedule-shell schedule-shell--secondary">
+            <div className="schedule-shell__intro" data-reveal="slide-right">
+              <p className="invite-kicker">Wedding schedule</p>
+              <h2>Evening Program</h2>
+              <p>
+                The schedule is simple: arrive, settle in, and join the families for the marriage ceremony.
+              </p>
+            </div>
+
+            <div className="schedule-shell__timeline">
+              <TimelineEvent
+                time="7:00 PM"
+                title="Guest Arrival"
+                description="Doors open at Atithi Venue."
+                icon={MapPin}
+                accent
+                delay="80ms"
+              />
+              <TimelineEvent
+                time="9:30 PM"
+                title="Muhurtham"
+                description="Manas and Rupa Sree are joined in marriage with blessings from family and friends."
+                icon={Star}
+                accent
+                delay="170ms"
+              />
+              <TimelineEvent
+                time="Afterward"
+                title="Blessings and Photos"
+                description="Family blessings, greetings, and wedding photos after the ceremony."
+                icon={Calendar}
+                accent
+                last
+                delay="260ms"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-analytics-section="Calendar Links" className="invite-section">
+        <div className="max-w-md mx-auto text-center px-4" data-reveal="fade-up">
+          <FloralSprig className="mb-5" />
+          <p className="invite-kicker">Save the date</p>
+          <h2 className="font-serif text-3xl md:text-4xl text-mauve-800 mb-3">Add it to your calendar</h2>
+          <p className="section-lede mb-8">
+            Add the marriage ceremony to your calendar so you don't miss it.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href={getGoogleCalendarUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
+            >
+              <CalendarPlus className="w-4 h-4" />
+              Google Calendar
+            </a>
+
+            <button
+              onClick={downloadCalendarInvite}
+              className="flex items-center justify-center gap-2 btn-secondary text-sm px-6 py-3"
+            >
+              <Calendar className="w-4 h-4" />
+              Apple / Outlook
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <footer className="invite-footer">
+        <FloralSprig className="mb-3" />
+        <p className="font-serif italic text-mauve-400 text-sm">
+          Manas &amp; Rupa Sree &nbsp;·&nbsp; September 5, 2026
+        </p>
+      </footer>
+    </div>
+  );
+}
+
 // ── Schedule page ─────────────────────────────────────────────────────────────
 export default function Schedule({ invitationMode = 'full' }) {
   const invitation = getInvitationConfig(invitationMode);
-  const analyticsSections = [
-    'Schedule Header',
-    ...(invitation.showAllEvents ? ['All Events Schedule'] : []),
-    'Ceremony Program',
-    'Calendar Links',
-    'Venue Details',
-  ];
+  const weddingEvent = invitation.events.find(event => event.id === WEDDING_EVENT_ID) || invitation.events[0];
+  const analyticsSections = invitation.showAllEvents
+    ? [
+        'Schedule Header',
+        'All Events Schedule',
+        'Ceremony Program',
+        'Calendar Links',
+        'Venue Details',
+      ]
+    : [
+        'Venue Header',
+        'Venue Details',
+        'Wedding Schedule',
+        'Calendar Links',
+      ];
   const analyticsMetadata = {
     invitationMode: invitation.mode,
     invitationLabel: invitation.label,
@@ -60,6 +225,15 @@ export default function Schedule({ invitationMode = 'full' }) {
     metadata: analyticsMetadata,
   });
   useScrollReveal();
+
+  if (!invitation.showAllEvents) {
+    return (
+      <WeddingVenuePage
+        event={weddingEvent}
+        handleTrackedClick={handleTrackedClick}
+      />
+    );
+  }
 
   return (
     <div className="city2-page min-h-screen" onClickCapture={handleTrackedClick}>

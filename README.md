@@ -15,8 +15,8 @@ The local site runs at `http://localhost:5173`.
 
 | Route | Description |
 | --- | --- |
-| `/wedding` | Wedding-only home page with names, countdown, photo, and event details |
-| `/wedding/schedule` | Wedding-only schedule, venue details, and calendar links |
+| `/wedding` | Wedding-only home page with names, countdown, RSVP, and venue details |
+| `/wedding/venue` | Wedding-only venue page with address, map link, light schedule, and calendar links |
 | `/wedding/rsvp` | Wedding-only RSVP form for guests and additional attendees |
 | `/marriage/celebrations` | Full celebration invite with all wedding events |
 | `/marriage/celebrations/schedule` | Full celebration schedule |
