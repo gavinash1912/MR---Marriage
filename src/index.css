@@ -2757,9 +2757,9 @@
   }
 }
 
-/* ── Envelope Splash (mobile only) ────────────────────────────────────────── */
+/* ── Door Splash (mobile only) ────────────────────────────────────────────── */
 
-.envelope-splash {
+.door-splash {
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -2769,87 +2769,91 @@
   justify-content: center;
   background: var(--ivory-0);
   cursor: pointer;
+  perspective: 1200px;
 }
 
-.envelope-splash__envelope {
+.door-splash__frame {
   position: relative;
   width: 280px;
-  height: 200px;
-}
-
-.envelope-splash__body {
-  position: absolute;
-  inset: 0;
-  border-radius: 6px;
-  background: linear-gradient(180deg, #fff8e7 0%, #fef0d0 100%);
-  border: 1.5px solid var(--gold-400);
+  height: 420px;
+  display: flex;
+  border: 3px solid var(--gold-500);
+  border-radius: 4px 4px 0 0;
   box-shadow:
-    0 16px 48px rgba(93, 6, 29, 0.14),
-    0 4px 12px rgba(196, 154, 56, 0.12);
+    0 0 0 1px var(--gold-300),
+    0 20px 60px rgba(93, 6, 29, 0.18),
+    inset 0 0 30px rgba(196, 154, 56, 0.08);
   overflow: hidden;
 }
 
-.envelope-splash__inner-flap {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: linear-gradient(180deg, var(--maroon-700), var(--maroon-800));
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  opacity: 0.9;
-}
-
-.envelope-splash__flap {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: linear-gradient(180deg, #fef0d0 0%, #f8e2ad 100%);
-  border: 1.5px solid var(--gold-400);
-  border-bottom: none;
-  border-radius: 6px 6px 0 0;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  transform-origin: top center;
-  transform: rotateX(0deg);
-  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+.door-splash__panel {
+  flex: 1;
+  position: relative;
+  background: linear-gradient(160deg, #e8c982 0%, #c49a38 35%, #a78530 65%, #c49a38 100%);
+  transform-style: preserve-3d;
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
   backface-visibility: hidden;
 }
 
-.envelope-splash__seal {
+.door-splash__panel--left {
+  transform-origin: left center;
+  border-right: 1px solid var(--gold-300);
+}
+
+.door-splash__panel--right {
+  transform-origin: right center;
+  border-left: 1px solid var(--gold-300);
+}
+
+.door-splash__panel-detail {
+  position: absolute;
+  top: 12%;
+  left: 12%;
+  right: 12%;
+  height: 34%;
+  border: 2px solid rgba(255, 248, 231, 0.4);
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(255, 248, 231, 0.1) 0%, rgba(196, 154, 56, 0.06) 100%);
+}
+
+.door-splash__panel-detail--lower {
+  top: auto;
+  bottom: 12%;
+}
+
+.door-splash__seal {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 76px;
-  height: 76px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, var(--maroon-600), var(--maroon-800));
   border: 3px solid var(--gold-500);
   box-shadow:
     0 0 0 2px var(--gold-300),
-    0 8px 24px rgba(93, 6, 29, 0.3),
+    0 8px 24px rgba(93, 6, 29, 0.35),
     inset 0 2px 4px rgba(255, 248, 231, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2;
+  z-index: 3;
   transition:
-    transform 400ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 300ms ease;
+    transform 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 400ms ease;
 }
 
-.envelope-splash__seal-text {
+.door-splash__seal-text {
   font-family: 'Allura', cursive;
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   color: var(--gold-300);
   letter-spacing: 0.02em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   user-select: none;
 }
 
-.envelope-splash__prompt {
+.door-splash__prompt {
   margin-top: 2rem;
   font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
   font-size: 0.9rem;
@@ -2860,31 +2864,44 @@
   user-select: none;
 }
 
-/* ── Opening animation ─────────────────────────────────────────────────────── */
+/* ── Door opening animation ────────────────────────────────────────────────── */
 
-.envelope-splash--opening .envelope-splash__flap {
-  animation: envelope-flap-open 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+.door-splash--opening .door-splash__panel--left {
+  animation: door-open-left 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms forwards;
 }
 
-.envelope-splash--opening .envelope-splash__seal {
-  animation: seal-break 500ms cubic-bezier(0.22, 1, 0.36, 1) 200ms forwards;
+.door-splash--opening .door-splash__panel--right {
+  animation: door-open-right 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms forwards;
 }
 
-.envelope-splash--opening .envelope-splash__prompt {
+.door-splash--opening .door-splash__seal {
+  animation: seal-break 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.door-splash--opening .door-splash__prompt {
   opacity: 0;
   transition: opacity 200ms ease;
 }
 
-.envelope-splash--opening {
-  animation: envelope-slide-away 600ms cubic-bezier(0.22, 1, 0.36, 1) 800ms forwards;
+.door-splash--opening {
+  animation: door-fade-out 500ms ease 1100ms forwards;
 }
 
-@keyframes envelope-flap-open {
+@keyframes door-open-left {
   0% {
-    transform: rotateX(0deg);
+    transform: rotateY(0deg);
   }
   100% {
-    transform: rotateX(-180deg);
+    transform: rotateY(-105deg);
+  }
+}
+
+@keyframes door-open-right {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(105deg);
   }
 }
 
@@ -2894,23 +2911,22 @@
     opacity: 1;
   }
   40% {
-    transform: translate(-50%, -50%) scale(1.15);
+    transform: translate(-50%, -50%) scale(1.2);
     opacity: 1;
   }
   100% {
-    transform: translate(-50%, -70%) scale(0.8);
+    transform: translate(-50%, -50%) scale(0.6);
     opacity: 0;
   }
 }
 
-@keyframes envelope-slide-away {
+@keyframes door-fade-out {
   0% {
-    transform: translateY(0);
     opacity: 1;
   }
   100% {
-    transform: translateY(-100vh);
     opacity: 0;
+    visibility: hidden;
   }
 }
 
@@ -2925,7 +2941,7 @@
 
 /* Hide on desktop (768px+) */
 @media (min-width: 768px) {
-  .envelope-splash {
+  .door-splash {
     display: none;
   }
 }

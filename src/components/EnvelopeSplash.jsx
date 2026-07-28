@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'envelope-opened';
-const ANIMATION_DURATION = 1400;
+const ANIMATION_DURATION = 1600;
 
 function getInitialPhase() {
   if (typeof window === 'undefined') return 'done';
@@ -40,23 +40,27 @@ export default function EnvelopeSplash() {
 
   return (
     <div
-      className={`envelope-splash ${phase === 'opening' ? 'envelope-splash--opening' : ''}`}
+      className={`door-splash ${phase === 'opening' ? 'door-splash--opening' : ''}`}
       onClick={handleOpen}
       role="button"
       tabIndex={0}
       aria-label="Tap to open invitation"
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpen(); }}
     >
-      <div className="envelope-splash__envelope">
-        <div className="envelope-splash__body">
-          <div className="envelope-splash__inner-flap" />
+      <div className="door-splash__frame">
+        <div className="door-splash__panel door-splash__panel--left">
+          <div className="door-splash__panel-detail" />
+          <div className="door-splash__panel-detail door-splash__panel-detail--lower" />
         </div>
-        <div className="envelope-splash__seal">
-          <span className="envelope-splash__seal-text">M&R</span>
+        <div className="door-splash__panel door-splash__panel--right">
+          <div className="door-splash__panel-detail" />
+          <div className="door-splash__panel-detail door-splash__panel-detail--lower" />
         </div>
-        <div className="envelope-splash__flap" />
+        <div className="door-splash__seal">
+          <span className="door-splash__seal-text">M&R</span>
+        </div>
       </div>
-      <p className="envelope-splash__prompt">Tap to open</p>
+      <p className="door-splash__prompt">Tap to open</p>
     </div>
   );
 }
