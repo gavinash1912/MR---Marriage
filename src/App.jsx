@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navbar  from './components/Navbar';
+import EnvelopeSplash from './components/EnvelopeSplash';
 import Home    from './pages/Home';
 import Schedule from './pages/Schedule';
 import RSVP   from './pages/RSVP';
@@ -29,6 +30,7 @@ function AppLayout() {
 
   return (
     <>
+      <EnvelopeSplash />
       <ScrollToTop />
       {!isAdmin && <Navbar />}
       <Routes>
