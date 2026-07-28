@@ -20,6 +20,7 @@ export const WEDDING_EVENT = {
   city: 'Plano, Texas',
   mapUrl: 'https://maps.google.com/?q=Atithi+Venue+9060+Independence+Parkway+Plano+TX+75025',
   description: 'Join us for the marriage ceremony. Muhurtham is at 9:30 PM.',
+  dressCode: 'Indian Traditional',
 };
 
 export const ADDITIONAL_EVENT_DETAILS = [
@@ -31,11 +32,12 @@ export const ADDITIONAL_EVENT_DETAILS = [
     dateLabel: 'Thursday, September 4, 2026',
     dateTime: '2026-09-04T09:00:00',
     timeLabel: '9:00 AM',
-    venue: '708 Sam Davis Rd',
+    venue: 'Ranch House',
     address: '708 Sam Davis Rd, Argyle, TX 76226',
     city: 'Argyle, Texas',
     mapUrl: 'https://maps.google.com/?q=708+Sam+Davis+Rd+Argyle+TX+76226',
     description: 'Traditional pre-wedding rituals and blessings for the bride and groom.',
+    dressCode: 'Indian Traditional',
   },
   {
     id: 'haldi',
@@ -45,11 +47,12 @@ export const ADDITIONAL_EVENT_DETAILS = [
     dateLabel: 'Thursday, September 4, 2026',
     dateTime: '2026-09-04T10:00:00',
     timeLabel: '10:00 AM',
-    venue: '708 Sam Davis Rd',
+    venue: 'Ranch House',
     address: '708 Sam Davis Rd, Argyle, TX 76226',
     city: 'Argyle, Texas',
     mapUrl: 'https://maps.google.com/?q=708+Sam+Davis+Rd+Argyle+TX+76226',
     description: 'A bright ceremony with turmeric blessings and family photos.',
+    dressCode: 'Whites & Yellows',
   },
   {
     id: 'mehandi',
@@ -59,11 +62,12 @@ export const ADDITIONAL_EVENT_DETAILS = [
     dateLabel: 'Thursday, September 4, 2026',
     dateTime: '2026-09-04T18:00:00',
     timeLabel: '6:00 PM',
-    venue: '708 Sam Davis Rd',
+    venue: 'Ranch House',
     address: '708 Sam Davis Rd, Argyle, TX 76226',
     city: 'Argyle, Texas',
     mapUrl: 'https://maps.google.com/?q=708+Sam+Davis+Rd+Argyle+TX+76226',
     description: 'An evening of henna, music, family, and relaxed celebration.',
+    dressCode: 'Indian / Festive',
   },
   {
     id: 'dj',
@@ -73,11 +77,12 @@ export const ADDITIONAL_EVENT_DETAILS = [
     dateLabel: 'Thursday, September 4, 2026',
     dateTime: '2026-09-04T20:00:00',
     timeLabel: '8:00 PM onwards',
-    venue: '708 Sam Davis Rd',
+    venue: 'Ranch House',
     address: '708 Sam Davis Rd, Argyle, TX 76226',
     city: 'Argyle, Texas',
     mapUrl: 'https://maps.google.com/?q=708+Sam+Davis+Rd+Argyle+TX+76226',
     description: 'Dance the night away with music and celebrations.',
+    dressCode: 'Party Wear',
   },
 ];
 

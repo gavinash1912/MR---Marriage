@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { X, MapPin, Clock, Calendar } from 'lucide-react';
+import { X, MapPin, Clock, Calendar, Shirt } from 'lucide-react';
 
 export default function EventModal({ event, onClose }) {
   useEffect(() => {
@@ -55,6 +55,13 @@ export default function EventModal({ event, onClose }) {
             <MapPin className="w-4 h-4 flex-shrink-0" />
             <span>{event.venue}<br />{event.address}</span>
           </div>
+
+          {event.dressCode && (
+            <div className="event-modal__detail">
+              <Shirt className="w-4 h-4 flex-shrink-0" />
+              <span>Dress Code: {event.dressCode}</span>
+            </div>
+          )}
 
           {event.description && (
             <p className="event-modal__desc">{event.description}</p>
