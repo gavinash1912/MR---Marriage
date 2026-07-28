@@ -100,7 +100,6 @@ function WeddingVenuePage({ event, handleTrackedClick }) {
   return (
     <div className="city2-page venue-page min-h-screen" onClickCapture={handleTrackedClick}>
       <section data-analytics-section="Venue Header" className="inv-subpage-hero venue-hero">
-        <img src="/images/invitation-card.png" alt="" className="inv-subpage-hero__img" aria-hidden="true" />
         <div className="inv-subpage-hero__content" data-reveal="fade-up">
           <p className="invite-kicker">Venue</p>
           <h1>{event.venue}</h1>
@@ -200,9 +199,8 @@ export default function Schedule({ invitationMode = 'full' }) {
   }
 
   return (
-    <div className="city2-page min-h-screen" onClickCapture={handleTrackedClick}>
+    <div className="city2-page full-invite-page min-h-screen" onClickCapture={handleTrackedClick}>
       <section data-analytics-section="Schedule Header" className="inv-subpage-hero">
-        <img src="/images/invitation-card.png" alt="" className="inv-subpage-hero__img" aria-hidden="true" />
         <div className="inv-subpage-hero__content" data-reveal="fade-up">
           <p className="invite-kicker">September 5, 2026</p>
           <h1>Wedding Events and Venue</h1>

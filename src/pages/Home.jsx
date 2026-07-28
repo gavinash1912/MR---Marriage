@@ -166,6 +166,7 @@ function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details', ve
             </div>
 
             <div className="venue-deck-dots" aria-label="Venue card selector">
+              <span className="venue-deck-cue venue-deck-cue--left" aria-hidden="true" />
               {details.map(({ label }, index) => (
                 <button
                   key={label}
@@ -176,6 +177,7 @@ function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details', ve
                   aria-current={index === activeVenueIndex ? 'true' : undefined}
                 />
               ))}
+              <span className="venue-deck-cue venue-deck-cue--right" aria-hidden="true" />
             </div>
           </>
         ) : (
@@ -259,7 +261,7 @@ export default function Home({ invitationMode = 'full' }) {
   useScrollReveal();
 
   return (
-    <div className="home-page" onClickCapture={handleTrackedClick}>
+    <div className={`home-page ${invitation.showAllEvents ? 'full-invite-page' : ''}`} onClickCapture={handleTrackedClick}>
 
       <section data-analytics-section="Hero" className="invitation-page">
         <main className="invitation-card">

@@ -1812,11 +1812,6 @@
   color: var(--maroon-900);
 }
 
-.rsvp-page .inv-subpage-hero__img,
-.venue-page .inv-subpage-hero__img {
-  opacity: 0.06;
-}
-
 .rsvp-page .inv-subpage-hero p,
 .venue-page .inv-subpage-hero p {
   color: var(--maroon-800);
@@ -1923,6 +1918,94 @@
 .venue-detail-list,
 .schedule-shell--secondary {
   background-color: #fffefb;
+}
+
+.full-invite-page .inv-subpage-hero p,
+.full-invite-page .section-lede,
+.full-invite-page .rsvp-card p,
+.full-invite-page .choice-card p,
+.full-invite-page .event-rsvp-card__details p,
+.full-invite-page .timeline-event__venue,
+.full-invite-page .city2-schedule-event p,
+.full-invite-page .city2-schedule-event span,
+.full-invite-page .program-row__content p,
+.full-invite-page .home-venue-detail p,
+.full-invite-page .venue-detail-item p,
+.full-invite-page .home-venue-detail small {
+  color: var(--maroon-900);
+}
+
+.full-invite-page .invite-kicker,
+.full-invite-page .countdown-digit,
+.full-invite-page .home-venue-detail span,
+.full-invite-page .venue-detail-item span,
+.full-invite-page .timeline-event__time,
+.full-invite-page .timeline-event__tap,
+.full-invite-page .venue-deck-map-link,
+.full-invite-page .city2-event-tile__kicker {
+  color: var(--maroon-800);
+  font-weight: 900;
+}
+
+.full-invite-page .countdown-block span:last-child {
+  color: var(--maroon-800);
+  font-weight: 900;
+}
+
+.full-invite-page .text-mauve-300,
+.full-invite-page .text-mauve-400,
+.full-invite-page .text-mauve-500 {
+  color: var(--maroon-800) !important;
+}
+
+.full-invite-page .text-mauve-600,
+.full-invite-page .text-mauve-700,
+.full-invite-page .text-mauve-800 {
+  color: var(--maroon-900) !important;
+}
+
+.full-invite-page .form-label {
+  color: var(--maroon-900);
+  font-weight: 900;
+}
+
+.full-invite-page .form-input {
+  border-color: rgba(93, 6, 29, 0.58);
+  background: #fffefa;
+  color: var(--maroon-900) !important;
+  font-weight: 600;
+}
+
+.full-invite-page .form-input::placeholder {
+  color: rgba(93, 6, 29, 0.7);
+}
+
+.full-invite-page .form-input:focus {
+  border-color: var(--maroon-700);
+  box-shadow: 0 0 0 3px rgba(167, 15, 47, 0.14);
+}
+
+.full-invite-page .invite-card,
+.full-invite-page .home-venue-card,
+.full-invite-page .home-venue-detail,
+.full-invite-page .timeline-event,
+.full-invite-page .city2-schedule-event,
+.full-invite-page .choice-card,
+.full-invite-page .event-rsvp-card,
+.full-invite-page .venue-detail-list {
+  border-color: rgba(93, 6, 29, 0.38);
+  background: #fffefb;
+}
+
+.full-invite-page .choice-card.is-selected {
+  border-color: rgba(93, 6, 29, 0.82);
+}
+
+.full-invite-page .event-rsvp-attendee-row span,
+.full-invite-page .event-rsvp-attendee-row strong,
+.full-invite-page .rsvp-event-summary div,
+.full-invite-page .rsvp-event-summary span {
+  color: var(--maroon-900) !important;
 }
 
 .choice-card {
@@ -2618,18 +2701,6 @@
   text-align: center;
 }
 
-.inv-subpage-hero__img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 20%;
-  opacity: 0.12;
-  pointer-events: none;
-  user-select: none;
-}
-
 .inv-subpage-hero__content {
   position: relative;
   z-index: 1;
@@ -2857,9 +2928,30 @@
 
 .venue-deck-dots {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 0.45rem;
   margin: 0.1rem 0 1rem;
+}
+
+.venue-deck-cue {
+  width: 0.48rem;
+  height: 0.48rem;
+  border-top: 1.5px solid rgba(196, 154, 56, 0.86);
+  border-right: 1.5px solid rgba(196, 154, 56, 0.86);
+  opacity: 0.82;
+}
+
+.venue-deck-cue--left {
+  margin-right: 0.1rem;
+  transform: rotate(225deg);
+  animation: venue-cue-left 1.65s ease-in-out infinite;
+}
+
+.venue-deck-cue--right {
+  margin-left: 0.1rem;
+  transform: rotate(45deg);
+  animation: venue-cue-right 1.65s ease-in-out infinite;
 }
 
 .venue-deck-dots button {
@@ -2876,6 +2968,16 @@
   width: 1.45rem;
   background: var(--maroon-700);
   border-color: var(--maroon-700);
+}
+
+@keyframes venue-cue-left {
+  0%, 100% { transform: translateX(0) rotate(225deg); opacity: 0.42; }
+  45% { transform: translateX(-0.18rem) rotate(225deg); opacity: 0.92; }
+}
+
+@keyframes venue-cue-right {
+  0%, 100% { transform: translateX(0) rotate(45deg); opacity: 0.42; }
+  45% { transform: translateX(0.18rem) rotate(45deg); opacity: 0.92; }
 }
 
 .home-venue-card__details {
@@ -3019,7 +3121,7 @@ button.home-venue-detail {
   gap: 0.5rem;
   margin-bottom: 1.25rem;
   margin-left: -2.5rem;
-  padding: 0.45rem 1rem 0.45rem 2.2rem;
+  padding: 0.45rem 1.2rem;
   background: linear-gradient(135deg, var(--maroon-600), var(--maroon-800));
   color: var(--ivory-0);
   font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
@@ -3028,17 +3130,6 @@ button.home-venue-detail {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   border-radius: 0 999px 999px 0;
-}
-
-.timeline-date-label::before {
-  content: '';
-  position: absolute;
-  left: 0.35rem;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--gold-300);
-  box-shadow: 0 0 0 3px var(--maroon-700);
 }
 
 .timeline-event {
@@ -3139,12 +3230,8 @@ button.home-venue-detail {
 
 .timeline-track--single .timeline-date-label {
   margin-left: 0;
-  padding: 0.5rem 1.25rem 0.5rem 2.35rem;
+  padding: 0.5rem 1.25rem;
   border-radius: 999px;
-}
-
-.timeline-track--single .timeline-date-label::before {
-  left: 0.85rem;
 }
 
 .timeline-track--single .timeline-event {
@@ -3468,11 +3555,6 @@ button.home-venue-detail {
 
   .timeline-date-label {
     margin-left: -3rem;
-    padding-left: 2.8rem;
-  }
-
-  .timeline-date-label::before {
-    left: 0.5rem;
   }
 }
 

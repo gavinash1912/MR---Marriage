@@ -347,10 +347,11 @@ export default function RSVP({ invitationMode = 'full' }) {
 
   // ── Success ────────────────────────────────────────────────────────────────
   const hasAnyAttendance = eventAttendancePayload().some(event => event.guestCount > 0);
+  const pageClassName = `city2-page rsvp-page ${invitation.showAllEvents ? 'full-invite-page' : ''} min-h-screen bg-[#fffaf4]`;
 
   if (submitted) {
     return (
-      <div className="city2-page rsvp-page min-h-screen bg-[#fffaf4] pt-24 md:pt-28" onClickCapture={handleTrackedClick}>
+      <div className={`${pageClassName} pt-24 md:pt-28`} onClickCapture={handleTrackedClick}>
         <div className="max-w-lg mx-auto px-4 py-16 text-center" data-reveal="scale-up">
           <div className="invite-card">
           <div className="w-20 h-20 rounded-full bg-mauve-100 flex items-center justify-center mx-auto mb-6">
@@ -400,7 +401,7 @@ export default function RSVP({ invitationMode = 'full' }) {
   }
 
   return (
-    <div className="city2-page rsvp-page min-h-screen bg-[#fffaf4]" onClickCapture={handleTrackedClick}>
+    <div className={pageClassName} onClickCapture={handleTrackedClick}>
       {showGuestConfirm && (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black/55 p-4"
@@ -442,7 +443,6 @@ export default function RSVP({ invitationMode = 'full' }) {
       )}
 
       <section data-analytics-section="RSVP Header" className="inv-subpage-hero">
-        <img src="/images/invitation-card.png" alt="" className="inv-subpage-hero__img" aria-hidden="true" />
         <div className="inv-subpage-hero__content" data-reveal="fade-up">
           <p className="invite-kicker rsvp-hero-kicker">
             {invitation.showAllEvents ? 'Wedding Celebrations' : 'Marriage Ceremony'} · September 5, 2026

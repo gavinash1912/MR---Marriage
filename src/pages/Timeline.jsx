@@ -35,9 +35,8 @@ export default function Timeline({ invitationMode = 'full' }) {
   const isSingleEventTimeline = dateGroups.length === 1 && dateGroups[0].events.length === 1;
 
   return (
-    <div className="home-page timeline-page" onClickCapture={handleTrackedClick}>
+    <div className={`home-page timeline-page ${invitation.showAllEvents ? 'full-invite-page' : ''}`} onClickCapture={handleTrackedClick}>
       <section data-analytics-section="Timeline Header" className="inv-subpage-hero">
-        <img src="/images/invitation-card.png" alt="" className="inv-subpage-hero__img" aria-hidden="true" />
         <div className="inv-subpage-hero__content" data-reveal="fade-up">
           <p className="invite-kicker">Full invitation</p>
           <h1>Wedding Timeline</h1>
