@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Clock, MapPin } from 'lucide-react';
 import { useVisitAnalytics } from '../utils/analytics';
@@ -44,30 +44,136 @@ function RsvpStrip({ rsvpPath }) {
   );
 }
 
-function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details' }) {
+function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details', venueGroups = [] }) {
+  const hasVenueGroups = venueGroups.length > 0;
+  const [activeVenueIndex, setActiveVenueIndex] = useState(0);
+  const swipeStartXRef = useRef(null);
+  const swipeMovedRef = useRef(false);
+  const details = hasVenueGroups
+    ? venueGroups
+    : [
+        {
+          label: 'Address',
+          title: event.address,
+        },
+        {
+          label: 'Wedding day timing',
+          title: 'Evening 7:00 PM onwards · Muhurtham 9:30 PM',
+          icon: Clock,
+        },
+      ];
+  const venueCount = details.length;
+
+  const showVenue = (index) => {
+    if (!hasVenueGroups || venueCount === 0) return;
+    setActiveVenueIndex((index + venueCount) % venueCount);
+  };
+
+  const advanceVenue = (direction) => {
+    if (!hasVenueGroups || venueCount === 0) return;
+    setActiveVenueIndex(current => (current + direction + venueCount) % venueCount);
+  };
+
+  const handleSwipeStart = (clientX) => {
+    if (!hasVenueGroups || typeof clientX !== 'number') return;
+    swipeStartXRef.current = clientX;
+    swipeMovedRef.current = false;
+  };
+
+  const handleSwipeEnd = (clientX) => {
+    if (!hasVenueGroups || typeof clientX !== 'number' || swipeStartXRef.current === null) return;
+    const distance = clientX - swipeStartXRef.current;
+    if (Math.abs(distance) > 36) {
+      swipeMovedRef.current = true;
+      advanceVenue(distance < 0 ? 1 : -1);
+    }
+    swipeStartXRef.current = null;
+  };
+
+  const getDeckPosition = (index) => {
+    const offset = (index - activeVenueIndex + venueCount) % venueCount;
+    if (offset === 0) return 'active';
+    if (offset === 1) return 'next';
+    return 'previous';
+  };
+
   return (
     <section data-analytics-section="Venue Details" className="home-venue-section" data-reveal="fade-up">
       <p className="invite-kicker">Venue details</p>
-      <h2 className="section-title">{event.venue}</h2>
+      <h2 className="section-title">{hasVenueGroups ? 'Celebration Venues' : event.venue}</h2>
 
-      <div className="home-venue-card">
-        <div className="home-venue-card__details">
-          <div className="home-venue-detail">
-            <MapPin className="w-5 h-5" aria-hidden="true" />
-            <div>
-              <span>Address</span>
-              <p>{event.address}</p>
+      <div className={`home-venue-card ${hasVenueGroups ? 'home-venue-card--multi' : ''}`}>
+        {hasVenueGroups ? (
+          <>
+            <div
+              className="venue-card-deck"
+              role="region"
+              aria-label="Celebration venues"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'ArrowRight') advanceVenue(1);
+                if (event.key === 'ArrowLeft') advanceVenue(-1);
+              }}
+              onPointerDown={(event) => {
+                if (event.pointerType === 'mouse' && event.button !== 0) return;
+                event.currentTarget.setPointerCapture?.(event.pointerId);
+                handleSwipeStart(event.clientX);
+              }}
+              onPointerUp={(event) => handleSwipeEnd(event.clientX)}
+              onPointerCancel={() => { swipeStartXRef.current = null; }}
+            >
+              {details.map(({ label, title, description, icon: Icon = MapPin }, index) => (
+                <button
+                  key={label}
+                  type="button"
+                  className={`home-venue-detail venue-deck-card is-${getDeckPosition(index)}`}
+                  onClick={() => {
+                    if (swipeMovedRef.current) {
+                      swipeMovedRef.current = false;
+                      return;
+                    }
+                    showVenue(index);
+                  }}
+                  aria-label={`${label}: ${title}`}
+                  aria-current={index === activeVenueIndex ? 'true' : undefined}
+                >
+                  <Icon className="w-5 h-5" aria-hidden="true" />
+                  <div>
+                    <span>{label}</span>
+                    <p>{title}</p>
+                    {description && <small>{description}</small>}
+                  </div>
+                </button>
+              ))}
             </div>
-          </div>
 
-          <div className="home-venue-detail">
-            <Clock className="w-5 h-5" aria-hidden="true" />
-            <div>
-              <span>Wedding day timing</span>
-              <p>Evening 7:00 PM onwards · Muhurtham 9:30 PM</p>
+            <div className="venue-deck-dots" aria-label="Venue card selector">
+              {details.map(({ label }, index) => (
+                <button
+                  key={label}
+                  type="button"
+                  className={index === activeVenueIndex ? 'is-active' : ''}
+                  onClick={() => showVenue(index)}
+                  aria-label={`Show ${label}`}
+                  aria-current={index === activeVenueIndex ? 'true' : undefined}
+                />
+              ))}
             </div>
+          </>
+        ) : (
+          <div className="home-venue-card__details">
+            {details.map(({ label, title, description, icon: Icon = MapPin }) => (
+              <div key={label} className="home-venue-detail">
+                <Icon className="w-5 h-5" aria-hidden="true" />
+                <div>
+                  <span>{label}</span>
+                  <p>{title}</p>
+                  {description && <small>{description}</small>}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        )}
 
         <div className="home-venue-card__actions">
           <Link to={venuePath} className="btn-primary home-venue-card__primary">
@@ -90,6 +196,27 @@ function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details' }) 
 export default function Home({ invitationMode = 'full' }) {
   const invitation = getInvitationConfig(invitationMode);
   const weddingEvent = invitation.events.find(event => event.id === WEDDING_EVENT_ID) || invitation.events[0];
+  const ranchHouseEvent = invitation.events.find(event => event.venue === 'Ranch House');
+  const vrathamEvent = invitation.events.find(event => event.id === 'vratham');
+  const fullInviteVenueGroups = invitation.showAllEvents
+    ? [
+        {
+          label: 'Wedding ceremony',
+          title: weddingEvent.venue,
+          description: weddingEvent.address,
+        },
+        {
+          label: 'Pre-wedding events',
+          title: ranchHouseEvent?.venue || 'Ranch House',
+          description: ranchHouseEvent?.address || '708 Sam Davis Rd, Argyle, TX 76226',
+        },
+        {
+          label: 'Vratham',
+          title: vrathamEvent?.venue || "Groom's House",
+          description: vrathamEvent?.address || '2845 Hale Rd, Celina, TX 75009',
+        },
+      ]
+    : [];
   const countdown = useCountdown('2026-09-05T19:00:00');
   const homeSections = [
     'Hero',
@@ -141,6 +268,7 @@ export default function Home({ invitationMode = 'full' }) {
         event={weddingEvent}
         venuePath={invitation.schedulePath}
         primaryLabel={invitation.showAllEvents ? 'View Timeline' : 'Venue Details'}
+        venueGroups={fullInviteVenueGroups}
       />
 
       {!invitation.showAllEvents && (
