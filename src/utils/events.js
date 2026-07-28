@@ -92,6 +92,21 @@ export const FULL_EVENT_DETAILS = [
   ADDITIONAL_EVENT_DETAILS[2],
   ADDITIONAL_EVENT_DETAILS[3],
   WEDDING_EVENT,
+  {
+    id: 'vratham',
+    name: 'Vratham',
+    shortName: 'Vratham',
+    category: 'Post-wedding',
+    dateLabel: 'Saturday, September 6, 2026',
+    dateTime: '2026-09-06T10:00:00',
+    timeLabel: '10:00 AM',
+    venue: "Groom's House",
+    address: '2845 Hale Rd, Celina, TX 75009',
+    city: 'Celina, Texas',
+    mapUrl: 'https://maps.google.com/?q=2845+Hale+Rd+Celina+TX+75009',
+    description: 'Post-wedding ritual and blessings at the groom\'s home.',
+    dressCode: 'Indian Traditional',
+  },
 ];
 
 export function getInvitationModeFromPath(pathname = '') {
