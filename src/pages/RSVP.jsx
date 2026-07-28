@@ -512,8 +512,11 @@ export default function RSVP({ invitationMode = 'full' }) {
             </div>
 
             <div className="mb-6">
-              <label className="form-label mb-3">
-                Will you attend the wedding ceremony?<span className="required-marker" aria-hidden="true">*</span>
+              <label className="form-label attendance-label mb-3">
+                <span>Will you attend the wedding </span>
+                <span className="attendance-label__tail">
+                  ceremony?<span className="required-marker" aria-hidden="true">*</span>
+                </span>
               </label>
               <div className="space-y-3">
                 <AttendOption
