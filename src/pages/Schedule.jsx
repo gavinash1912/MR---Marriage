@@ -127,7 +127,7 @@ export default function Schedule({ invitationMode = 'full' }) {
           <div className="schedule-shell">
             <div className="schedule-shell__intro" data-reveal="slide-right">
               <p className="invite-kicker">Ceremony program</p>
-              <h2>Morning Celebration</h2>
+              <h2>Evening Celebration</h2>
               <p>
                 Please arrive early enough to settle in before the ceremony begins. Breakfast and lunch will be served.
               </p>
@@ -135,7 +135,7 @@ export default function Schedule({ invitationMode = 'full' }) {
 
             <div className="schedule-shell__timeline">
               <TimelineEvent
-                time="8:00 AM"
+                time="7:00 PM"
                 title="Marriage Ceremony Begins"
                 description="Family blessings and traditional wedding rituals begin."
                 icon={Star}
@@ -227,7 +227,7 @@ export default function Schedule({ invitationMode = 'full' }) {
               <Clock className="w-5 h-5 text-mauve-500 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-sans text-sm text-mauve-600">
-                  <strong className="text-mauve-700">Doors open at 8:00 AM</strong>
+                  <strong className="text-mauve-700">Doors open at 7:00 PM</strong>
                 </p>
               </div>
             </div>

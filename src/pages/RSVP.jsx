@@ -369,7 +369,7 @@ export default function RSVP({ invitationMode = 'full' }) {
           {attending === 'yes' && (
             <>
               <p className="font-sans text-sm text-mauve-400 mb-8">
-                September 5, 2026 · 8:00 AM · Atithi Venue, Plano TX
+                September 5, 2026 · 7:00 PM · Atithi Venue, Plano TX
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <a
