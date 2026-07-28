@@ -2544,10 +2544,12 @@
 }
 
 .timeline-event__name {
-  font-family: 'Allura', cursive;
-  font-size: 1.6rem;
+  font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
   color: var(--maroon-800);
-  line-height: 1.1;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
 }
 
 .timeline-event__venue {
