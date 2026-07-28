@@ -21,6 +21,7 @@ export const WEDDING_EVENT = {
   mapUrl: 'https://maps.google.com/?q=Atithi+Venue+9060+Independence+Parkway+Plano+TX+75025',
   description: 'Join us for the marriage ceremony. Muhurtham is at 9:30 PM.',
   dressCode: 'Indian Traditional',
+  poster: '/images/poster-marriage.png',
 };
 
 export const ADDITIONAL_EVENT_DETAILS = [
@@ -38,6 +39,7 @@ export const ADDITIONAL_EVENT_DETAILS = [
     mapUrl: 'https://maps.google.com/?q=708+Sam+Davis+Rd+Argyle+TX+76226',
     description: 'Traditional pre-wedding rituals and blessings for the bride and groom.',
     dressCode: 'Indian Traditional',
+    poster: null,
   },
   {
     id: 'haldi',
@@ -53,6 +55,7 @@ export const ADDITIONAL_EVENT_DETAILS = [
     mapUrl: 'https://maps.google.com/?q=708+Sam+Davis+Rd+Argyle+TX+76226',
     description: 'A bright ceremony with turmeric blessings and family photos.',
     dressCode: 'Whites & Yellows',
+    poster: '/images/poster-haldi.png',
   },
   {
     id: 'mehandi',
@@ -68,6 +71,7 @@ export const ADDITIONAL_EVENT_DETAILS = [
     mapUrl: 'https://maps.google.com/?q=708+Sam+Davis+Rd+Argyle+TX+76226',
     description: 'An evening of henna, music, family, and relaxed celebration.',
     dressCode: 'Indian / Festive',
+    poster: '/images/poster-mehandi.png',
   },
   {
     id: 'dj',
@@ -83,6 +87,7 @@ export const ADDITIONAL_EVENT_DETAILS = [
     mapUrl: 'https://maps.google.com/?q=708+Sam+Davis+Rd+Argyle+TX+76226',
     description: 'Dance the night away with music and celebrations.',
     dressCode: 'Party Wear',
+    poster: null,
   },
 ];
 
@@ -106,6 +111,7 @@ export const FULL_EVENT_DETAILS = [
     mapUrl: 'https://maps.google.com/?q=2845+Hale+Rd+Celina+TX+75009',
     description: 'Post-wedding ritual and blessings at the groom\'s home.',
     dressCode: 'Indian Traditional',
+    poster: '/images/poster-vratham.png',
   },
 ];
 

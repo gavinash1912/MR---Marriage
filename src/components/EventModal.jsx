@@ -34,8 +34,14 @@ export default function EventModal({ event, onClose }) {
         </button>
 
         <div className="event-modal__poster">
-          <span className="event-modal__poster-name">{event.name}</span>
-          <span className="event-modal__poster-badge">Poster Coming Soon</span>
+          {event.poster ? (
+            <img src={event.poster} alt={`${event.name} poster`} className="event-modal__poster-img" />
+          ) : (
+            <>
+              <span className="event-modal__poster-name">{event.name}</span>
+              <span className="event-modal__poster-badge">Poster Coming Soon</span>
+            </>
+          )}
         </div>
 
         <div className="event-modal__body">

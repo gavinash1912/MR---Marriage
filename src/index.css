@@ -2629,6 +2629,13 @@
   overflow: hidden;
 }
 
+.event-modal__poster-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .event-modal__poster-name {
   font-family: 'Allura', cursive;
   font-size: clamp(2rem, 7vw, 3rem);

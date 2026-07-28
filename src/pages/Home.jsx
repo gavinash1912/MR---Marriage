@@ -78,7 +78,7 @@ export default function Home({ invitationMode = 'full' }) {
       <section data-analytics-section="Hero" className="invitation-page">
         <main className="invitation-card">
           <img
-            src="/images/invitation-card.png"
+            src="/images/poster-marriage.png"
             alt=""
             aria-hidden="true"
             className="invitation-card__bg"
