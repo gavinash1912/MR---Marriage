@@ -30,7 +30,7 @@ function AppLayout() {
 
   return (
     <>
-      <EnvelopeSplash />
+      {!isAdmin && <EnvelopeSplash />}
       <ScrollToTop />
       {!isAdmin && <Navbar />}
       <Routes>

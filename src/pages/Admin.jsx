@@ -76,7 +76,7 @@ function getEventGuestNames(rsvp, event) {
 
 function AdminAccessPrompt({ status, code, error, submitting, onCodeChange, onSubmit }) {
   return (
-    <div className="min-h-screen bg-mauve-50 flex items-center justify-center px-4 py-12">
+    <div className="admin-page min-h-screen flex items-center justify-center px-4 py-12">
       <section className="w-full max-w-sm rounded-lg bg-white border border-mauve-100 shadow-xl p-6 text-center">
         <p className="font-sans text-xs tracking-widest uppercase text-mauve-400 mb-3">
           Manas &amp; Rupa Sree
@@ -749,7 +749,7 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-mauve-50/30 pt-16 md:pt-20">
+    <div className="admin-page min-h-screen">
 
       {/* Edit modal */}
       {editingRsvp && (
@@ -760,7 +760,7 @@ export default function Admin() {
         />
       )}
 
-      <div className="max-w-6xl mx-auto px-4 py-10">
+      <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">

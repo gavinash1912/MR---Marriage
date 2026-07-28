@@ -2062,6 +2062,74 @@
   font-size: 0.74rem;
 }
 
+.admin-page {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, #fffdf4 0%, #fff8e7 100%);
+  color: var(--maroon-900);
+}
+
+.admin-page h1,
+.admin-page h2,
+.admin-page h3,
+.admin-page .font-serif {
+  font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.admin-page h1,
+.admin-page h2 {
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.admin-page .form-label {
+  font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: 0.08em;
+  color: var(--maroon-900);
+}
+
+.admin-page .form-input {
+  border-color: rgba(93, 6, 29, 0.26);
+  background: #fffefb;
+  color: var(--maroon-900);
+}
+
+.admin-page .bg-white {
+  background-color: #fffefb !important;
+}
+
+.admin-page .rounded-xl,
+.admin-page .rounded-2xl,
+.admin-page .rounded-lg {
+  border-radius: 8px !important;
+}
+
+.admin-page .shadow-xl,
+.admin-page .shadow-2xl,
+.admin-page .shadow-sm {
+  box-shadow: 0 10px 24px rgba(93, 6, 29, 0.08) !important;
+}
+
+.admin-page table {
+  color: var(--maroon-900);
+}
+
+.admin-page th {
+  color: var(--maroon-800) !important;
+}
+
+.admin-page .text-mauve-300,
+.admin-page .text-mauve-400,
+.admin-page .text-mauve-500 {
+  color: var(--maroon-700) !important;
+}
+
+.admin-page .text-mauve-600,
+.admin-page .text-mauve-700,
+.admin-page .text-mauve-800 {
+  color: var(--maroon-900) !important;
+}
+
 [data-reveal] {
   opacity: 0;
   transform: translate3d(0, 22px, 0) scale(0.985);
