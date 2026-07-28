@@ -3,7 +3,9 @@ const EVENT_LOCATION = 'Atithi Venue, 9060 Independence Parkway, Plano, TX 75025
 const EVENT_DETAILS = [
   'Join us to celebrate the marriage of Manas and Rupa Sree!',
   '',
-  'Breakfast & Lunch will be served.',
+  'Dinner will be served at 8:00 PM.',
+  'South Indian vegetarian cuisine.',
+  'Muhurtham: 9:30 PM.',
   'Attire: Indian Traditional',
 ].join('\n');
 
@@ -11,7 +13,7 @@ export function getGoogleCalendarUrl() {
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: EVENT_TITLE,
-    dates: '20260905T080000/20260905T140000',
+    dates: '20260905T190000/20260905T233000',
     details: EVENT_DETAILS,
     location: EVENT_LOCATION,
   });
@@ -27,8 +29,8 @@ export function downloadCalendarInvite() {
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    'DTSTART:20260905T080000',
-    'DTEND:20260905T140000',
+    'DTSTART:20260905T190000',
+    'DTEND:20260905T233000',
     `SUMMARY:${EVENT_TITLE}`,
     `DESCRIPTION:${EVENT_DETAILS.replace(/\n/g, '\\n')}`,
     `LOCATION:${EVENT_LOCATION.replace(/,/g, '\\,')}`,

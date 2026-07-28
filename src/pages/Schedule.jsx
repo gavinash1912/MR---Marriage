@@ -50,7 +50,7 @@ function WeddingVenuePage({ event, handleTrackedClick }) {
           <h1>{event.venue}</h1>
           <p>
             The wedding ceremony will be held at {event.venue} in Plano, Texas.
-            Doors open at 7:00 PM, and Muhurtham is at 9:30 PM.
+            Doors open at 7:00 PM, dinner will be served at 8:00 PM, and Muhurtham is at 9:30 PM.
           </p>
           <div className="venue-hero__address">
             <MapPin className="w-4 h-4" aria-hidden="true" />
@@ -90,6 +90,14 @@ function WeddingVenuePage({ event, handleTrackedClick }) {
                 <div>
                   <span>Arrival</span>
                   <p>Evening 7:00 PM onwards</p>
+                </div>
+              </div>
+
+              <div className="venue-detail-item">
+                <Utensils className="w-5 h-5" aria-hidden="true" />
+                <div>
+                  <span>Dinner</span>
+                  <p>8:00 PM · South Indian vegetarian cuisine</p>
                 </div>
               </div>
 
@@ -135,21 +143,29 @@ function WeddingVenuePage({ event, handleTrackedClick }) {
                 delay="80ms"
               />
               <TimelineEvent
+                time="8:00 PM"
+                title="Dinner Served"
+                description="South Indian vegetarian cuisine will be served."
+                icon={Utensils}
+                accent
+                delay="170ms"
+              />
+              <TimelineEvent
                 time="9:30 PM"
                 title="Muhurtham"
                 description="Manas and Rupa Sree are joined in marriage with blessings from family and friends."
                 icon={Star}
                 accent
-                delay="170ms"
+                delay="260ms"
               />
               <TimelineEvent
-                time="Afterward"
-                title="Blessings and Photos"
+                time="Celebrations"
+                title="Blessings and Portraits"
                 description="Family blessings, greetings, and wedding photos after the ceremony."
                 icon={Calendar}
                 accent
                 last
-                delay="260ms"
+                delay="350ms"
               />
             </div>
           </div>
@@ -178,7 +194,7 @@ function WeddingVenuePage({ event, handleTrackedClick }) {
 
             <button
               onClick={downloadCalendarInvite}
-              className="flex items-center justify-center gap-2 btn-secondary text-sm px-6 py-3"
+              className="flex items-center justify-center gap-2 btn-calendar-download text-sm px-6 py-3"
             >
               <Calendar className="w-4 h-4" />
               Apple / Outlook
@@ -245,7 +261,7 @@ export default function Schedule({ invitationMode = 'full' }) {
           <p>
             {invitation.showAllEvents
               ? 'Wedding day details are confirmed. Other event dates and Grandion venue details are placeholders until finalized.'
-              : 'Ceremony, family blessings, photos, and lunch at Atithi Venue in Plano, Texas.'}
+              : 'Ceremony, dinner, family blessings, and photos at Atithi Venue in Plano, Texas.'}
           </p>
           <div className="mt-5 flex items-center justify-center gap-2 text-mauve-500">
             <MapPin className="w-4 h-4" />
@@ -303,7 +319,7 @@ export default function Schedule({ invitationMode = 'full' }) {
               <p className="invite-kicker">Ceremony program</p>
               <h2>Evening Celebration</h2>
               <p>
-                Please arrive early enough to settle in before the ceremony begins. Breakfast and lunch will be served.
+                Please arrive early enough to settle in before the ceremony begins. South Indian vegetarian dinner will be served.
               </p>
             </div>
 
@@ -317,26 +333,26 @@ export default function Schedule({ invitationMode = 'full' }) {
                 delay="80ms"
               />
               <TimelineEvent
-                time="10:00 AM"
-                title="Muhurtham and Wedding Rituals"
-                description="Manas and Rupa Sree are joined in marriage with blessings from family and friends."
-                icon={Star}
+                time="8:00 PM"
+                title="Dinner Served"
+                description="South Indian vegetarian cuisine will be served."
+                icon={Utensils}
                 accent
                 delay="170ms"
               />
               <TimelineEvent
-                time="10:30 AM"
-                title="Photography and Celebrations"
-                description="Group photos, family portraits, and celebrations."
-                icon={Music}
+                time="9:30 PM"
+                title="Muhurtham and Wedding Rituals"
+                description="Manas and Rupa Sree are joined in marriage with blessings from family and friends."
+                icon={Star}
                 accent
                 delay="260ms"
               />
               <TimelineEvent
-                time="11:30 AM"
-                title="Lunch Served"
-                description="Buffet lunch with a variety of Indian delicacies."
-                icon={Utensils}
+                time="Celebrations"
+                title="Blessings and Portraits"
+                description="Group photos, family portraits, and celebrations."
+                icon={Music}
                 accent
                 last
                 delay="350ms"
@@ -371,7 +387,7 @@ export default function Schedule({ invitationMode = 'full' }) {
             {/* Download .ics */}
             <button
               onClick={downloadCalendarInvite}
-              className="flex items-center justify-center gap-2 btn-secondary text-sm px-6 py-3"
+              className="flex items-center justify-center gap-2 btn-calendar-download text-sm px-6 py-3"
             >
               <Calendar className="w-4 h-4" />
               Apple / Outlook

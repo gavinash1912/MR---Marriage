@@ -351,7 +351,7 @@ export default function RSVP({ invitationMode = 'full' }) {
 
   if (submitted) {
     return (
-      <div className="city2-page min-h-screen bg-[#fffaf4] pt-24 md:pt-28" onClickCapture={handleTrackedClick}>
+      <div className="city2-page rsvp-page min-h-screen bg-[#fffaf4] pt-24 md:pt-28" onClickCapture={handleTrackedClick}>
         <div className="max-w-lg mx-auto px-4 py-16 text-center" data-reveal="scale-up">
           <div className="invite-card">
           <div className="w-20 h-20 rounded-full bg-mauve-100 flex items-center justify-center mx-auto mb-6">
@@ -384,7 +384,7 @@ export default function RSVP({ invitationMode = 'full' }) {
                 <button
                   type="button"
                   onClick={downloadCalendarInvite}
-                  className="flex items-center justify-center gap-2 btn-secondary text-sm px-6 py-3"
+                  className="flex items-center justify-center gap-2 btn-calendar-download text-sm px-6 py-3"
                 >
                   <Calendar className="w-4 h-4" />
                   Apple / Outlook
@@ -402,7 +402,7 @@ export default function RSVP({ invitationMode = 'full' }) {
   }
 
   return (
-    <div className="city2-page min-h-screen bg-[#fffaf4]" onClickCapture={handleTrackedClick}>
+    <div className="city2-page rsvp-page min-h-screen bg-[#fffaf4]" onClickCapture={handleTrackedClick}>
       {showGuestConfirm && (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black/55 p-4"
@@ -455,23 +455,6 @@ export default function RSVP({ invitationMode = 'full' }) {
               ? 'Let us know which events you can attend, and add any family members joining you.'
               : 'Let us know if you can celebrate with us, and add any family members joining you.'}
           </p>
-        </div>
-      </section>
-
-      <section className="rsvp-editorial-wrap" aria-label="RSVP invitation preview">
-        <div className="rsvp-editorial" data-reveal="photo">
-          <div className="rsvp-editorial__panel">
-            <span>Manas</span>
-            <em>&amp;</em>
-            <span>Rupa Sree</span>
-          </div>
-          <figure className="rsvp-editorial__photo">
-            <img
-              src="/videos/DSC00833.jpg"
-              alt="Manas and Rupa Sree holding hands on a bridge"
-            />
-          </figure>
-          <div className="rsvp-editorial__title">RSVP</div>
         </div>
       </section>
 
