@@ -84,37 +84,7 @@ export default function Home({ invitationMode = 'full' }) {
             className="invitation-card__bg"
             draggable="false"
           />
-          <div className="invitation-card__overlay">
-            <p className="inv-parents">
-              With the heavenly blessings of their families
-            </p>
-            <p className="inv-invite-line">
-              cordially invite you for the marriage ceremony of
-            </p>
-            <h1 className="inv-name">Manas</h1>
-            <p className="inv-amp">&amp;</p>
-            <h1 className="inv-name">Rupa Sree</h1>
-            <p className="inv-invite-line">which will be conducted on</p>
-            <div className="inv-date" aria-label="Wedding date and time">
-              <span className="inv-date__line" />
-              <span className="inv-date__month">SEPTEMBER</span>
-              <span className="inv-date__line" />
-              <div className="inv-date__row">
-                <span>FRIDAY</span>
-                <span className="inv-date__day">5</span>
-                <span>AT 7 PM</span>
-              </div>
-              <span className="inv-date__line" />
-              <span className="inv-date__year">2026</span>
-              <span className="inv-date__line" />
-            </div>
-            <p className="inv-at">at</p>
-            <p className="inv-address">
-              Atithi Venue,<br />
-              9060 Independence Pkwy,<br />
-              Plano, TX 75025
-            </p>
-          </div>
+
         </main>
       </section>
 
