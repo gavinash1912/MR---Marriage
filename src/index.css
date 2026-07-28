@@ -2757,9 +2757,9 @@
   }
 }
 
-/* ── Door Splash (mobile only) ────────────────────────────────────────────── */
+/* ── Invite Splash (mobile only) ──────────────────────────────────────────── */
 
-.door-splash {
+.invite-splash {
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -2767,74 +2767,73 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--ivory-0);
+  background: #f8e2ad;
   cursor: pointer;
-  perspective: 1200px;
 }
 
-.door-splash__frame {
+.invite-splash__envelope {
   position: relative;
-  width: 280px;
-  height: 420px;
-  display: flex;
-  border: 3px solid var(--gold-500);
-  border-radius: 4px 4px 0 0;
-  box-shadow:
-    0 0 0 1px var(--gold-300),
-    0 20px 60px rgba(93, 6, 29, 0.18),
-    inset 0 0 30px rgba(196, 154, 56, 0.08);
-  overflow: hidden;
+  width: 300px;
+  height: 380px;
 }
 
-.door-splash__panel {
-  flex: 1;
-  position: relative;
-  background: linear-gradient(160deg, #e8c982 0%, #c49a38 35%, #a78530 65%, #c49a38 100%);
-  transform-style: preserve-3d;
-  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
-  backface-visibility: hidden;
-}
-
-.door-splash__panel--left {
-  transform-origin: left center;
-  border-right: 1px solid var(--gold-300);
-}
-
-.door-splash__panel--right {
-  transform-origin: right center;
-  border-left: 1px solid var(--gold-300);
-}
-
-.door-splash__panel-detail {
+.invite-splash__flap {
   position: absolute;
-  top: 12%;
-  left: 12%;
-  right: 12%;
-  height: 34%;
-  border: 2px solid rgba(255, 248, 231, 0.4);
-  border-radius: 3px;
-  background: linear-gradient(180deg, rgba(255, 248, 231, 0.1) 0%, rgba(196, 154, 56, 0.06) 100%);
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: linear-gradient(180deg, #edd38a 0%, #e8c982 100%);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  z-index: 1;
+  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: top center;
 }
 
-.door-splash__panel-detail--lower {
-  top: auto;
-  bottom: 12%;
+.invite-splash__body {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(175deg, #f8e2ad 0%, #edd38a 50%, #e8c982 100%);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow:
+    0 2px 12px rgba(196, 154, 56, 0.15),
+    inset 0 0 40px rgba(255, 248, 231, 0.3);
 }
 
-.door-splash__seal {
+.invite-splash__floral {
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  color: rgba(196, 154, 56, 0.45);
+  opacity: 0.7;
+}
+
+.invite-splash__floral--tl {
+  top: 8%;
+  left: 6%;
+}
+
+.invite-splash__floral--br {
+  bottom: 8%;
+  right: 6%;
+}
+
+.invite-splash__seal {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, var(--maroon-600), var(--maroon-800));
-  border: 3px solid var(--gold-500);
+  background: linear-gradient(145deg, #f7e7be 0%, #edd38a 40%, #d7b35a 100%);
+  border: none;
   box-shadow:
-    0 0 0 2px var(--gold-300),
-    0 8px 24px rgba(93, 6, 29, 0.35),
-    inset 0 2px 4px rgba(255, 248, 231, 0.2);
+    0 4px 16px rgba(196, 154, 56, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 6px rgba(196, 154, 56, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2844,83 +2843,82 @@
     opacity 400ms ease;
 }
 
-.door-splash__seal-text {
+.invite-splash__seal-text {
   font-family: 'Allura', cursive;
-  font-size: 1.7rem;
-  color: var(--gold-300);
+  font-size: 2rem;
+  color: #8a6d20;
   letter-spacing: 0.02em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
   user-select: none;
 }
 
-.door-splash__prompt {
+.invite-splash__tagline {
   margin-top: 2rem;
   font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #8a6d20;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.invite-splash__prompt {
+  margin-top: 0.8rem;
+  font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  font-size: 0.82rem;
   font-style: italic;
-  color: var(--maroon-700);
-  letter-spacing: 0.08em;
+  color: #a78530;
+  letter-spacing: 0.06em;
   animation: prompt-pulse 2s ease-in-out infinite;
   user-select: none;
 }
 
-/* ── Door opening animation ────────────────────────────────────────────────── */
+/* ── Opening animation ─────────────────────────────────────────────────────── */
 
-.door-splash--opening .door-splash__panel--left {
-  animation: door-open-left 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms forwards;
+.invite-splash--opening .invite-splash__flap {
+  animation: invite-flap-open 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.door-splash--opening .door-splash__panel--right {
-  animation: door-open-right 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms forwards;
+.invite-splash--opening .invite-splash__seal {
+  animation: invite-seal-break 500ms cubic-bezier(0.22, 1, 0.36, 1) 150ms forwards;
 }
 
-.door-splash--opening .door-splash__seal {
-  animation: seal-break 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.door-splash--opening .door-splash__prompt {
+.invite-splash--opening .invite-splash__prompt,
+.invite-splash--opening .invite-splash__tagline {
   opacity: 0;
   transition: opacity 200ms ease;
 }
 
-.door-splash--opening {
-  animation: door-fade-out 500ms ease 1100ms forwards;
+.invite-splash--opening {
+  animation: invite-fade-out 500ms ease 900ms forwards;
 }
 
-@keyframes door-open-left {
+@keyframes invite-flap-open {
   0% {
-    transform: rotateY(0deg);
+    transform: rotateX(0deg);
   }
   100% {
-    transform: rotateY(-105deg);
+    transform: rotateX(-180deg);
   }
 }
 
-@keyframes door-open-right {
-  0% {
-    transform: rotateY(0deg);
-  }
-  100% {
-    transform: rotateY(105deg);
-  }
-}
-
-@keyframes seal-break {
+@keyframes invite-seal-break {
   0% {
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
   }
   40% {
-    transform: translate(-50%, -50%) scale(1.2);
+    transform: translate(-50%, -50%) scale(1.15);
     opacity: 1;
   }
   100% {
-    transform: translate(-50%, -50%) scale(0.6);
+    transform: translate(-50%, -55%) scale(0.7);
     opacity: 0;
   }
 }
 
-@keyframes door-fade-out {
+@keyframes invite-fade-out {
   0% {
     opacity: 1;
   }
@@ -2932,7 +2930,7 @@
 
 @keyframes prompt-pulse {
   0%, 100% {
-    opacity: 0.55;
+    opacity: 0.5;
   }
   50% {
     opacity: 1;
@@ -2941,7 +2939,7 @@
 
 /* Hide on desktop (768px+) */
 @media (min-width: 768px) {
-  .door-splash {
+  .invite-splash {
     display: none;
   }
 }
