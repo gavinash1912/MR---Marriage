@@ -1,6 +1,5 @@
 import { Fragment, useRef, useState } from 'react';
 import axios from 'axios';
-import { FloralSprig } from '../components/FloralDecor';
 import { Check, ChevronRight, Users, Phone, Mail, MessageSquare, Calendar, CalendarPlus } from 'lucide-react';
 import { useVisitAnalytics } from '../utils/analytics';
 import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
@@ -360,7 +359,6 @@ export default function RSVP({ invitationMode = 'full' }) {
           <h1 className="font-serif text-4xl text-mauve-800 mb-3">
             {hasAnyAttendance ? 'RSVP received!' : 'Thank you!'}
           </h1>
-          <FloralSprig className="my-4" />
           <p className="font-sans text-mauve-600 text-base mb-2">
             {hasAnyAttendance
               ? `Thank you, ${firstName}. We have your event responses.`
@@ -862,7 +860,6 @@ export default function RSVP({ invitationMode = 'full' }) {
 
       {/* Footer */}
       <footer className="invite-footer">
-        <FloralSprig className="mb-3" />
         <p className="font-serif italic text-mauve-400 text-sm">
           Manas &amp; Rupa Sree &nbsp;·&nbsp; September 5, 2026
         </p>

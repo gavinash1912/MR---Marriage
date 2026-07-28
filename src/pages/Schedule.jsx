@@ -1,4 +1,3 @@
-import { FloralSprig } from '../components/FloralDecor';
 import { Calendar, Clock, MapPin, Utensils, Music, Star, CalendarPlus } from 'lucide-react';
 import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
 import { useVisitAnalytics } from '../utils/analytics';
@@ -40,6 +39,63 @@ function TimelineEvent({ time, title, description, icon: Icon, accent = false, l
   );
 }
 
+function VenueDetailsPanel({ event }) {
+  return (
+    <div className="venue-priority-panel">
+      <div className="venue-priority-panel__copy" data-reveal="slide-right">
+        <p className="invite-kicker">Getting there</p>
+        <h2>{event.venue}</h2>
+        <p>
+          Please use the main entrance at {event.venue}. The address and map link are below for easy navigation.
+        </p>
+      </div>
+
+      <div className="venue-detail-list" data-reveal="card">
+        <div className="venue-detail-item">
+          <MapPin className="w-5 h-5" aria-hidden="true" />
+          <div>
+            <span>Address</span>
+            <p>{event.address}</p>
+          </div>
+        </div>
+
+        <div className="venue-detail-item">
+          <Clock className="w-5 h-5" aria-hidden="true" />
+          <div>
+            <span>Arrival</span>
+            <p>Evening 7:00 PM onwards</p>
+          </div>
+        </div>
+
+        <div className="venue-detail-item">
+          <Utensils className="w-5 h-5" aria-hidden="true" />
+          <div>
+            <span>Dinner</span>
+            <p>8:00 PM · South Indian vegetarian cuisine</p>
+          </div>
+        </div>
+
+        <div className="venue-detail-item">
+          <Star className="w-5 h-5" aria-hidden="true" />
+          <div>
+            <span>Muhurtham</span>
+            <p>9:30 PM</p>
+          </div>
+        </div>
+
+        <a
+          href={event.mapUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary venue-map-button"
+        >
+          Open in Google Maps
+        </a>
+      </div>
+    </div>
+  );
+}
+
 function WeddingVenuePage({ event, handleTrackedClick }) {
   return (
     <div className="city2-page venue-page min-h-screen" onClickCapture={handleTrackedClick}>
@@ -63,58 +119,7 @@ function WeddingVenuePage({ event, handleTrackedClick }) {
 
       <section data-analytics-section="Venue Details" className="invite-section venue-priority-section">
         <div className="invite-section__inner">
-          <div className="venue-priority-panel">
-            <div className="venue-priority-panel__copy" data-reveal="slide-right">
-              <p className="invite-kicker">Getting there</p>
-              <h2>{event.venue}</h2>
-              <p>
-                Please use the main entrance at {event.venue}. The address and map link are below for easy navigation.
-              </p>
-            </div>
-
-            <div className="venue-detail-list" data-reveal="card">
-              <div className="venue-detail-item">
-                <MapPin className="w-5 h-5" aria-hidden="true" />
-                <div>
-                  <span>Address</span>
-                  <p>{event.address}</p>
-                </div>
-              </div>
-
-              <div className="venue-detail-item">
-                <Clock className="w-5 h-5" aria-hidden="true" />
-                <div>
-                  <span>Arrival</span>
-                  <p>Evening 7:00 PM onwards</p>
-                </div>
-              </div>
-
-              <div className="venue-detail-item">
-                <Utensils className="w-5 h-5" aria-hidden="true" />
-                <div>
-                  <span>Dinner</span>
-                  <p>8:00 PM · South Indian vegetarian cuisine</p>
-                </div>
-              </div>
-
-              <div className="venue-detail-item">
-                <Star className="w-5 h-5" aria-hidden="true" />
-                <div>
-                  <span>Muhurtham</span>
-                  <p>9:30 PM</p>
-                </div>
-              </div>
-
-              <a
-                href={event.mapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary venue-map-button"
-              >
-                Open in Google Maps
-              </a>
-            </div>
-          </div>
+          <VenueDetailsPanel event={event} />
         </div>
       </section>
 
@@ -165,9 +170,9 @@ export default function Schedule({ invitationMode = 'full' }) {
     ? [
         'Schedule Header',
         'All Events Schedule',
+        'Venue Details',
         'Ceremony Program',
         'Calendar Links',
-        'Venue Details',
       ]
     : [
         'Venue Header',
@@ -200,11 +205,9 @@ export default function Schedule({ invitationMode = 'full' }) {
         <img src="/images/invitation-card.png" alt="" className="inv-subpage-hero__img" aria-hidden="true" />
         <div className="inv-subpage-hero__content" data-reveal="fade-up">
           <p className="invite-kicker">September 5, 2026</p>
-          <h1>{invitation.showAllEvents ? 'Wedding Events Schedule' : 'Wedding Day Schedule'}</h1>
+          <h1>Wedding Events and Venue</h1>
           <p>
-            {invitation.showAllEvents
-              ? 'Wedding day details are confirmed. Other event dates and Grandion venue details are placeholders until finalized.'
-              : 'Ceremony, dinner, family blessings, and photos at Atithi Venue in Plano, Texas.'}
+            RSVP covers each celebration separately. Wedding-day venue details are below, and each event card lists its location.
           </p>
           <div className="mt-5 flex items-center justify-center gap-2 text-mauve-500">
             <MapPin className="w-4 h-4" />
@@ -229,7 +232,7 @@ export default function Schedule({ invitationMode = 'full' }) {
                 <h2 className="section-title text-left">Events Around the Wedding</h2>
               </div>
               <p className="section-lede">
-                RSVP will ask for each event separately. Grandion is a placeholder for the sub-event venue.
+                Each event card lists its date, time, and location. RSVP will ask for every event separately.
               </p>
             </div>
 
@@ -254,6 +257,12 @@ export default function Schedule({ invitationMode = 'full' }) {
         </section>
       )}
 
+      <section data-analytics-section="Venue Details" className="invite-section venue-priority-section">
+        <div className="invite-section__inner">
+          <VenueDetailsPanel event={weddingEvent} />
+        </div>
+      </section>
+
       {/* Timeline */}
       <section data-analytics-section="Ceremony Program" className="invite-section pt-8">
         <div className="invite-section__inner max-w-4xl">
@@ -262,7 +271,7 @@ export default function Schedule({ invitationMode = 'full' }) {
               <p className="invite-kicker">Ceremony program</p>
               <h2>Evening Celebration</h2>
               <p>
-                Please arrive early enough to settle in before the ceremony begins. South Indian vegetarian dinner will be served.
+                Please arrive early enough to settle in before the ceremony begins. Dinner begins at 8:00 PM with South Indian vegetarian cuisine.
               </p>
             </div>
 
@@ -308,7 +317,6 @@ export default function Schedule({ invitationMode = 'full' }) {
       {/* Calendar invite section */}
       <section data-analytics-section="Calendar Links" className="invite-section invite-section--sage">
         <div className="max-w-md mx-auto text-center px-4" data-reveal="fade-up">
-          <FloralSprig className="mb-5" />
           <p className="invite-kicker">Save the date</p>
           <h2 className="font-serif text-3xl md:text-4xl text-mauve-800 mb-3">Add it to your calendar</h2>
           <p className="section-lede mb-8">
@@ -343,43 +351,8 @@ export default function Schedule({ invitationMode = 'full' }) {
         </div>
       </section>
 
-      {/* Venue map & details */}
-      <section data-analytics-section="Venue Details" className="invite-section">
-        <div className="max-w-xl mx-auto text-center px-4" data-reveal="fade-up">
-          <p className="invite-kicker">Getting there</p>
-          <h2 className="font-serif text-3xl md:text-4xl text-mauve-800 mb-6">Atithi Venue</h2>
-          <div className="invite-card text-left space-y-4">
-            <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-mauve-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-serif text-lg text-mauve-800">Atithi Venue</p>
-                <p className="font-sans text-sm text-mauve-600">9060 Independence Parkway, Plano, TX 75025</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Clock className="w-5 h-5 text-mauve-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-sans text-sm text-mauve-600">
-                  <strong className="text-mauve-700">Doors open at 7:00 PM</strong>
-                </p>
-              </div>
-            </div>
-            <a
-              href="https://maps.google.com/?q=Atithi+Venue+9060+Independence+Parkway+Plano+TX+75025"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full btn-secondary text-sm mt-2"
-            >
-              <MapPin className="w-4 h-4" />
-              Open in Google Maps
-            </a>
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="invite-footer">
-        <FloralSprig className="mb-3" />
         <p className="font-serif italic text-mauve-400 text-sm">
           Manas &amp; Rupa Sree &nbsp;·&nbsp; September 5, 2026
         </p>

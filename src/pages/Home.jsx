@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, Clock, MapPin } from 'lucide-react';
 import { useVisitAnalytics } from '../utils/analytics';
 import { useScrollReveal } from '../utils/scrollReveal';
-import { getInvitationConfig } from '../utils/events';
+import { WEDDING_EVENT_ID, getInvitationConfig } from '../utils/events';
 import EventModal from '../components/EventModal';
 
 function useCountdown(targetDate) {
@@ -102,12 +102,14 @@ function groupEventsByDate(events) {
 
 export default function Home({ invitationMode = 'full' }) {
   const invitation = getInvitationConfig(invitationMode);
+  const weddingEvent = invitation.events.find(event => event.id === WEDDING_EVENT_ID) || invitation.events[0];
   const countdown = useCountdown('2026-09-05T19:00:00');
   const [selectedEvent, setSelectedEvent] = useState(null);
   const homeSections = [
     'Hero',
     'Countdown',
-    invitation.showAllEvents ? 'Timeline' : 'Venue Details',
+    'Venue Details',
+    ...(invitation.showAllEvents ? ['Timeline'] : []),
     'Bottom RSVP',
   ];
 
@@ -153,9 +155,11 @@ export default function Home({ invitationMode = 'full' }) {
         </div>
       </section>
 
-      {invitation.showAllEvents ? (
+      <HomeVenueDetails event={weddingEvent} venuePath={invitation.schedulePath} />
+
+      {invitation.showAllEvents && (
         <section data-analytics-section="Timeline" className="event-timeline">
-          <h2 className="section-title" data-reveal="fade-up">Wedding Events</h2>
+          <h2 className="section-title" data-reveal="fade-up">Events Around the Wedding</h2>
 
           <div className={`timeline-track ${isSingleEventTimeline ? 'timeline-track--single' : ''}`}>
             {dateGroups.map((group) => (
@@ -185,8 +189,6 @@ export default function Home({ invitationMode = 'full' }) {
             ))}
           </div>
         </section>
-      ) : (
-        <HomeVenueDetails event={invitation.events[0]} venuePath={invitation.schedulePath} />
       )}
 
       <section data-analytics-section="Bottom RSVP">
