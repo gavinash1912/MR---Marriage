@@ -2813,6 +2813,7 @@
   width: 100%;
   min-height: 8.6rem;
   border-color: rgba(196, 154, 56, 0.58);
+  background: linear-gradient(180deg, #fffefb 0%, #fff8e9 100%);
   box-shadow: 0 18px 34px rgba(93, 6, 29, 0.12);
   cursor: pointer;
   color: inherit;
@@ -2832,14 +2833,21 @@
 
 .venue-deck-card.is-next {
   z-index: 2;
-  opacity: 0.82;
+  opacity: 0.98;
   transform: translate3d(1rem, 0.72rem, -26px) rotate(2.2deg) scale(0.955);
 }
 
 .venue-deck-card.is-previous {
   z-index: 1;
-  opacity: 0.64;
+  opacity: 0.94;
   transform: translate3d(-0.9rem, 1.35rem, -46px) rotate(-2.4deg) scale(0.92);
+}
+
+.venue-deck-card.is-next .venue-deck-card__icon,
+.venue-deck-card.is-next .venue-deck-card__content,
+.venue-deck-card.is-previous .venue-deck-card__icon,
+.venue-deck-card.is-previous .venue-deck-card__content {
+  opacity: 0;
 }
 
 .venue-deck-card.is-active:hover {
@@ -2882,7 +2890,7 @@
   padding: 0.85rem;
   border: 1px solid rgba(196, 154, 56, 0.34);
   border-radius: 10px;
-  background: rgba(255, 254, 251, 0.72);
+  background: #fffefb;
   text-align: left;
 }
 
@@ -2928,6 +2936,33 @@ button.home-venue-detail {
   line-height: 1.45;
 }
 
+.venue-deck-map-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.68rem;
+  color: var(--gold-500);
+  font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.venue-deck-map-link::after {
+  content: '';
+  width: 0.42rem;
+  height: 0.42rem;
+  margin-left: 0.4rem;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.venue-deck-map-link:hover {
+  color: var(--maroon-700);
+}
+
 .home-venue-card__actions {
   display: grid;
   gap: 0.7rem;
@@ -2937,6 +2972,13 @@ button.home-venue-detail {
 .home-venue-card__primary,
 .home-venue-card__secondary {
   width: 100%;
+}
+
+.home-venue-card--multi .home-venue-card__actions {
+  grid-template-columns: 1fr;
+  width: min(100%, 24rem);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .event-timeline {
@@ -3398,6 +3440,10 @@ button.home-venue-detail {
 
   .home-venue-card__actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-venue-card--multi .home-venue-card__actions {
+    grid-template-columns: 1fr;
   }
 
   .event-timeline {

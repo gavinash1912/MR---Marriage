@@ -122,10 +122,9 @@ function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details', ve
               onPointerUp={(event) => handleSwipeEnd(event.clientX)}
               onPointerCancel={() => { swipeStartXRef.current = null; }}
             >
-              {details.map(({ label, title, description, icon: Icon = MapPin }, index) => (
-                <button
+              {details.map(({ label, title, description, mapUrl, icon: Icon = MapPin }, index) => (
+                <div
                   key={label}
-                  type="button"
                   className={`home-venue-detail venue-deck-card is-${getDeckPosition(index)}`}
                   onClick={() => {
                     if (swipeMovedRef.current) {
@@ -134,16 +133,35 @@ function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details', ve
                     }
                     showVenue(index);
                   }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      showVenue(index);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={index === activeVenueIndex ? 0 : -1}
                   aria-label={`${label}: ${title}`}
                   aria-current={index === activeVenueIndex ? 'true' : undefined}
                 >
-                  <Icon className="w-5 h-5" aria-hidden="true" />
-                  <div>
+                  <Icon className="w-5 h-5 venue-deck-card__icon" aria-hidden="true" />
+                  <div className="venue-deck-card__content">
                     <span>{label}</span>
                     <p>{title}</p>
                     {description && <small>{description}</small>}
+                    {mapUrl && index === activeVenueIndex && (
+                      <a
+                        href={mapUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="venue-deck-map-link"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        Open Maps
+                      </a>
+                    )}
                   </div>
-                </button>
+                </div>
               ))}
             </div>
 
@@ -179,14 +197,16 @@ function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details', ve
           <Link to={venuePath} className="btn-primary home-venue-card__primary">
             {primaryLabel} <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </Link>
-          <a
-            href={event.mapUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary home-venue-card__secondary"
-          >
-            Open Maps
-          </a>
+          {!hasVenueGroups && (
+            <a
+              href={event.mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary home-venue-card__secondary"
+            >
+              Open Maps
+            </a>
+          )}
         </div>
       </div>
     </section>
@@ -204,16 +224,19 @@ export default function Home({ invitationMode = 'full' }) {
           label: 'Wedding ceremony',
           title: weddingEvent.venue,
           description: weddingEvent.address,
+          mapUrl: weddingEvent.mapUrl,
         },
         {
           label: 'Pre-wedding events',
           title: ranchHouseEvent?.venue || 'Ranch House',
           description: ranchHouseEvent?.address || '708 Sam Davis Rd, Argyle, TX 76226',
+          mapUrl: ranchHouseEvent?.mapUrl || 'https://maps.google.com/?q=708+Sam+Davis+Rd+Argyle+TX+76226',
         },
         {
           label: 'Vratham',
           title: vrathamEvent?.venue || "Groom's House",
           description: vrathamEvent?.address || '2845 Hale Rd, Celina, TX 75009',
+          mapUrl: vrathamEvent?.mapUrl || 'https://maps.google.com/?q=2845+Hale+Rd+Celina+TX+75009',
         },
       ]
     : [];
