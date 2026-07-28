@@ -48,10 +48,6 @@ function WeddingVenuePage({ event, handleTrackedClick }) {
         <div className="inv-subpage-hero__content" data-reveal="fade-up">
           <p className="invite-kicker">Venue</p>
           <h1>{event.venue}</h1>
-          <p>
-            The wedding ceremony will be held at {event.venue} in Plano, Texas.
-            Doors open at 7:00 PM, dinner will be served at 8:00 PM, and Muhurtham is at 9:30 PM.
-          </p>
           <div className="venue-hero__address">
             <MapPin className="w-4 h-4" aria-hidden="true" />
             <a
@@ -122,56 +118,6 @@ function WeddingVenuePage({ event, handleTrackedClick }) {
         </div>
       </section>
 
-      <section data-analytics-section="Wedding Schedule" className="invite-section invite-section--sage venue-schedule-section">
-        <div className="invite-section__inner max-w-4xl">
-          <div className="schedule-shell schedule-shell--secondary">
-            <div className="schedule-shell__intro" data-reveal="slide-right">
-              <p className="invite-kicker">Wedding schedule</p>
-              <h2>Evening Program</h2>
-              <p>
-                The schedule is simple: arrive, settle in, and join the families for the marriage ceremony.
-              </p>
-            </div>
-
-            <div className="schedule-shell__timeline">
-              <TimelineEvent
-                time="7:00 PM"
-                title="Guest Arrival"
-                description="Doors open at Atithi Venue."
-                icon={MapPin}
-                accent
-                delay="80ms"
-              />
-              <TimelineEvent
-                time="8:00 PM"
-                title="Dinner Served"
-                description="South Indian vegetarian cuisine will be served."
-                icon={Utensils}
-                accent
-                delay="170ms"
-              />
-              <TimelineEvent
-                time="9:30 PM"
-                title="Muhurtham"
-                description="Manas and Rupa Sree are joined in marriage with blessings from family and friends."
-                icon={Star}
-                accent
-                delay="260ms"
-              />
-              <TimelineEvent
-                time="Celebrations"
-                title="Blessings and Portraits"
-                description="Family blessings, greetings, and wedding photos after the ceremony."
-                icon={Calendar}
-                accent
-                last
-                delay="350ms"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section data-analytics-section="Calendar Links" className="invite-section">
         <div className="max-w-md mx-auto text-center px-4" data-reveal="fade-up">
           <FloralSprig className="mb-5" />
@@ -228,7 +174,6 @@ export default function Schedule({ invitationMode = 'full' }) {
     : [
         'Venue Header',
         'Venue Details',
-        'Wedding Schedule',
         'Calendar Links',
       ];
   const analyticsMetadata = {
@@ -335,7 +280,7 @@ export default function Schedule({ invitationMode = 'full' }) {
               <TimelineEvent
                 time="8:00 PM"
                 title="Dinner Served"
-                description="South Indian vegetarian cuisine will be served."
+                description="South Indian vegetarian cuisine."
                 icon={Utensils}
                 accent
                 delay="170ms"
@@ -349,7 +294,7 @@ export default function Schedule({ invitationMode = 'full' }) {
                 delay="260ms"
               />
               <TimelineEvent
-                time="Celebrations"
+                time="After"
                 title="Blessings and Portraits"
                 description="Group photos, family portraits, and celebrations."
                 icon={Music}
