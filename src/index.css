@@ -2500,13 +2500,14 @@
 .timeline-event {
   position: relative;
   margin-bottom: 1.25rem;
-  padding: 1rem 1.15rem;
+  padding: 1.1rem 1.4rem;
   border: 1px solid rgba(196, 154, 56, 0.5);
   border-radius: 12px;
   background: linear-gradient(180deg, #fffdf7, #fff6e8);
   box-shadow: var(--shadow-soft);
   cursor: pointer;
   transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  text-align: center;
 }
 
 .timeline-event:hover {
