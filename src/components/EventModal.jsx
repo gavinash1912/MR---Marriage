@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { X, MapPin, Clock, Calendar, CalendarPlus, Shirt } from 'lucide-react';
+import { X, MapPin, Clock, Calendar, CalendarPlus, Shirt, Star, Utensils } from 'lucide-react';
 import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
+import { WEDDING_EVENT_ID } from '../utils/events';
 
 export default function EventModal({ event, onClose, onCalendarAction }) {
   useEffect(() => {
@@ -15,6 +16,7 @@ export default function EventModal({ event, onClose, onCalendarAction }) {
   }, [onClose]);
 
   if (!event) return null;
+  const isWeddingEvent = event.id === WEDDING_EVENT_ID;
 
   return (
     <div
@@ -55,13 +57,27 @@ export default function EventModal({ event, onClose, onCalendarAction }) {
 
           <div className="event-modal__detail">
             <Clock className="w-4 h-4 flex-shrink-0" />
-            <span>{event.timeLabel}</span>
+            <span>{isWeddingEvent ? 'Arrival: Evening 7:00 PM onwards' : event.timeLabel}</span>
           </div>
 
           <div className="event-modal__detail">
             <MapPin className="w-4 h-4 flex-shrink-0" />
             <span>{event.venue}<br />{event.address}</span>
           </div>
+
+          {isWeddingEvent && (
+            <>
+              <div className="event-modal__detail">
+                <Utensils className="w-4 h-4 flex-shrink-0" />
+                <span>Dinner: 8:00 PM · South Indian vegetarian cuisine</span>
+              </div>
+
+              <div className="event-modal__detail">
+                <Star className="w-4 h-4 flex-shrink-0" />
+                <span>Muhurtham: 9:30 PM</span>
+              </div>
+            </>
+          )}
 
           {event.dressCode && (
             <div className="event-modal__detail">

@@ -1,6 +1,5 @@
-import { Calendar, CalendarPlus, ChevronRight, Clock, MapPin, Star, Utensils } from 'lucide-react';
+import { Calendar, CalendarPlus, ChevronRight, MapPin } from 'lucide-react';
 import { addGoogleCalendarInvite, downloadCalendarInvite } from '../utils/calendar';
-import { WEDDING_EVENT_ID } from '../utils/events';
 
 function groupEventsByDate(events) {
   const groups = {};
@@ -36,26 +35,6 @@ export function TimelineEventsSection({ events, onOpenEventDetails, onOpenMap })
                 <span className="timeline-event__time">{event.timeLabel}</span>
                 <span className="timeline-event__name">{event.name}</span>
                 <span className="timeline-event__venue">{event.venue}</span>
-                {event.id === WEDDING_EVENT_ID && (
-                  <div className="timeline-event__wedding-details">
-                    <div>
-                      <MapPin className="w-4 h-4" aria-hidden="true" />
-                      <span>{event.address}</span>
-                    </div>
-                    <div>
-                      <Clock className="w-4 h-4" aria-hidden="true" />
-                      <span>Evening 7:00 PM onwards</span>
-                    </div>
-                    <div>
-                      <Utensils className="w-4 h-4" aria-hidden="true" />
-                      <span>8:00 PM · South Indian vegetarian cuisine</span>
-                    </div>
-                    <div>
-                      <Star className="w-4 h-4" aria-hidden="true" />
-                      <span>Muhurtham 9:30 PM</span>
-                    </div>
-                  </div>
-                )}
                 <div className="timeline-event__actions">
                   <button
                     type="button"

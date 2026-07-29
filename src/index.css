@@ -3224,35 +3224,6 @@ button.home-venue-detail {
   line-height: 1.4;
 }
 
-.timeline-event__wedding-details {
-  display: grid;
-  gap: 0.55rem;
-  width: min(100%, 440px);
-  margin: 0.9rem auto 0;
-  padding: 0.85rem 0.95rem;
-  border: 1px solid rgba(196, 154, 56, 0.22);
-  border-radius: 10px;
-  background: rgba(255, 253, 247, 0.72);
-  text-align: left;
-}
-
-.timeline-event__wedding-details div {
-  display: grid;
-  grid-template-columns: 1rem minmax(0, 1fr);
-  align-items: start;
-  gap: 0.55rem;
-  color: var(--maroon-900);
-  font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
-  font-size: 0.78rem;
-  font-weight: 700;
-  line-height: 1.45;
-}
-
-.timeline-event__wedding-details svg {
-  margin-top: 0.12rem;
-  color: var(--gold-500);
-}
-
 .timeline-event__tap {
   display: inline-flex;
   align-items: center;
