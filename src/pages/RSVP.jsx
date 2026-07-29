@@ -346,7 +346,11 @@ export default function RSVP({ invitationMode = 'full' }) {
   };
 
   // ── Success ────────────────────────────────────────────────────────────────
-  const hasAnyAttendance = eventAttendancePayload().some(event => event.guestCount > 0);
+  const attendanceSummary = eventAttendancePayload();
+  const attendingCalendarEvents = invitation.events.filter(event => (
+    attendanceSummary.some(response => response.id === event.id && response.guestCount > 0)
+  ));
+  const hasAnyAttendance = attendingCalendarEvents.length > 0;
   const pageClassName = `city2-page rsvp-page ${invitation.showAllEvents ? 'full-invite-page' : ''} min-h-screen bg-[#fffaf4]`;
 
   if (submitted) {
@@ -365,32 +369,65 @@ export default function RSVP({ invitationMode = 'full' }) {
               ? `Thank you, ${firstName}. We have your event responses.`
               : `Thank you for letting us know, ${firstName}. You'll be missed!`}
           </p>
-          {attending === 'yes' && (
+          {hasAnyAttendance && (
             <>
               <p className="font-sans text-sm text-mauve-400 mb-8">
-                September 5, 2026 · 7:00 PM · Atithi Venue, Plano TX
+                {invitation.showAllEvents
+                  ? `${attendingCalendarEvents.length} event${attendingCalendarEvents.length === 1 ? '' : 's'} marked attending.`
+                  : 'September 5, 2026 · 7:00 PM · Atithi Venue, Plano TX'}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <a
-                  href={getGoogleCalendarUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
-                >
-                  <CalendarPlus className="w-4 h-4" />
-                  Google Calendar
-                </a>
-                <button
-                  type="button"
-                  onClick={downloadCalendarInvite}
-                  className="flex items-center justify-center gap-2 btn-calendar-download text-sm px-6 py-3"
-                >
-                  <Calendar className="w-4 h-4" />
-                  Apple / Outlook
-                </button>
+                {invitation.showAllEvents ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => downloadCalendarInvite(attendingCalendarEvents, {
+                        filename: 'manas-rupa-sree-my-rsvp-events.ics',
+                        calendarName: 'Manas & Rupa Sree - My RSVP Events',
+                      })}
+                      className="flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
+                    >
+                      <CalendarPlus className="w-4 h-4" />
+                      My Events Invite
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => downloadCalendarInvite(invitation.events, {
+                        filename: 'manas-rupa-sree-full-celebration.ics',
+                        calendarName: 'Manas & Rupa Sree Full Celebration',
+                      })}
+                      className="flex items-center justify-center gap-2 btn-calendar-download text-sm px-6 py-3"
+                    >
+                      <Calendar className="w-4 h-4" />
+                      All Events Invite
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <a
+                      href={getGoogleCalendarUrl()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
+                    >
+                      <CalendarPlus className="w-4 h-4" />
+                      Google Calendar
+                    </a>
+                    <button
+                      type="button"
+                      onClick={downloadCalendarInvite}
+                      className="flex items-center justify-center gap-2 btn-calendar-download text-sm px-6 py-3"
+                    >
+                      <Calendar className="w-4 h-4" />
+                      Apple / Outlook
+                    </button>
+                  </>
+                )}
               </div>
               <p className="font-sans text-xs text-mauve-400 mt-4">
-                Apple Calendar, Outlook, and most calendar apps accept the .ics format.
+                {invitation.showAllEvents
+                  ? 'Calendar files can be imported into Google Calendar and opened by Apple Calendar or Outlook.'
+                  : 'Apple Calendar, Outlook, and most calendar apps accept the .ics format.'}
               </p>
             </>
           )}

@@ -315,36 +315,28 @@ export default function Schedule({ invitationMode = 'full' }) {
       {/* Calendar invite section */}
       <section data-analytics-section="Calendar Links" className="invite-section invite-section--sage">
         <div className="max-w-md mx-auto text-center px-4" data-reveal="fade-up">
-          <p className="invite-kicker">Save the date</p>
-          <h2 className="font-serif text-3xl md:text-4xl text-mauve-800 mb-3">Add it to your calendar</h2>
+          <p className="invite-kicker">Save the dates</p>
+          <h2 className="font-serif text-3xl md:text-4xl text-mauve-800 mb-3">Add the full celebration</h2>
           <p className="section-lede mb-8">
-            Add the marriage ceremony to your calendar so you don't miss it.
+            Download one calendar invite with every event in the full invitation.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            {/* Google Calendar */}
-            <a
-              href={getGoogleCalendarUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => downloadCalendarInvite(invitation.events, {
+                filename: 'manas-rupa-sree-full-celebration.ics',
+                calendarName: 'Manas & Rupa Sree Full Celebration',
+              })}
               className="flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
             >
               <CalendarPlus className="w-4 h-4" />
-              Google Calendar
-            </a>
-
-            {/* Download .ics */}
-            <button
-              onClick={downloadCalendarInvite}
-              className="flex items-center justify-center gap-2 btn-calendar-download text-sm px-6 py-3"
-            >
-              <Calendar className="w-4 h-4" />
-              Apple / Outlook
+              Add All Events
             </button>
           </div>
 
           <p className="font-sans text-xs text-mauve-400 mt-4">
-            Apple Calendar, Outlook, and most calendar apps accept the .ics format.
+            The calendar file works with Google Calendar import, Apple Calendar, and Outlook.
           </p>
         </div>
       </section>

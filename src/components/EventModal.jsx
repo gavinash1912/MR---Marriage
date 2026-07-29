@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { X, MapPin, Clock, Calendar, Shirt } from 'lucide-react';
+import { X, MapPin, Clock, Calendar, CalendarPlus, Shirt } from 'lucide-react';
+import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
 
 export default function EventModal({ event, onClose }) {
   useEffect(() => {
@@ -72,6 +73,26 @@ export default function EventModal({ event, onClose }) {
           {event.description && (
             <p className="event-modal__desc">{event.description}</p>
           )}
+
+          <div className="event-modal__calendar-actions">
+            <a
+              href={getGoogleCalendarUrl(event)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary event-modal__calendar-link"
+            >
+              <CalendarPlus className="w-4 h-4" />
+              Google Calendar
+            </a>
+            <button
+              type="button"
+              onClick={() => downloadCalendarInvite(event)}
+              className="btn-calendar-download event-modal__calendar-link"
+            >
+              <Calendar className="w-4 h-4" />
+              Apple / Outlook
+            </button>
+          </div>
 
           {event.mapUrl && (
             <a

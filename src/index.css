@@ -3365,11 +3365,31 @@ button.home-venue-detail {
   font-style: italic;
 }
 
+.event-modal__calendar-actions {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1.1rem;
+}
+
+.event-modal__calendar-link {
+  width: 100%;
+  min-height: 44px;
+  padding-inline: 1rem;
+  font-size: 0.76rem;
+  text-decoration: none;
+}
+
 .event-modal__map-link {
   display: inline-flex;
   margin-top: 1rem;
   text-decoration: none;
   font-size: 0.82rem;
+}
+
+@media (min-width: 640px) {
+  .event-modal__calendar-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .venue-page .invite-section {

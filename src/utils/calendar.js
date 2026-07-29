@@ -1,55 +1,135 @@
-const EVENT_TITLE = 'Manas & Rupa Sree - Marriage Ceremony';
-const EVENT_LOCATION = 'Atithi Venue, 9060 Independence Parkway, Plano, TX 75025';
-const EVENT_DETAILS = [
-  'Join us to celebrate the marriage of Manas and Rupa Sree!',
-  '',
-  'Dinner will be served at 8:00 PM.',
-  'South Indian vegetarian cuisine.',
-  'Muhurtham: 9:30 PM.',
-  'Attire: Indian Traditional',
-].join('\n');
+import { WEDDING_EVENT } from './events';
 
-export function getGoogleCalendarUrl() {
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: EVENT_TITLE,
-    dates: '20260905T190000/20260905T233000',
-    details: EVENT_DETAILS,
-    location: EVENT_LOCATION,
-  });
+const CALENDAR_TIMEZONE = 'America/Chicago';
+const DEFAULT_CALENDAR_NAME = 'Manas & Rupa Sree Wedding Celebrations';
+const DEFAULT_FILENAME = 'manas-rupa-sree-marriage.ics';
 
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+function normalizeEvents(events) {
+  if (!events || typeof events.preventDefault === 'function') return [WEDDING_EVENT];
+  return (Array.isArray(events) ? events : [events]).filter(Boolean);
 }
 
-export function downloadCalendarInvite() {
-  const icsContent = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Manas & Rupa Sree Marriage//EN',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
+function compactDateTime(value) {
+  return String(value || '').replace(/[-:]/g, '');
+}
+
+function utcStamp() {
+  return new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+}
+
+function escapeIcsText(value = '') {
+  return String(value)
+    .replace(/\\/g, '\\\\')
+    .replace(/\r?\n/g, '\\n')
+    .replace(/,/g, '\\,')
+    .replace(/;/g, '\\;');
+}
+
+function foldIcsLine(line) {
+  const limit = 75;
+  if (line.length <= limit) return line;
+
+  const chunks = [];
+  let remaining = line;
+  while (remaining.length > limit) {
+    chunks.push(remaining.slice(0, limit));
+    remaining = remaining.slice(limit);
+  }
+  chunks.push(remaining);
+  return chunks.join('\r\n ');
+}
+
+function titleForEvent(event) {
+  return `Manas & Rupa Sree - ${event.name || WEDDING_EVENT.name}`;
+}
+
+function locationForEvent(event) {
+  return [event.venue, event.address].filter(Boolean).join(', ');
+}
+
+function detailsForEvent(event) {
+  return [
+    event.description,
+    '',
+    event.dateLabel && event.timeLabel ? `${event.dateLabel} · ${event.timeLabel}` : '',
+    event.venue ? `Venue: ${event.venue}` : '',
+    event.address ? `Address: ${event.address}` : '',
+    event.id === WEDDING_EVENT.id ? 'Dinner: 8:00 PM · South Indian vegetarian cuisine' : '',
+    event.dressCode ? `Attire: ${event.dressCode}` : '',
+    event.mapUrl ? `Map: ${event.mapUrl}` : '',
+  ].filter(Boolean).join('\n');
+}
+
+function eventEndDateTime(event) {
+  return event.endDateTime || WEDDING_EVENT.endDateTime;
+}
+
+function icsEventLines(event, stamp) {
+  const summary = titleForEvent(event);
+
+  return [
     'BEGIN:VEVENT',
-    'DTSTART:20260905T190000',
-    'DTEND:20260905T233000',
-    `SUMMARY:${EVENT_TITLE}`,
-    `DESCRIPTION:${EVENT_DETAILS.replace(/\n/g, '\\n')}`,
-    `LOCATION:${EVENT_LOCATION.replace(/,/g, '\\,')}`,
+    `UID:manas-rupa-sree-2026-${event.id || compactDateTime(event.dateTime)}@mr-marriage`,
+    `DTSTAMP:${stamp}`,
+    `DTSTART;TZID=${CALENDAR_TIMEZONE}:${compactDateTime(event.dateTime)}`,
+    `DTEND;TZID=${CALENDAR_TIMEZONE}:${compactDateTime(eventEndDateTime(event))}`,
+    `SUMMARY:${escapeIcsText(summary)}`,
+    `DESCRIPTION:${escapeIcsText(detailsForEvent(event))}`,
+    `LOCATION:${escapeIcsText(locationForEvent(event))}`,
     'STATUS:CONFIRMED',
     'SEQUENCE:0',
     'BEGIN:VALARM',
     'TRIGGER:-P1D',
     'ACTION:DISPLAY',
-    'DESCRIPTION:Manas & Rupa Sree Marriage - Tomorrow!',
+    `DESCRIPTION:${escapeIcsText(`${summary} - Tomorrow!`)}`,
     'END:VALARM',
     'END:VEVENT',
-    'END:VCALENDAR',
-  ].join('\r\n');
+  ];
+}
 
+function createCalendarInvite(events, options = {}) {
+  const eventList = normalizeEvents(events);
+  const stamp = utcStamp();
+  const calendarName = options.calendarName || DEFAULT_CALENDAR_NAME;
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Manas & Rupa Sree Marriage//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    `X-WR-CALNAME:${escapeIcsText(calendarName)}`,
+    `X-WR-TIMEZONE:${CALENDAR_TIMEZONE}`,
+    ...eventList.flatMap(event => icsEventLines(event, stamp)),
+    'END:VCALENDAR',
+  ];
+
+  return lines.map(foldIcsLine).join('\r\n');
+}
+
+export function getGoogleCalendarUrl(event = WEDDING_EVENT) {
+  const calendarEvent = event || WEDDING_EVENT;
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: titleForEvent(calendarEvent),
+    dates: `${compactDateTime(calendarEvent.dateTime)}/${compactDateTime(eventEndDateTime(calendarEvent))}`,
+    details: detailsForEvent(calendarEvent),
+    location: locationForEvent(calendarEvent),
+    ctz: CALENDAR_TIMEZONE,
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+export function downloadCalendarInvite(events, options = {}) {
+  const eventList = normalizeEvents(events);
+  const filename = options.filename || (eventList.length > 1 ? 'manas-rupa-sree-celebrations.ics' : DEFAULT_FILENAME);
+  const icsContent = createCalendarInvite(eventList, options);
   const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
+
   anchor.href = url;
-  anchor.download = 'manas-rupa-sree-marriage.ics';
+  anchor.download = filename;
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);
