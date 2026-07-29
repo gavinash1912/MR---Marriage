@@ -65,19 +65,11 @@ function VenueDetailsPanel({ event, onMapOpen = null }) {
         <p className="invite-kicker">Getting there</p>
         <h2>{event.venue}</h2>
         <p>
-          Please use the main entrance at {event.venue}. The address and map link are below for easy navigation.
+          Please use the main entrance at {event.venue}. Use the map link for easy navigation.
         </p>
       </div>
 
       <div className="venue-detail-list" data-reveal="card">
-        <div className="venue-detail-item">
-          <MapPin className="w-5 h-5" aria-hidden="true" />
-          <div>
-            <span>Address</span>
-            <p>{event.address}</p>
-          </div>
-        </div>
-
         <div className="venue-detail-item">
           <Clock className="w-5 h-5" aria-hidden="true" />
           <div>
@@ -126,7 +118,6 @@ function WeddingHomeVenueSection({ event, onMapOpen = null, onCalendarAction = n
       >
         <div className="invite-section__inner">
           <div className="home-wedding-venue-heading" data-reveal="fade-up">
-            <p className="invite-kicker">Venue</p>
             <h2 className="section-title">{event.venue}</h2>
             <a
               href={event.mapUrl}
