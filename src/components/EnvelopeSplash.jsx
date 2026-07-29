@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { trackEvent } from '../utils/analytics';
 
 const STORAGE_KEY = 'envelope-opened';
 const ANIMATION_DURATION = 1600;
@@ -33,6 +34,10 @@ export default function EnvelopeSplash() {
   const handleOpen = useCallback(() => {
     if (phase !== 'closed') return;
     sessionStorage.setItem(STORAGE_KEY, '1');
+    trackEvent('action', {
+      actionName: 'invitation_opened',
+      actionLabel: 'Opened invitation envelope',
+    }, { beacon: true });
     setPhase('opening');
   }, [phase]);
 

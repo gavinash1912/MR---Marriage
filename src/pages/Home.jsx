@@ -44,7 +44,7 @@ function RsvpStrip({ rsvpPath }) {
   );
 }
 
-function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details', venueGroups = [] }) {
+function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details', venueGroups = [], onVenueChange = null }) {
   const hasVenueGroups = venueGroups.length > 0;
   const [activeVenueIndex, setActiveVenueIndex] = useState(0);
   const swipeStartXRef = useRef(null);
@@ -66,12 +66,18 @@ function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details', ve
 
   const showVenue = (index) => {
     if (!hasVenueGroups || venueCount === 0) return;
-    setActiveVenueIndex((index + venueCount) % venueCount);
+    const nextIndex = (index + venueCount) % venueCount;
+    setActiveVenueIndex(nextIndex);
+    onVenueChange?.(details[nextIndex], nextIndex, 'select');
   };
 
   const advanceVenue = (direction) => {
     if (!hasVenueGroups || venueCount === 0) return;
-    setActiveVenueIndex(current => (current + direction + venueCount) % venueCount);
+    setActiveVenueIndex(current => {
+      const nextIndex = (current + direction + venueCount) % venueCount;
+      onVenueChange?.(details[nextIndex], nextIndex, direction > 0 ? 'next' : 'previous');
+      return nextIndex;
+    });
   };
 
   const handleSwipeStart = (clientX) => {
@@ -250,7 +256,7 @@ export default function Home({ invitationMode = 'full' }) {
     ...(!invitation.showAllEvents ? ['Bottom RSVP'] : []),
   ];
 
-  const { handleTrackedClick } = useVisitAnalytics({
+  const { trackAction, handleTrackedClick } = useVisitAnalytics({
     sections: homeSections,
     metadata: {
       invitationMode: invitation.mode,
@@ -294,6 +300,15 @@ export default function Home({ invitationMode = 'full' }) {
         venuePath={invitation.schedulePath}
         primaryLabel={invitation.showAllEvents ? 'View Timeline' : 'Venue Details'}
         venueGroups={fullInviteVenueGroups}
+        onVenueChange={(venue, index, method) => {
+          trackAction('venue_card_changed', `Viewed ${venue.label} venue card`, {
+            venueLabel: venue.label,
+            venueName: venue.title,
+            venueIndex: index,
+            method,
+            invitationMode: invitation.mode,
+          });
+        }}
       />
 
       {!invitation.showAllEvents && (

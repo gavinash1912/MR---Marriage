@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarPlus, ChevronRight } from 'lucide-react';
+import { Calendar, CalendarPlus, ChevronRight } from 'lucide-react';
 import EventModal from '../components/EventModal';
 import { useVisitAnalytics } from '../utils/analytics';
-import { downloadCalendarInvite } from '../utils/calendar';
+import { addGoogleCalendarInvite, downloadCalendarInvite } from '../utils/calendar';
 import { useScrollReveal } from '../utils/scrollReveal';
 import { getInvitationConfig } from '../utils/events';
 
@@ -22,7 +22,7 @@ function groupEventsByDate(events) {
 export default function Timeline({ invitationMode = 'full' }) {
   const invitation = getInvitationConfig(invitationMode);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const { handleTrackedClick } = useVisitAnalytics({
+  const { trackAction, handleTrackedClick } = useVisitAnalytics({
     sections: ['Timeline Header', 'Events Timeline', 'Calendar Links', 'Timeline RSVP'],
     metadata: {
       invitationMode: invitation.mode,
@@ -34,6 +34,25 @@ export default function Timeline({ invitationMode = 'full' }) {
 
   const dateGroups = groupEventsByDate(invitation.events);
   const isSingleEventTimeline = dateGroups.length === 1 && dateGroups[0].events.length === 1;
+  const openEventDetails = (event) => {
+    trackAction('event_details_opened', `Opened ${event.name} details`, {
+      eventId: event.id,
+      eventName: event.name,
+      venue: event.venue,
+      invitationMode: invitation.mode,
+    });
+    setSelectedEvent(event);
+  };
+  const trackCalendarAction = (provider, events, scope = 'all') => {
+    const eventList = Array.isArray(events) ? events : [events].filter(Boolean);
+    trackAction('calendar_invite_added', `${provider} calendar invite`, {
+      provider,
+      scope,
+      eventCount: eventList.length,
+      eventIds: eventList.map(event => event.id),
+      invitationMode: invitation.mode,
+    });
+  };
 
   return (
     <div className={`home-page timeline-page ${invitation.showAllEvents ? 'full-invite-page' : ''}`} onClickCapture={handleTrackedClick}>
@@ -60,8 +79,8 @@ export default function Timeline({ invitationMode = 'full' }) {
                   key={event.id}
                   className="timeline-event"
                   data-reveal="card"
-                  onClick={() => setSelectedEvent(event)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedEvent(event); }}
+                  onClick={() => openEventDetails(event)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') openEventDetails(event); }}
                   role="button"
                   tabIndex={0}
                   aria-label={`${event.name} - ${event.timeLabel}. Tap for details.`}
@@ -88,20 +107,39 @@ export default function Timeline({ invitationMode = 'full' }) {
               Download one calendar invite with every event in the full invitation.
             </p>
 
-            <button
-              type="button"
-              onClick={() => downloadCalendarInvite(invitation.events, {
-                filename: 'manas-rupa-sree-full-celebration.ics',
-                calendarName: 'Manas & Rupa Sree Full Celebration',
-              })}
-              className="inline-flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
-            >
-              <CalendarPlus className="w-4 h-4" />
-              Add All Events
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  trackCalendarAction('google', invitation.events);
+                  addGoogleCalendarInvite(invitation.events, {
+                    filename: 'manas-rupa-sree-full-celebration-google.ics',
+                    calendarName: 'Manas & Rupa Sree Full Celebration',
+                  });
+                }}
+                className="flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
+              >
+                <CalendarPlus className="w-4 h-4" />
+                Google Calendar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  trackCalendarAction('apple_outlook', invitation.events);
+                  downloadCalendarInvite(invitation.events, {
+                    filename: 'manas-rupa-sree-full-celebration.ics',
+                    calendarName: 'Manas & Rupa Sree Full Celebration',
+                  });
+                }}
+                className="flex items-center justify-center gap-2 btn-calendar-download text-sm px-6 py-3"
+              >
+                <Calendar className="w-4 h-4" />
+                Apple / Outlook
+              </button>
+            </div>
 
             <p className="font-sans text-xs text-mauve-400 mt-4">
-              The calendar file works with Google Calendar import, Apple Calendar, and Outlook.
+              Google Calendar can import the downloaded file; Apple Calendar and Outlook open it directly.
             </p>
           </div>
         </section>
@@ -124,6 +162,7 @@ export default function Timeline({ invitationMode = 'full' }) {
         <EventModal
           event={selectedEvent}
           onClose={() => setSelectedEvent(null)}
+          onCalendarAction={(provider, event) => trackCalendarAction(provider, event, 'single_event')}
         />
       )}
     </div>

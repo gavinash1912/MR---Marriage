@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { X, MapPin, Clock, Calendar, CalendarPlus, Shirt } from 'lucide-react';
 import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
 
-export default function EventModal({ event, onClose }) {
+export default function EventModal({ event, onClose, onCalendarAction }) {
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -80,13 +80,17 @@ export default function EventModal({ event, onClose }) {
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary event-modal__calendar-link"
+              onClick={() => onCalendarAction?.('google', event)}
             >
               <CalendarPlus className="w-4 h-4" />
               Google Calendar
             </a>
             <button
               type="button"
-              onClick={() => downloadCalendarInvite(event)}
+              onClick={() => {
+                onCalendarAction?.('apple_outlook', event);
+                downloadCalendarInvite(event);
+              }}
               className="btn-calendar-download event-modal__calendar-link"
             >
               <Calendar className="w-4 h-4" />

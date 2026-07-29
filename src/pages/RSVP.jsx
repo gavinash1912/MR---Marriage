@@ -2,7 +2,7 @@ import { Fragment, useRef, useState } from 'react';
 import axios from 'axios';
 import { Check, ChevronRight, Users, Phone, Mail, MessageSquare, Calendar, CalendarPlus } from 'lucide-react';
 import { useVisitAnalytics } from '../utils/analytics';
-import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
+import { addGoogleCalendarInvite, downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
 import { useScrollReveal } from '../utils/scrollReveal';
 import { WEDDING_EVENT_ID, getInvitationConfig } from '../utils/events';
 
@@ -96,6 +96,7 @@ export default function RSVP({ invitationMode = 'full' }) {
   const [contact,       setContact]      = useState({ phone: '', email: '', notes: '' });
   const [submitting,    setSubmitting]   = useState(false);
   const [submitted,     setSubmitted]    = useState(false);
+  const [submissionStorage, setSubmissionStorage] = useState('');
   const [error,         setError]        = useState('');
 
   const trackRsvpStarted = () => {
@@ -322,12 +323,24 @@ export default function RSVP({ invitationMode = 'full' }) {
           guestCount: event.guestCount,
         })),
       });
+      setSubmissionStorage('server');
       setSubmitted(true);
-    } catch {
+    } catch (err) {
       // localStorage fallback
       const stored = JSON.parse(localStorage.getItem('rsvps') || '[]');
-      stored.push({ ...payload, id: Date.now() });
+      stored.push({
+        ...payload,
+        id: `local_${payload.submittedAt}`,
+        storage: 'local',
+        syncStatus: 'local_only',
+        serverError: err.response?.data?.error || err.message || 'Server save failed',
+      });
       localStorage.setItem('rsvps', JSON.stringify(stored));
+      trackAction('rsvp_saved_local', 'RSVP saved locally after server save failed', {
+        attending,
+        invitationMode: invitation.mode,
+        error: err.response?.data?.error || err.message || 'Server save failed',
+      });
       trackAction('rsvp_submitted', 'Submitted RSVP', {
         attending,
         invitationMode: invitation.mode,
@@ -339,6 +352,7 @@ export default function RSVP({ invitationMode = 'full' }) {
         })),
         storage: 'local',
       });
+      setSubmissionStorage('local');
       setSubmitted(true);
     } finally {
       setSubmitting(false);
@@ -352,6 +366,17 @@ export default function RSVP({ invitationMode = 'full' }) {
   ));
   const hasAnyAttendance = attendingCalendarEvents.length > 0;
   const pageClassName = `city2-page rsvp-page ${invitation.showAllEvents ? 'full-invite-page' : ''} min-h-screen bg-[#fffaf4]`;
+  const trackCalendarAction = (provider, events, scope = 'attending_events') => {
+    const eventList = Array.isArray(events) ? events : [events].filter(Boolean);
+    trackAction('calendar_invite_added', `${provider} calendar invite`, {
+      provider,
+      scope,
+      eventCount: eventList.length,
+      eventIds: eventList.map(event => event.id),
+      invitationMode: invitation.mode,
+      source: 'rsvp_success',
+    });
+  };
 
   if (submitted) {
     return (
@@ -369,6 +394,16 @@ export default function RSVP({ invitationMode = 'full' }) {
               ? `Thank you, ${firstName}. We have your event responses.`
               : `Thank you for letting us know, ${firstName}. You'll be missed!`}
           </p>
+          {submissionStorage === 'local' && (
+            <div className="my-6 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-left">
+              <p className="font-sans text-sm font-semibold text-yellow-800">
+                Saved only on this device.
+              </p>
+              <p className="font-sans text-xs text-yellow-700 mt-1">
+                The server save did not complete, so this RSVP may not appear in the owner dashboard until the server issue is fixed.
+              </p>
+            </div>
+          )}
           {hasAnyAttendance && (
             <>
               <p className="font-sans text-sm text-mauve-400 mb-8">
@@ -381,25 +416,31 @@ export default function RSVP({ invitationMode = 'full' }) {
                   <>
                     <button
                       type="button"
-                      onClick={() => downloadCalendarInvite(attendingCalendarEvents, {
-                        filename: 'manas-rupa-sree-my-rsvp-events.ics',
-                        calendarName: 'Manas & Rupa Sree - My RSVP Events',
-                      })}
+                      onClick={() => {
+                        trackCalendarAction('google', attendingCalendarEvents);
+                        addGoogleCalendarInvite(attendingCalendarEvents, {
+                          filename: 'manas-rupa-sree-my-rsvp-events-google.ics',
+                          calendarName: 'Manas & Rupa Sree - My RSVP Events',
+                        });
+                      }}
                       className="flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
                     >
                       <CalendarPlus className="w-4 h-4" />
-                      My Events Invite
+                      Google Calendar
                     </button>
                     <button
                       type="button"
-                      onClick={() => downloadCalendarInvite(invitation.events, {
-                        filename: 'manas-rupa-sree-full-celebration.ics',
-                        calendarName: 'Manas & Rupa Sree Full Celebration',
-                      })}
+                      onClick={() => {
+                        trackCalendarAction('apple_outlook', attendingCalendarEvents);
+                        downloadCalendarInvite(attendingCalendarEvents, {
+                          filename: 'manas-rupa-sree-my-rsvp-events.ics',
+                          calendarName: 'Manas & Rupa Sree - My RSVP Events',
+                        });
+                      }}
                       className="flex items-center justify-center gap-2 btn-calendar-download text-sm px-6 py-3"
                     >
                       <Calendar className="w-4 h-4" />
-                      All Events Invite
+                      Apple / Outlook
                     </button>
                   </>
                 ) : (
@@ -409,13 +450,17 @@ export default function RSVP({ invitationMode = 'full' }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
+                      onClick={() => trackCalendarAction('google', [invitation.events[0]], 'wedding_event')}
                     >
                       <CalendarPlus className="w-4 h-4" />
                       Google Calendar
                     </a>
                     <button
                       type="button"
-                      onClick={downloadCalendarInvite}
+                      onClick={() => {
+                        trackCalendarAction('apple_outlook', [invitation.events[0]], 'wedding_event');
+                        downloadCalendarInvite();
+                      }}
                       className="flex items-center justify-center gap-2 btn-calendar-download text-sm px-6 py-3"
                     >
                       <Calendar className="w-4 h-4" />
@@ -426,7 +471,7 @@ export default function RSVP({ invitationMode = 'full' }) {
               </div>
               <p className="font-sans text-xs text-mauve-400 mt-4">
                 {invitation.showAllEvents
-                  ? 'Calendar files can be imported into Google Calendar and opened by Apple Calendar or Outlook.'
+                  ? 'These calendar options include only the events marked attending.'
                   : 'Apple Calendar, Outlook, and most calendar apps accept the .ics format.'}
               </p>
             </>

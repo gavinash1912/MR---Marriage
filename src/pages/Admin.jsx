@@ -52,6 +52,45 @@ function formatInvitationMode(mode) {
   return 'Legacy RSVP';
 }
 
+function getLocalRsvps() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('rsvps') || '[]');
+    return Array.isArray(stored)
+      ? stored.map((rsvp, index) => ({
+          ...rsvp,
+          id: rsvp.id || `local_${rsvp.submittedAt || index}`,
+          localOnly: true,
+        }))
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function getRsvpMergeKey(rsvp) {
+  if (rsvp._id) return `server:${rsvp._id}`;
+
+  const guest = rsvp.primaryGuest || {};
+  return [
+    guest.firstName || '',
+    guest.lastName || '',
+    rsvp.submittedAt || '',
+    rsvp.invitationMode || '',
+  ].join('|').toLowerCase();
+}
+
+function mergeServerAndLocalRsvps(serverRsvps, localRsvps) {
+  const serverKeys = new Set(serverRsvps.map(getRsvpMergeKey));
+  const localOnly = localRsvps.filter(rsvp => !serverKeys.has(getRsvpMergeKey(rsvp)));
+  return [...localOnly, ...serverRsvps];
+}
+
+function stripLocalOnlyFlag(rsvp) {
+  const cleanRsvp = { ...rsvp };
+  delete cleanRsvp.localOnly;
+  return cleanRsvp;
+}
+
 function getWeddingAttendance(rsvp) {
   const weddingEvent = normalizeEventAttendance(rsvp).find(event => event.id === WEDDING_EVENT_ID);
   return weddingEvent?.attending || rsvp.primaryGuest?.attending || '';
@@ -329,7 +368,14 @@ function GuestRow({ rsvp, onDelete, onEdit }) {
         onClick={() => setOpen(!open)}
       >
         <td className="py-3 px-4 font-sans text-sm text-mauve-800 font-medium whitespace-nowrap">
-          {g.firstName} {g.lastName}
+          <span className="inline-flex items-center gap-2">
+            {g.firstName} {g.lastName}
+            {rsvp.localOnly && (
+              <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-yellow-800">
+                Local
+              </span>
+            )}
+          </span>
         </td>
         <td className="py-3 px-4">
           <span className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full
@@ -434,8 +480,9 @@ function GuestRow({ rsvp, onDelete, onEdit }) {
             <div className="mt-4 flex items-center justify-end gap-2">
               <button
                 onClick={(e) => { e.stopPropagation(); onEdit(rsvp); }}
+                disabled={rsvp.localOnly}
                 className="flex items-center gap-1.5 text-xs font-sans text-mauve-600 hover:text-mauve-800
-                           border border-mauve-200 hover:border-mauve-400 rounded px-3 py-1.5 transition-colors"
+                           border border-mauve-200 hover:border-mauve-400 rounded px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Pencil className="w-3.5 h-3.5" /> Edit entry
               </button>
@@ -494,6 +541,7 @@ export default function Admin() {
   const [rsvps,       setRsvps]       = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [error,       setError]       = useState('');
+  const [rsvpNotice,  setRsvpNotice]  = useState('');
   const [search,      setSearch]      = useState('');
   const [filter,      setFilter]      = useState('all');
   const [sortBy,      setSortBy]      = useState('date_desc');
@@ -578,12 +626,31 @@ export default function Admin() {
   const fetchRsvps = useCallback(async () => {
     setLoading(true);
     setError('');
+    setRsvpNotice('');
     try {
       const res = await axios.get('/api/guests', AUTHED_REQUEST);
-      setRsvps(res.data.rsvps || []);
-    } catch {
-      const stored = JSON.parse(localStorage.getItem('rsvps') || '[]');
-      setRsvps(stored);
+      const serverRsvps = res.data.rsvps || [];
+      const localRsvps = getLocalRsvps();
+      const mergedRsvps = mergeServerAndLocalRsvps(serverRsvps, localRsvps);
+      const localOnlyCount = mergedRsvps.filter(rsvp => rsvp.localOnly).length;
+
+      setRsvps(mergedRsvps);
+      if (localOnlyCount > 0) {
+        setRsvpNotice(
+          `${localOnlyCount} RSVP ${localOnlyCount === 1 ? 'is' : 'are'} only saved in this browser. ` +
+          'That means the server save failed when it was submitted, so it may not appear on other devices.'
+        );
+      }
+    } catch (err) {
+      const localRsvps = getLocalRsvps();
+      setRsvps(localRsvps);
+      if (localRsvps.length > 0) {
+        setRsvpNotice(
+          'Unable to load server RSVPs. Showing only local backup RSVPs saved in this browser.'
+        );
+      } else {
+        setError(err.response?.data?.error || 'Unable to load RSVPs from the server.');
+      }
     } finally {
       setLoading(false);
     }
@@ -648,6 +715,19 @@ export default function Admin() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this RSVP entry?')) return;
+    const target = rsvps.find(r => (r._id || r.id) === id);
+
+    if (target?.localOnly) {
+      const remainingLocal = getLocalRsvps().filter(rsvp => rsvp.id !== id);
+      localStorage.setItem('rsvps', JSON.stringify(remainingLocal.map(stripLocalOnlyFlag)));
+      setRsvps(prev => prev.filter(r => (r._id || r.id) !== id));
+      setRsvpNotice(remainingLocal.length > 0
+        ? `${remainingLocal.length} local backup RSVP${remainingLocal.length === 1 ? '' : 's'} remain in this browser.`
+        : ''
+      );
+      return;
+    }
+
     try {
       await axios.delete(`/api/guests?id=${id}`, AUTHED_REQUEST);
       setRsvps(prev => prev.filter(r => (r._id || r.id) !== id));
@@ -887,6 +967,17 @@ export default function Admin() {
         {/* RSVP Tab Content */}
         {activeTab === 'rsvp' && (
         <div>
+          {rsvpNotice && (
+            <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3">
+              <p className="font-sans text-sm font-medium text-yellow-800">
+                {rsvpNotice}
+              </p>
+              <p className="font-sans text-xs text-yellow-700 mt-1">
+                Check the Vercel server logs and MongoDB environment variables if this appears after a real guest submits.
+              </p>
+            </div>
+          )}
+
           {/* RSVP Stats */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
             {eventStats.map((event, index) => (

@@ -35,6 +35,9 @@ export default async function handler(req, res) {
     return res.status(201).json({ success: true, id: result.insertedId });
   } catch (err) {
     console.error('RSVP error:', err);
+    if (err.message === 'MONGODB_URI is not set') {
+      return res.status(503).json({ error: 'RSVP storage requires MONGODB_URI to be configured.' });
+    }
     return res.status(500).json({ error: 'Failed to save RSVP. Please try again.' });
   }
 }

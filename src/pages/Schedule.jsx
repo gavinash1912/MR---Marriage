@@ -1,5 +1,5 @@
 import { Calendar, Clock, MapPin, Utensils, Music, Star, CalendarPlus } from 'lucide-react';
-import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
+import { addGoogleCalendarInvite, downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
 import { useVisitAnalytics } from '../utils/analytics';
 import { useScrollReveal } from '../utils/scrollReveal';
 import { WEDDING_EVENT_ID, getInvitationConfig } from '../utils/events';
@@ -324,19 +324,30 @@ export default function Schedule({ invitationMode = 'full' }) {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               type="button"
-              onClick={() => downloadCalendarInvite(invitation.events, {
-                filename: 'manas-rupa-sree-full-celebration.ics',
+              onClick={() => addGoogleCalendarInvite(invitation.events, {
+                filename: 'manas-rupa-sree-full-celebration-google.ics',
                 calendarName: 'Manas & Rupa Sree Full Celebration',
               })}
               className="flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
             >
               <CalendarPlus className="w-4 h-4" />
-              Add All Events
+              Google Calendar
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadCalendarInvite(invitation.events, {
+                filename: 'manas-rupa-sree-full-celebration.ics',
+                calendarName: 'Manas & Rupa Sree Full Celebration',
+              })}
+              className="flex items-center justify-center gap-2 btn-calendar-download text-sm px-6 py-3"
+            >
+              <Calendar className="w-4 h-4" />
+              Apple / Outlook
             </button>
           </div>
 
           <p className="font-sans text-xs text-mauve-400 mt-4">
-            The calendar file works with Google Calendar import, Apple Calendar, and Outlook.
+            Google Calendar can import the downloaded file; Apple Calendar and Outlook open it directly.
           </p>
         </div>
       </section>

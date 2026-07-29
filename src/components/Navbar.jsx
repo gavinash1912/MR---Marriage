@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { getInvitationConfig, getInvitationModeFromPath } from '../utils/events';
+import { trackEvent } from '../utils/analytics';
 
 export default function Navbar() {
   const location = useLocation();
@@ -24,6 +25,17 @@ export default function Navbar() {
     { to: invitation.schedulePath, label: invitation.showAllEvents ? 'Timeline' : 'Venue' },
     { to: invitation.rsvpPath,     label: 'RSVP'     },
   ];
+  const trackNavigation = (label, to) => {
+    trackEvent('action', {
+      actionName: 'navigation_click',
+      actionLabel: `Navigation: ${label}`,
+      metadata: {
+        invitationMode: invitation.mode,
+        invitationLabel: invitation.label,
+        destination: to,
+      },
+    }, { beacon: true });
+  };
 
   const isActive = (to) => {
     if (to === invitation.homePath) return location.pathname === invitation.homePath;
@@ -43,6 +55,7 @@ export default function Navbar() {
           <Link
             to={invitation.homePath}
             className="nav-brand"
+            onClick={() => trackNavigation('Brand', invitation.homePath)}
           >
             Manas &amp; Rupa Sree
           </Link>
@@ -54,6 +67,7 @@ export default function Navbar() {
                 key={to}
                 to={to}
                 className={`nav-link ${isActive(to) ? 'is-active' : ''}`}
+                onClick={() => trackNavigation(label, to)}
               >
                 {label}
               </Link>
@@ -64,7 +78,17 @@ export default function Navbar() {
           <button
             type="button"
             className="nav-menu-button md:hidden"
-            onClick={() => setMenuOpen(!menuOpen)}
+            onClick={() => {
+              trackEvent('action', {
+                actionName: 'mobile_menu_toggle',
+                actionLabel: menuOpen ? 'Closed mobile menu' : 'Opened mobile menu',
+                metadata: {
+                  invitationMode: invitation.mode,
+                  invitationLabel: invitation.label,
+                },
+              }, { beacon: true });
+              setMenuOpen(!menuOpen);
+            }}
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
             aria-controls="mobile-navigation"
@@ -88,6 +112,7 @@ export default function Navbar() {
                 to={to}
                 className={`nav-mobile-link ${isActive(to) ? 'is-active' : ''}`}
                 tabIndex={menuOpen ? 0 : -1}
+                onClick={() => trackNavigation(label, to)}
               >
                 {label}
               </Link>

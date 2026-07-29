@@ -120,6 +120,20 @@ export function getGoogleCalendarUrl(event = WEDDING_EVENT) {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
+export function addGoogleCalendarInvite(events, options = {}) {
+  const eventList = normalizeEvents(events);
+
+  if (eventList.length === 1) {
+    window.open(getGoogleCalendarUrl(eventList[0]), '_blank', 'noopener,noreferrer');
+    return;
+  }
+
+  downloadCalendarInvite(eventList, {
+    filename: 'manas-rupa-sree-google-calendar.ics',
+    ...options,
+  });
+}
+
 export function downloadCalendarInvite(events, options = {}) {
   const eventList = normalizeEvents(events);
   const filename = options.filename || (eventList.length > 1 ? 'manas-rupa-sree-celebrations.ics' : DEFAULT_FILENAME);
