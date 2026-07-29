@@ -2,6 +2,22 @@
 import { getDb } from './_db.js';
 import { requireOwnerAccess } from './_access.js';
 
+let indexesReady;
+
+function ensureIndexes(col) {
+  if (!indexesReady) {
+    indexesReady = col.createIndex(
+      { clientEventId: 1 },
+      { unique: true, sparse: true }
+    ).catch(error => {
+      indexesReady = null;
+      throw error;
+    });
+  }
+
+  return indexesReady;
+}
+
 function firstHeaderValue(value) {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -252,6 +268,7 @@ export default async function handler(req, res) {
       const {
         eventType,
         sessionId,
+        clientEventId,
         userId,
         deviceInfo,
         visitId,
@@ -294,7 +311,7 @@ export default async function handler(req, res) {
       const location = eventType === 'page_view' ? await getLocationFromIP(ipAddress) : null;
       console.log('Resolved location:', location);
 
-      await col.insertOne({
+      const eventDoc = {
         eventType,
         sessionId,
         visitId: visitId || null,
@@ -309,7 +326,23 @@ export default async function handler(req, res) {
         durationSeconds: eventType === 'page_view' ? 0 : null,
         lastActiveAt: eventType === 'page_view' ? new Date() : null,
         timestamp: new Date(),
-      });
+      };
+
+      if (clientEventId) {
+        eventDoc.clientEventId = clientEventId;
+        await ensureIndexes(col);
+        try {
+          await col.updateOne(
+            { clientEventId },
+            { $setOnInsert: eventDoc },
+            { upsert: true }
+          );
+        } catch (error) {
+          if (error.code !== 11000) throw error;
+        }
+      } else {
+        await col.insertOne(eventDoc);
+      }
       return res.status(200).json({ success: true });
     }
 

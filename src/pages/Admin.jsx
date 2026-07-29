@@ -161,59 +161,156 @@ function AdminAccessPrompt({ status, code, error, submitting, onCodeChange, onSu
 // ── Edit Modal ────────────────────────────────────────────────────────────────
 function EditModal({ rsvp, onSave, onClose }) {
   const g = rsvp.primaryGuest;
+  const normalizedEvents = normalizeEventAttendance(rsvp);
+  const savedEventsById = new Map(normalizedEvents.map(event => [event.id, event]));
+  const editsFullInvite = rsvp.invitationMode === 'full' || normalizedEvents.length > 1;
+  const editableEvents = editsFullInvite ? FULL_EVENT_DETAILS : normalizedEvents;
+  const originalAdditionals = rsvp.additionalGuests || [];
+  const createInitialEventResponses = () => (
+    Object.fromEntries(editableEvents.map(event => {
+      const savedEvent = savedEventsById.get(event.id);
+      const savedGuestResponses = Array.isArray(savedEvent?.guestResponses) ? savedEvent.guestResponses : [];
+      const fallbackPrimary = event.id === WEDDING_EVENT_ID
+        ? (savedEvent?.attending || g.attending || 'no')
+        : (savedEvent?.attending || 'no');
+
+      return [event.id, {
+        primary: fallbackPrimary,
+        guests: originalAdditionals.map((_, index) => (
+          savedGuestResponses[index]?.attending || (editsFullInvite ? 'no' : fallbackPrimary)
+        )),
+      }];
+    }))
+  );
   const [form, setForm] = useState({
     firstName: g.firstName || '',
     lastName:  g.lastName  || '',
-    attending: g.attending || 'yes',
+    attending: getWeddingAttendance(rsvp) || g.attending || 'yes',
     phone:     g.phone     || '',
     email:     g.email     || '',
     notes:     g.notes     || '',
   });
   const [additionals, setAdditionals] = useState(
-    (rsvp.additionalGuests || []).map(ag => ({ ...ag }))
+    originalAdditionals.map(ag => ({ ...ag }))
   );
+  const [eventResponses, setEventResponses] = useState(createInitialEventResponses);
   const [saving, setSaving] = useState(false);
 
   const updateAdditional = (i, field, val) =>
     setAdditionals(prev => prev.map((a, idx) => idx === i ? { ...a, [field]: val } : a));
 
-  const addGuest    = () => setAdditionals(prev => [...prev, { firstName: '', lastName: '' }]);
-  const removeGuest = (i) => setAdditionals(prev => prev.filter((_, idx) => idx !== i));
+  const addGuest = () => {
+    setAdditionals(prev => [...prev, { firstName: '', lastName: '' }]);
+    setEventResponses(prev => (
+      Object.fromEntries(Object.entries(prev).map(([eventId, response]) => [
+        eventId,
+        { ...response, guests: [...(response.guests || []), 'no'] },
+      ]))
+    ));
+  };
+  const removeGuest = (i) => {
+    setAdditionals(prev => prev.filter((_, idx) => idx !== i));
+    setEventResponses(prev => (
+      Object.fromEntries(Object.entries(prev).map(([eventId, response]) => [
+        eventId,
+        { ...response, guests: (response.guests || []).filter((_, idx) => idx !== i) },
+      ]))
+    ));
+  };
+
+  const updateWeddingAttendance = (value) => {
+    setForm(f => ({ ...f, attending: value }));
+    setEventResponses(prev => ({
+      ...prev,
+      [WEDDING_EVENT_ID]: {
+        ...(prev[WEDDING_EVENT_ID] || { guests: [] }),
+        primary: value,
+      },
+    }));
+  };
+
+  const updateEventResponse = (eventId, guestIndex, value) => {
+    if (guestIndex === -1 && eventId === WEDDING_EVENT_ID) {
+      setForm(f => ({ ...f, attending: value }));
+    }
+
+    setEventResponses(prev => {
+      const current = prev[eventId] || { primary: 'no', guests: additionals.map(() => 'no') };
+
+      if (guestIndex === -1) {
+        return {
+          ...prev,
+          [eventId]: { ...current, primary: value },
+        };
+      }
+
+      const guests = [...(current.guests || [])];
+      guests[guestIndex] = value;
+      return {
+        ...prev,
+        [eventId]: { ...current, guests },
+      };
+    });
+  };
+
+  const guestDisplayName = (guest, index) => (
+    `${guest.firstName || ''} ${guest.lastName || ''}`.trim() || `Guest ${index + 1}`
+  );
 
   const handleSave = async () => {
     setSaving(true);
-    const filteredAdditionals = additionals.filter(a => a.firstName.trim());
-    const eventAttendance = normalizeEventAttendance(rsvp).map(event => {
-      if (event.id !== WEDDING_EVENT_ID) return event;
-
-      const existingGuestResponses = Array.isArray(event.guestResponses) ? event.guestResponses : [];
-      const guestResponses = filteredAdditionals.map((guest, index) => {
-        const existing = existingGuestResponses[index] || {};
+    const filteredAdditionalEntries = additionals
+      .map((guest, index) => ({ guest, index }))
+      .filter(({ guest }) => guest.firstName.trim());
+    const filteredAdditionals = filteredAdditionalEntries.map(({ guest }) => ({
+      ...guest,
+      firstName: guest.firstName.trim(),
+      lastName: (guest.lastName || '').trim(),
+    }));
+    const eventAttendance = editableEvents.map(event => {
+      const savedEvent = savedEventsById.get(event.id) || {};
+      const response = eventResponses[event.id]?.primary || 'no';
+      const savedGuestResponses = Array.isArray(savedEvent.guestResponses) ? savedEvent.guestResponses : [];
+      const guestResponses = filteredAdditionalEntries.map(({ guest, index }) => {
+        const existing = savedGuestResponses[index] || {};
+        const firstName = guest.firstName.trim();
+        const lastName = (guest.lastName || '').trim();
         return {
           ...existing,
-          firstName: guest.firstName,
-          lastName: guest.lastName || '',
-          name: `${guest.firstName} ${guest.lastName || ''}`.trim(),
-          attending: existing.attending || (form.attending === 'yes' ? 'yes' : 'no'),
+          firstName,
+          lastName,
+          name: `${firstName} ${lastName}`.trim(),
+          attending: eventResponses[event.id]?.guests?.[index] || 'no',
         };
       });
 
       return {
-        ...event,
-        attending: form.attending,
+        ...savedEvent,
+        id: event.id,
+        name: event.name,
+        dateLabel: event.dateLabel,
+        timeLabel: event.timeLabel,
+        venue: event.venue,
+        attending: response,
         primaryGuest: {
-          firstName: form.firstName,
-          lastName: form.lastName,
-          name: `${form.firstName} ${form.lastName}`.trim(),
-          attending: form.attending,
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          name: `${form.firstName.trim()} ${form.lastName.trim()}`.trim(),
+          attending: response,
         },
         guestResponses,
-        guestCount: (form.attending === 'yes' ? 1 : 0) +
+        guestCount: (response === 'yes' ? 1 : 0) +
           guestResponses.filter(guest => guest.attending === 'yes').length,
       };
     });
     const updated = {
-      primaryGuest:    { ...g, ...form },
+      primaryGuest: {
+        ...g,
+        ...form,
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        attending: eventResponses[WEDDING_EVENT_ID]?.primary || form.attending,
+      },
       additionalGuests: filteredAdditionals,
       eventAttendance,
     };
@@ -223,7 +320,7 @@ function EditModal({ rsvp, onSave, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-mauve-100">
@@ -254,13 +351,13 @@ function EditModal({ rsvp, onSave, onClose }) {
 
           {/* Attending */}
           <div>
-            <label className="form-label mb-3">Attendance</label>
+            <label className="form-label mb-3">Wedding Ceremony Attendance</label>
             <div className="flex gap-3">
               {['yes', 'no'].map(val => (
                 <button
                   key={val}
                   type="button"
-                  onClick={() => setForm(f => ({ ...f, attending: val }))}
+                  onClick={() => updateWeddingAttendance(val)}
                   className={`flex-1 py-2.5 rounded-lg border-2 font-sans text-sm transition-all ${
                     form.attending === val
                       ? val === 'yes'
@@ -326,6 +423,68 @@ function EditModal({ rsvp, onSave, onClose }) {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Event RSVPs */}
+          <div>
+            <p className="font-sans text-xs tracking-widest uppercase text-mauve-500 mb-3">Event RSVPs</p>
+            <div className="overflow-x-auto rounded-lg border border-mauve-100">
+              <table className="w-full min-w-[720px] text-sm">
+                <thead>
+                  <tr className="bg-mauve-50">
+                    <th className="py-2 px-3 text-left font-sans text-xs tracking-widest uppercase text-mauve-400">
+                      Guest
+                    </th>
+                    {editableEvents.map(event => (
+                      <th
+                        key={event.id}
+                        className="py-2 px-3 text-left font-sans text-xs tracking-widest uppercase text-mauve-400"
+                      >
+                        {event.shortName || event.name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-t border-mauve-100">
+                    <td className="py-2 px-3 font-sans text-mauve-700">
+                      {[form.firstName, form.lastName].filter(Boolean).join(' ') || 'Primary guest'}
+                    </td>
+                    {editableEvents.map(event => (
+                      <td key={event.id} className="py-2 px-3">
+                        <select
+                          className="form-input py-1.5 text-xs min-w-[118px]"
+                          value={eventResponses[event.id]?.primary || 'no'}
+                          onChange={e => updateEventResponse(event.id, -1, e.target.value)}
+                        >
+                          <option value="yes">Attending</option>
+                          <option value="no">Not attending</option>
+                        </select>
+                      </td>
+                    ))}
+                  </tr>
+                  {additionals.map((guest, guestIndex) => (
+                    <tr key={guestIndex} className="border-t border-mauve-100">
+                      <td className="py-2 px-3 font-sans text-mauve-700">
+                        {guestDisplayName(guest, guestIndex)}
+                      </td>
+                      {editableEvents.map(event => (
+                        <td key={event.id} className="py-2 px-3">
+                          <select
+                            className="form-input py-1.5 text-xs min-w-[118px]"
+                            value={eventResponses[event.id]?.guests?.[guestIndex] || 'no'}
+                            onChange={e => updateEventResponse(event.id, guestIndex, e.target.value)}
+                          >
+                            <option value="yes">Attending</option>
+                            <option value="no">Not attending</option>
+                          </select>
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 

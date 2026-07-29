@@ -1,10 +1,11 @@
-import { Fragment, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { Check, ChevronRight, Users, Phone, Mail, MessageSquare, Calendar, CalendarPlus } from 'lucide-react';
 import { useVisitAnalytics } from '../utils/analytics';
 import { addGoogleCalendarInvite, downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
 import { useScrollReveal } from '../utils/scrollReveal';
 import { WEDDING_EVENT_ID, getInvitationConfig } from '../utils/events';
+import { createQueueId, flushLocalRsvps, hasStoredLocalRsvp, saveLocalRsvp } from '../utils/offlineOutbox';
 
 // ── Step indicator ──────────────────────────────────────────────────────────
 function StepDot({ step, current, label }) {
@@ -97,6 +98,7 @@ export default function RSVP({ invitationMode = 'full' }) {
   const [submitting,    setSubmitting]   = useState(false);
   const [submitted,     setSubmitted]    = useState(false);
   const [submissionStorage, setSubmissionStorage] = useState('');
+  const [localSubmissionId, setLocalSubmissionId] = useState('');
   const [error,         setError]        = useState('');
 
   const trackRsvpStarted = () => {
@@ -291,6 +293,39 @@ export default function RSVP({ invitationMode = 'full' }) {
     scrollToFormStart();
   };
 
+  useEffect(() => {
+    if (!submitted || !['local', 'email_fallback'].includes(submissionStorage) || !localSubmissionId) return undefined;
+
+    const markSyncedIfNeeded = (syncedRsvps = []) => {
+      const synced = syncedRsvps.some(rsvp => rsvp.clientSubmissionId === localSubmissionId);
+
+      if (synced || !hasStoredLocalRsvp(localSubmissionId)) {
+        setSubmissionStorage('server');
+        setLocalSubmissionId('');
+      }
+    };
+    const trySync = () => {
+      flushLocalRsvps()
+        .then(result => {
+          const emailed = result.emailBackedUp?.some(rsvp => rsvp.clientSubmissionId === localSubmissionId);
+          if (emailed) {
+            setSubmissionStorage('email_fallback');
+          }
+          markSyncedIfNeeded(result.synced || []);
+        })
+        .catch(() => {});
+    };
+
+    trySync();
+    window.addEventListener('online', trySync);
+    const interval = window.setInterval(trySync, 15000);
+
+    return () => {
+      window.removeEventListener('online', trySync);
+      window.clearInterval(interval);
+    };
+  }, [submitted, submissionStorage, localSubmissionId]);
+
   // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -309,10 +344,37 @@ export default function RSVP({ invitationMode = 'full' }) {
       eventAttendance,
       primaryGuest: { firstName, lastName, attending, ...contact },
       additionalGuests,
+      clientSubmissionId: createQueueId('rsvp'),
       submittedAt: new Date().toISOString(),
     };
     try {
-      await axios.post('/api/rsvp', payload);
+      const response = await axios.post('/api/rsvp', payload);
+      if (response.data?.storage === 'email_fallback') {
+        const localRsvp = saveLocalRsvp(
+          { ...payload, emailFallbackSent: true },
+          new Error(response.data.warning || 'Database save failed after email backup')
+        );
+        trackAction('rsvp_email_fallback_sent', 'RSVP emailed as database fallback', {
+          attending,
+          invitationMode: invitation.mode,
+          additionalGuests: additionalGuests.length,
+        });
+        trackAction('rsvp_submitted', 'Submitted RSVP', {
+          attending,
+          invitationMode: invitation.mode,
+          additionalGuests: additionalGuests.length,
+          events: eventAttendance.map(event => ({
+            id: event.id,
+            attending: event.attending,
+            guestCount: event.guestCount,
+          })),
+          storage: 'email_fallback',
+        });
+        setSubmissionStorage('email_fallback');
+        setLocalSubmissionId(localRsvp.clientSubmissionId);
+        setSubmitted(true);
+        return;
+      }
       trackAction('rsvp_submitted', 'Submitted RSVP', {
         attending,
         invitationMode: invitation.mode,
@@ -326,20 +388,11 @@ export default function RSVP({ invitationMode = 'full' }) {
       setSubmissionStorage('server');
       setSubmitted(true);
     } catch (err) {
-      // localStorage fallback
-      const stored = JSON.parse(localStorage.getItem('rsvps') || '[]');
-      stored.push({
-        ...payload,
-        id: `local_${payload.submittedAt}`,
-        storage: 'local',
-        syncStatus: 'local_only',
-        serverError: err.response?.data?.error || err.message || 'Server save failed',
-      });
-      localStorage.setItem('rsvps', JSON.stringify(stored));
+      const localRsvp = saveLocalRsvp(payload, err);
       trackAction('rsvp_saved_local', 'RSVP saved locally after server save failed', {
         attending,
         invitationMode: invitation.mode,
-        error: err.response?.data?.error || err.message || 'Server save failed',
+        error: localRsvp.serverError,
       });
       trackAction('rsvp_submitted', 'Submitted RSVP', {
         attending,
@@ -353,6 +406,7 @@ export default function RSVP({ invitationMode = 'full' }) {
         storage: 'local',
       });
       setSubmissionStorage('local');
+      setLocalSubmissionId(localRsvp.clientSubmissionId);
       setSubmitted(true);
     } finally {
       setSubmitting(false);
@@ -394,16 +448,6 @@ export default function RSVP({ invitationMode = 'full' }) {
               ? `Thank you, ${firstName}. We have your event responses.`
               : `Thank you for letting us know, ${firstName}. You'll be missed!`}
           </p>
-          {submissionStorage === 'local' && (
-            <div className="my-6 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-left">
-              <p className="font-sans text-sm font-semibold text-yellow-800">
-                Saved only on this device.
-              </p>
-              <p className="font-sans text-xs text-yellow-700 mt-1">
-                The server save did not complete, so this RSVP may not appear in the owner dashboard until the server issue is fixed.
-              </p>
-            </div>
-          )}
           {hasAnyAttendance && (
             <>
               <p className="font-sans text-sm text-mauve-400 mb-8">

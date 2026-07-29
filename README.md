@@ -37,7 +37,7 @@ The page detects the MP4 automatically and shows the custom video player.
 
 ## Data Storage
 
-RSVPs use `/api/rsvp` and `/api/guests`. If `MONGODB_URI` is not configured, submissions fall back to browser `localStorage`.
+RSVPs use `/api/rsvp` and `/api/guests`. If the MongoDB save fails, submissions are queued in the guest's browser for retry. When Resend email fallback is configured, the server also emails a backup copy of the RSVP to the hardcoded backup recipients in `api/_emailFallback.js`.
 
 Copy `.env.example` to `.env` and set:
 
@@ -47,4 +47,5 @@ MONGODB_DB=marriage
 VITE_ADMIN_PATH=/admin-mr-2026
 OWNER_ACCESS_CODE=replace-with-a-private-owner-code
 SITE_ACCESS_SECRET=replace-with-a-long-random-cookie-secret
+RESEND_API_KEY=re_...
 ```

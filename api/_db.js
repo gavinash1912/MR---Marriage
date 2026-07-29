@@ -2,31 +2,51 @@
 import { MongoClient } from 'mongodb';
 
 const uri = process.env.MONGODB_URI;
+const mongoOptions = {
+  serverSelectionTimeoutMS: 10000,
+  connectTimeoutMS: 10000,
+  socketTimeoutMS: 20000,
+  maxPoolSize: 5,
+};
 
 let client;
 let clientPromise;
 
-if (!uri) {
-  // No DB configured — return a stub so the API gracefully falls back
-  clientPromise = null;
-} else {
+function connectClient() {
+  if (!uri) return null;
+
   if (process.env.NODE_ENV === 'development') {
-    // In dev, reuse the connection across hot-reloads
+    // In dev, reuse the connection across hot-reloads.
     if (!global._mongoClientPromise) {
-      client = new MongoClient(uri);
-      global._mongoClientPromise = client.connect();
+      client = new MongoClient(uri, mongoOptions);
+      global._mongoClientPromise = client.connect().catch(error => {
+        global._mongoClientPromise = null;
+        client = null;
+        throw error;
+      });
     }
     clientPromise = global._mongoClientPromise;
-  } else {
-    client = new MongoClient(uri);
-    clientPromise = client.connect();
+    return clientPromise;
   }
+
+  if (!clientPromise) {
+    client = new MongoClient(uri, mongoOptions);
+    clientPromise = client.connect().catch(error => {
+      clientPromise = null;
+      client = null;
+      throw error;
+    });
+  }
+
+  return clientPromise;
 }
 
 export async function getDb() {
-  if (!clientPromise) throw new Error('MONGODB_URI is not set');
-  const c = await clientPromise;
+  const connection = connectClient();
+  if (!connection) throw new Error('MONGODB_URI is not set');
+
+  const c = await connection;
   return c.db(process.env.MONGODB_DB || 'marriage');
 }
 
-export default clientPromise;
+export default connectClient;

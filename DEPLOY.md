@@ -71,9 +71,11 @@ In your Vercel project → **Settings → Environment Variables**, add:
 | `VITE_ADMIN_PATH` | `/owner-rsvp-mr-2026` or your private admin path |
 | `OWNER_ACCESS_CODE` | A private owner access code                  |
 | `SITE_ACCESS_SECRET` | A long random secret for admin cookies      |
+| `RESEND_API_KEY` | Optional: Resend API key for RSVP email fallback |
 
-> If you skip this, RSVPs fall back to localStorage on each visitor's own browser
-> (no cross-device persistence). Add MongoDB whenever you're ready.
+> If MongoDB is unavailable, RSVPs queue in the visitor's browser for retry.
+> If `RESEND_API_KEY` is configured, failed database saves are also emailed
+> to the hardcoded backup recipients in `api/_emailFallback.js`.
 
 ### 4. Set up MongoDB Atlas (free tier)
 

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import axios from 'axios';
+import { createQueueId, enqueueAnalyticsEvent, flushAnalyticsOutbox } from './offlineOutbox';
+
+let analyticsFlushTimer = null;
 
 function getOrCreateSessionId() {
   let sessionId = localStorage.getItem('sessionId');
@@ -45,22 +47,64 @@ function sendAnalyticsBeacon(payload) {
   return navigator.sendBeacon('/api/analytics', body);
 }
 
+async function sendAnalyticsPayload(payload) {
+  const response = await fetch('/api/analytics', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Analytics save failed with HTTP ${response.status}`);
+  }
+}
+
+function scheduleAnalyticsFlush() {
+  if (analyticsFlushTimer) return;
+
+  analyticsFlushTimer = window.setTimeout(() => {
+    analyticsFlushTimer = null;
+    flushAnalyticsOutbox().catch(() => {});
+  }, 5000);
+}
+
 export function trackEvent(eventType, details = {}, options = {}) {
   const sessionId = getOrCreateSessionId();
   const deviceInfo = parseDeviceInfo();
   const payload = {
     eventType,
+    clientEventId: details.clientEventId || createQueueId('analytics'),
     sessionId,
     deviceInfo: `${deviceInfo.device} - ${deviceInfo.os} - ${deviceInfo.browser}`,
     pagePath: window.location.pathname,
     ...details,
   };
 
-  if (options.beacon && sendAnalyticsBeacon(payload)) {
-    return;
+  if (options.beacon) {
+    enqueueAnalyticsEvent(payload);
+    if (sendAnalyticsBeacon(payload)) {
+      scheduleAnalyticsFlush();
+      return;
+    }
   }
 
-  axios.post('/api/analytics', payload).catch(() => {});
+  sendAnalyticsPayload(payload)
+    .then(() => {
+      flushAnalyticsOutbox().catch(() => {});
+    })
+    .catch(() => {
+      enqueueAnalyticsEvent(payload);
+      scheduleAnalyticsFlush();
+    });
+}
+
+export function flushQueuedAnalytics() {
+  if (analyticsFlushTimer) {
+    window.clearTimeout(analyticsFlushTimer);
+    analyticsFlushTimer = null;
+  }
+
+  return flushAnalyticsOutbox();
 }
 
 export function useVisitAnalytics({ sections = [], scrollDepths = [25, 50, 100], metadata = null } = {}) {
