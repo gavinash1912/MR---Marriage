@@ -708,8 +708,6 @@ export default function Admin() {
   const [analytics,   setAnalytics]   = useState({
     totalPageViews: 0,
     uniqueVisitors: 0,
-    totalVideoPlays: 0,
-    uniqueVideoViewers: 0,
   });
   const [analyticsError, setAnalyticsError] = useState('');
   const [visitors, setVisitors] = useState([]);
@@ -733,8 +731,6 @@ export default function Admin() {
     return {
       totalPageViews: analytics.totalPageViews,
       uniqueVisitors: analytics.uniqueVisitors,
-      totalVideoPlays: analytics.totalVideoPlays,
-      uniqueVideoViewers: analytics.uniqueVideoViewers,
     };
   };
 
@@ -1262,11 +1258,9 @@ export default function Admin() {
         {activeTab === 'visitors' && (
         <div>
           {/* Visitor Analytics Stats (filtered) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
             <StatCard label="Website Visits" value={filteredAnalytics.totalPageViews} color="mauve" />
             <StatCard label="Unique Visitors" value={filteredAnalytics.uniqueVisitors} color="green" />
-            <StatCard label="Video Plays" value={filteredAnalytics.totalVideoPlays} color="yellow" />
-            <StatCard label="Video Viewers (Unique)" value={filteredAnalytics.uniqueVideoViewers} color="red" />
           </div>
 
           {(analyticsError || visitorError) && (

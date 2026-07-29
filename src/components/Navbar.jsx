@@ -21,9 +21,8 @@ export default function Navbar() {
   useEffect(() => { setMenuOpen(false); }, [location]);
 
   const links = [
-    { to: invitation.homePath,     label: 'Home'     },
-    { to: invitation.schedulePath, label: invitation.showAllEvents ? 'Timeline' : 'Venue' },
-    { to: invitation.rsvpPath,     label: 'RSVP'     },
+    { to: invitation.homePath, label: 'Home' },
+    { to: invitation.rsvpPath, label: 'RSVP' },
   ];
   const trackNavigation = (label, to) => {
     trackEvent('action', {
@@ -37,6 +36,14 @@ export default function Navbar() {
     }, { beacon: true });
   };
 
+  const handleNavigationClick = (event, label, to) => {
+    trackNavigation(label, to);
+    if (to === invitation.homePath && location.pathname === invitation.homePath) {
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setMenuOpen(false);
+    }
+  };
   const isActive = (to) => {
     if (to === invitation.homePath) return location.pathname === invitation.homePath;
     return location.pathname.startsWith(to);
@@ -55,7 +62,7 @@ export default function Navbar() {
           <Link
             to={invitation.homePath}
             className="nav-brand"
-            onClick={() => trackNavigation('Brand', invitation.homePath)}
+            onClick={(event) => handleNavigationClick(event, 'Brand', invitation.homePath)}
           >
             Manas &amp; Rupa Sree
           </Link>
@@ -67,7 +74,7 @@ export default function Navbar() {
                 key={to}
                 to={to}
                 className={`nav-link ${isActive(to) ? 'is-active' : ''}`}
-                onClick={() => trackNavigation(label, to)}
+                onClick={(event) => handleNavigationClick(event, label, to)}
               >
                 {label}
               </Link>
@@ -112,7 +119,7 @@ export default function Navbar() {
                 to={to}
                 className={`nav-mobile-link ${isActive(to) ? 'is-active' : ''}`}
                 tabIndex={menuOpen ? 0 : -1}
-                onClick={() => trackNavigation(label, to)}
+                onClick={(event) => handleNavigationClick(event, label, to)}
               >
                 {label}
               </Link>

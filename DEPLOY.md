@@ -97,8 +97,7 @@ mr-marriage/
 │   │   ├── FloralDecor.jsx   # SVG floral decorations
 │   │   └── Navbar.jsx
 │   ├── pages/
-│   │   ├── Home.jsx          # Hero, countdown, video, event details
-│   │   ├── Schedule.jsx      # Timeline + calendar invite
+│   │   ├── Home.jsx          # Invite home, countdown, venue/timeline, calendar
 │   │   ├── RSVP.jsx          # 2-step RSVP form
 │   │   └── Admin.jsx         # Admin dashboard (hidden URL)
 │   ├── App.jsx               # Router + layout
@@ -117,10 +116,8 @@ mr-marriage/
 
 | Route               | Description                          |
 |---------------------|--------------------------------------|
-| `/wedding`          | Wedding-only home — names, countdown, photo, CTA |
-| `/wedding/schedule` | Wedding-only event timeline + calendar invite |
+| `/wedding`          | Wedding-only single-page invite |
 | `/wedding/rsvp`     | Wedding-only RSVP form |
-| `/marriage/celebrations` | Full celebration invite |
-| `/marriage/celebrations/schedule` | Full celebration timeline |
+| `/marriage/celebrations` | Full celebration single-page invite |
 | `/marriage/celebrations/rsvp` | Full celebration RSVP form |
 | `/owner-rsvp-mr-2026` | Admin dashboard; override with `VITE_ADMIN_PATH` |

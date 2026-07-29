@@ -97,18 +97,6 @@ export default function EventModal({ event, onClose, onCalendarAction }) {
               Apple / Outlook
             </button>
           </div>
-
-          {event.mapUrl && (
-            <a
-              href={event.mapUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary event-modal__map-link"
-            >
-              <MapPin className="w-4 h-4" />
-              View on Google Maps
-            </a>
-          )}
         </div>
       </div>
     </div>

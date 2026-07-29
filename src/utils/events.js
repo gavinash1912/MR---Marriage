@@ -135,7 +135,6 @@ export function getInvitationConfig(mode = INVITATION_MODES.FULL) {
     label: weddingOnly ? 'Wedding-only invite' : 'Full celebration invite',
     showAllEvents: !weddingOnly,
     homePath: weddingOnly ? WEDDING_ONLY_BASE_PATH : FULL_INVITE_BASE_PATH,
-    schedulePath: weddingOnly ? `${WEDDING_ONLY_BASE_PATH}/venue` : `${FULL_INVITE_BASE_PATH}/timeline`,
     rsvpPath: weddingOnly ? `${WEDDING_ONLY_BASE_PATH}/rsvp` : `${FULL_INVITE_BASE_PATH}/rsvp`,
     events: weddingOnly ? [WEDDING_EVENT] : FULL_EVENT_DETAILS,
     additionalEvents: weddingOnly ? [] : ADDITIONAL_EVENT_DETAILS,

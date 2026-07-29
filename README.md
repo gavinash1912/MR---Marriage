@@ -15,11 +15,9 @@ The local site runs at `http://localhost:5173`.
 
 | Route | Description |
 | --- | --- |
-| `/wedding` | Wedding-only home page with names, countdown, RSVP, and venue details |
-| `/wedding/venue` | Wedding-only venue page with address, map link, light schedule, and calendar links |
+| `/wedding` | Wedding-only single-page invite with poster, RSVP, countdown, venue details, and calendar links |
 | `/wedding/rsvp` | Wedding-only RSVP form for guests and additional attendees |
-| `/marriage/celebrations` | Full celebration home page with poster, RSVP, countdown, and venue details |
-| `/marriage/celebrations/timeline` | Full celebration event timeline |
+| `/marriage/celebrations` | Full celebration single-page invite with poster, RSVP, countdown, timeline, venue/map links, and calendar links |
 | `/marriage/celebrations/rsvp` | Full celebration RSVP form |
 | `/admin-mr-2026` | Admin dashboard for RSVPs and visitor logs |
 

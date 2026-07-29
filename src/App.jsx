@@ -3,8 +3,6 @@ import { useEffect } from 'react';
 import Navbar  from './components/Navbar';
 import EnvelopeSplash from './components/EnvelopeSplash';
 import Home    from './pages/Home';
-import Schedule from './pages/Schedule';
-import Timeline from './pages/Timeline';
 import RSVP   from './pages/RSVP';
 import Admin   from './pages/Admin';
 import { flushQueuedAnalytics } from './utils/analytics';
@@ -73,15 +71,9 @@ function AppLayout() {
       {!isAdmin && <Navbar />}
       <Routes>
         <Route path="/"        element={<Navigate to="/wedding" replace />} />
-        <Route path="/schedule" element={<Navigate to="/wedding/venue" replace />} />
-        <Route path="/rsvp"    element={<Navigate to="/wedding/rsvp" replace />} />
         <Route path="/marriage/celebrations"          element={<Home invitationMode="full" />}     />
-        <Route path="/marriage/celebrations/timeline" element={<Timeline invitationMode="full" />} />
-        <Route path="/marriage/celebrations/schedule" element={<Navigate to="/marriage/celebrations/timeline" replace />} />
         <Route path="/marriage/celebrations/rsvp"     element={<RSVP invitationMode="full" />}     />
         <Route path="/wedding"          element={<Home invitationMode="wedding-only" />}     />
-        <Route path="/wedding/venue"    element={<Schedule invitationMode="wedding-only" />} />
-        <Route path="/wedding/schedule" element={<Navigate to="/wedding/venue" replace />} />
         <Route path="/wedding/rsvp"     element={<RSVP invitationMode="wedding-only" />}     />
         {ADMIN_PATHS.map(path => (
           <Route key={path} path={`${path}/*`} element={<Admin />} />

@@ -1,9 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Clock, MapPin } from 'lucide-react';
+import { Calendar, CalendarPlus, ChevronRight, Clock, MapPin, Star, Utensils } from 'lucide-react';
+import EventModal from '../components/EventModal';
 import { useVisitAnalytics } from '../utils/analytics';
 import { useScrollReveal } from '../utils/scrollReveal';
 import { WEDDING_EVENT_ID, getInvitationConfig } from '../utils/events';
+import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
+import { FullCalendarInviteSection, TimelineEventsSection } from '../components/TimelineSections';
 
 function useCountdown(targetDate) {
   const calc = () => {
@@ -33,226 +36,159 @@ function CountdownBlock({ value, label }) {
   );
 }
 
-function RsvpStrip({ rsvpPath }) {
+function RsvpStrip({ rsvpPath, showVenueButton = false, onVenueClick = null }) {
   return (
-    <div className="home-rsvp-strip">
+    <div className={`home-rsvp-strip ${showVenueButton ? 'home-rsvp-strip--paired' : ''}`}>
       <Link to={rsvpPath} className="btn-primary home-rsvp-button" aria-label="RSVP for the wedding">
         <span>RSVP Now</span>
         <ChevronRight className="w-4 h-4" aria-hidden="true" />
       </Link>
+      {showVenueButton && (
+        <button
+          type="button"
+          className="btn-secondary home-rsvp-button home-rsvp-button--secondary"
+          onClick={onVenueClick}
+          aria-label="View wedding venue details"
+        >
+          <span>Venue</span>
+          <MapPin className="w-4 h-4" aria-hidden="true" />
+        </button>
+      )}
     </div>
   );
 }
 
-function HomeVenueDetails({ event, venuePath, primaryLabel = 'Venue Details', venueGroups = [], onVenueChange = null }) {
-  const hasVenueGroups = venueGroups.length > 0;
-  const [activeVenueIndex, setActiveVenueIndex] = useState(0);
-  const swipeStartXRef = useRef(null);
-  const swipeMovedRef = useRef(false);
-  const details = hasVenueGroups
-    ? venueGroups
-    : [
-        {
-          label: 'Address',
-          title: event.address,
-        },
-        {
-          label: 'Wedding day timing',
-          title: 'Evening 7:00 PM onwards · Muhurtham 9:30 PM',
-          icon: Clock,
-        },
-      ];
-  const venueCount = details.length;
-
-  const showVenue = (index) => {
-    if (!hasVenueGroups || venueCount === 0) return;
-    const nextIndex = (index + venueCount) % venueCount;
-    setActiveVenueIndex(nextIndex);
-    onVenueChange?.(details[nextIndex], nextIndex, 'select');
-  };
-
-  const advanceVenue = (direction) => {
-    if (!hasVenueGroups || venueCount === 0) return;
-    setActiveVenueIndex(current => {
-      const nextIndex = (current + direction + venueCount) % venueCount;
-      onVenueChange?.(details[nextIndex], nextIndex, direction > 0 ? 'next' : 'previous');
-      return nextIndex;
-    });
-  };
-
-  const handleSwipeStart = (clientX) => {
-    if (!hasVenueGroups || typeof clientX !== 'number') return;
-    swipeStartXRef.current = clientX;
-    swipeMovedRef.current = false;
-  };
-
-  const handleSwipeEnd = (clientX) => {
-    if (!hasVenueGroups || typeof clientX !== 'number' || swipeStartXRef.current === null) return;
-    const distance = clientX - swipeStartXRef.current;
-    if (Math.abs(distance) > 36) {
-      swipeMovedRef.current = true;
-      advanceVenue(distance < 0 ? 1 : -1);
-    }
-    swipeStartXRef.current = null;
-  };
-
-  const getDeckPosition = (index) => {
-    const offset = (index - activeVenueIndex + venueCount) % venueCount;
-    if (offset === 0) return 'active';
-    if (offset === 1) return 'next';
-    return 'previous';
-  };
-
+function VenueDetailsPanel({ event, onMapOpen = null }) {
   return (
-    <section data-analytics-section="Venue Details" className="home-venue-section" data-reveal="fade-up">
-      <p className="invite-kicker">Venue details</p>
-      <h2 className="section-title">{hasVenueGroups ? 'Celebration Venues' : event.venue}</h2>
+    <div className="venue-priority-panel">
+      <div className="venue-priority-panel__copy" data-reveal="slide-right">
+        <p className="invite-kicker">Getting there</p>
+        <h2>{event.venue}</h2>
+        <p>
+          Please use the main entrance at {event.venue}. The address and map link are below for easy navigation.
+        </p>
+      </div>
 
-      <div className={`home-venue-card ${hasVenueGroups ? 'home-venue-card--multi' : ''}`}>
-        {hasVenueGroups ? (
-          <>
-            <div
-              className="venue-card-deck"
-              role="region"
-              aria-label="Celebration venues"
-              tabIndex={0}
-              onKeyDown={(event) => {
-                if (event.key === 'ArrowRight') advanceVenue(1);
-                if (event.key === 'ArrowLeft') advanceVenue(-1);
-              }}
-              onPointerDown={(event) => {
-                if (event.pointerType === 'mouse' && event.button !== 0) return;
-                event.currentTarget.setPointerCapture?.(event.pointerId);
-                handleSwipeStart(event.clientX);
-              }}
-              onPointerUp={(event) => handleSwipeEnd(event.clientX)}
-              onPointerCancel={() => { swipeStartXRef.current = null; }}
-            >
-              {details.map(({ label, title, description, mapUrl, icon: Icon = MapPin }, index) => (
-                <div
-                  key={label}
-                  className={`home-venue-detail venue-deck-card is-${getDeckPosition(index)}`}
-                  onClick={() => {
-                    if (swipeMovedRef.current) {
-                      swipeMovedRef.current = false;
-                      return;
-                    }
-                    showVenue(index);
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
-                      showVenue(index);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={index === activeVenueIndex ? 0 : -1}
-                  aria-label={`${label}: ${title}`}
-                  aria-current={index === activeVenueIndex ? 'true' : undefined}
-                >
-                  <Icon className="w-5 h-5 venue-deck-card__icon" aria-hidden="true" />
-                  <div className="venue-deck-card__content">
-                    <span>{label}</span>
-                    <p>{title}</p>
-                    {description && <small>{description}</small>}
-                    {mapUrl && index === activeVenueIndex && (
-                      <a
-                        href={mapUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="venue-deck-map-link"
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        Open Maps
-                      </a>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="venue-deck-dots" aria-label="Venue card selector">
-              <span className="venue-deck-cue venue-deck-cue--left" aria-hidden="true" />
-              {details.map(({ label }, index) => (
-                <button
-                  key={label}
-                  type="button"
-                  className={index === activeVenueIndex ? 'is-active' : ''}
-                  onClick={() => showVenue(index)}
-                  aria-label={`Show ${label}`}
-                  aria-current={index === activeVenueIndex ? 'true' : undefined}
-                />
-              ))}
-              <span className="venue-deck-cue venue-deck-cue--right" aria-hidden="true" />
-            </div>
-          </>
-        ) : (
-          <div className="home-venue-card__details">
-            {details.map(({ label, title, description, icon: Icon = MapPin }) => (
-              <div key={label} className="home-venue-detail">
-                <Icon className="w-5 h-5" aria-hidden="true" />
-                <div>
-                  <span>{label}</span>
-                  <p>{title}</p>
-                  {description && <small>{description}</small>}
-                </div>
-              </div>
-            ))}
+      <div className="venue-detail-list" data-reveal="card">
+        <div className="venue-detail-item">
+          <MapPin className="w-5 h-5" aria-hidden="true" />
+          <div>
+            <span>Address</span>
+            <p>{event.address}</p>
           </div>
-        )}
+        </div>
 
-        <div className="home-venue-card__actions">
-          <Link to={venuePath} className="btn-primary home-venue-card__primary">
-            {primaryLabel} <ChevronRight className="w-4 h-4" aria-hidden="true" />
-          </Link>
-          {!hasVenueGroups && (
+        <div className="venue-detail-item">
+          <Clock className="w-5 h-5" aria-hidden="true" />
+          <div>
+            <span>Arrival</span>
+            <p>Evening 7:00 PM onwards</p>
+          </div>
+        </div>
+
+        <div className="venue-detail-item">
+          <Utensils className="w-5 h-5" aria-hidden="true" />
+          <div>
+            <span>Dinner</span>
+            <p>8:00 PM · South Indian vegetarian cuisine</p>
+          </div>
+        </div>
+
+        <div className="venue-detail-item">
+          <Star className="w-5 h-5" aria-hidden="true" />
+          <div>
+            <span>Muhurtham</span>
+            <p>9:30 PM</p>
+          </div>
+        </div>
+
+        <a
+          href={event.mapUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary venue-map-button"
+          onClick={() => onMapOpen?.(event, 'venue_detail_card')}
+        >
+          Open in Google Maps
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function WeddingHomeVenueSection({ event, onMapOpen = null, onCalendarAction = null }) {
+  return (
+    <>
+      <section
+        id="wedding-venue"
+        data-analytics-section="Venue Details"
+        className="invite-section venue-priority-section home-wedding-venue-section"
+      >
+        <div className="invite-section__inner">
+          <div className="home-wedding-venue-heading" data-reveal="fade-up">
+            <p className="invite-kicker">Venue</p>
+            <h2 className="section-title">{event.venue}</h2>
             <a
               href={event.mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-secondary home-venue-card__secondary"
+              onClick={() => onMapOpen?.(event, 'venue_heading_address')}
             >
-              Open Maps
+              <MapPin className="w-4 h-4" aria-hidden="true" />
+              {event.address}
             </a>
-          )}
+          </div>
+          <VenueDetailsPanel event={event} onMapOpen={onMapOpen} />
         </div>
-      </div>
-    </section>
+      </section>
+
+      <section data-analytics-section="Calendar Links" className="invite-section home-wedding-calendar-section">
+        <div className="max-w-md mx-auto text-center px-4" data-reveal="fade-up">
+          <p className="invite-kicker">Save the date</p>
+          <h2 className="font-serif text-3xl md:text-4xl text-mauve-800 mb-3">Add it to your calendar</h2>
+          <p className="section-lede mb-8">
+            Add the marriage ceremony to your calendar so you don't miss it.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href={getGoogleCalendarUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 btn-primary text-sm px-6 py-3"
+              onClick={() => onCalendarAction?.('google', event, 'wedding_event')}
+            >
+              <CalendarPlus className="w-4 h-4" />
+              Google Calendar
+            </a>
+
+            <button
+              type="button"
+              onClick={() => {
+                onCalendarAction?.('apple_outlook', event, 'wedding_event');
+                downloadCalendarInvite();
+              }}
+              className="flex items-center justify-center gap-2 btn-calendar-download text-sm px-6 py-3"
+            >
+              <Calendar className="w-4 h-4" />
+              Apple / Outlook
+            </button>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
 
 export default function Home({ invitationMode = 'full' }) {
   const invitation = getInvitationConfig(invitationMode);
   const weddingEvent = invitation.events.find(event => event.id === WEDDING_EVENT_ID) || invitation.events[0];
-  const ranchHouseEvent = invitation.events.find(event => event.venue === 'Ranch House');
-  const vrathamEvent = invitation.events.find(event => event.id === 'vratham');
-  const fullInviteVenueGroups = invitation.showAllEvents
-    ? [
-        {
-          label: 'Wedding ceremony',
-          title: weddingEvent.venue,
-          description: weddingEvent.address,
-          mapUrl: weddingEvent.mapUrl,
-        },
-        {
-          label: 'Pre-wedding events',
-          title: ranchHouseEvent?.venue || 'Ranch House',
-          description: ranchHouseEvent?.address || '708 Sam Davis Rd, Argyle, TX 76226',
-          mapUrl: ranchHouseEvent?.mapUrl || 'https://maps.google.com/?q=708+Sam+Davis+Rd+Argyle+TX+76226',
-        },
-        {
-          label: 'Vratham',
-          title: vrathamEvent?.venue || "Groom's House",
-          description: vrathamEvent?.address || '2845 Hale Rd, Celina, TX 75009',
-          mapUrl: vrathamEvent?.mapUrl || 'https://maps.google.com/?q=2845+Hale+Rd+Celina+TX+75009',
-        },
-      ]
-    : [];
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const countdown = useCountdown('2026-09-05T19:00:00');
   const homeSections = [
     'Hero',
     'Countdown',
-    'Venue Details',
+    ...(invitation.showAllEvents ? ['Events Timeline', 'Calendar Links'] : ['Venue Details', 'Calendar Links']),
     ...(!invitation.showAllEvents ? ['Bottom RSVP'] : []),
   ];
 
@@ -265,6 +201,58 @@ export default function Home({ invitationMode = 'full' }) {
     },
   });
   useScrollReveal();
+
+  const openEventDetails = (event) => {
+    trackAction('event_details_opened', `Opened ${event.name} details`, {
+      eventId: event.id,
+      eventName: event.name,
+      venue: event.venue,
+      invitationMode: invitation.mode,
+      source: 'home_timeline',
+    });
+    setSelectedEvent(event);
+  };
+
+  const trackCalendarAction = (provider, events, scope = 'all') => {
+    const eventList = Array.isArray(events) ? events : [events].filter(Boolean);
+    trackAction('calendar_invite_added', `${provider} calendar invite`, {
+      provider,
+      scope,
+      eventCount: eventList.length,
+      eventIds: eventList.map(event => event.id),
+      invitationMode: invitation.mode,
+      source: invitation.showAllEvents ? 'home_timeline' : 'home_calendar',
+    });
+  };
+
+  const trackMapOpen = (event, source) => {
+    trackAction('map_opened', `Opened map for ${event.venue}`, {
+      eventId: event.id,
+      eventName: event.name,
+      venue: event.venue,
+      mapUrl: event.mapUrl,
+      invitationMode: invitation.mode,
+      source,
+    });
+  };
+
+  const scrollToVenueSection = () => {
+    trackAction('venue_scroll_clicked', 'Clicked home venue button', {
+      invitationMode: invitation.mode,
+      source: 'home_rsvp_strip',
+    });
+    document.getElementById('wedding-venue')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  useEffect(() => {
+    if (invitation.showAllEvents || window.location.hash !== '#wedding-venue') return undefined;
+
+    const id = window.setTimeout(() => {
+      document.getElementById('wedding-venue')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+
+    return () => window.clearTimeout(id);
+  }, [invitation.showAllEvents]);
 
   return (
     <div className={`home-page ${invitation.showAllEvents ? 'full-invite-page' : ''}`} onClickCapture={handleTrackedClick}>
@@ -282,7 +270,11 @@ export default function Home({ invitationMode = 'full' }) {
         </main>
       </section>
 
-      <RsvpStrip rsvpPath={invitation.rsvpPath} />
+      <RsvpStrip
+        rsvpPath={invitation.rsvpPath}
+        showVenueButton={!invitation.showAllEvents}
+        onVenueClick={scrollToVenueSection}
+      />
 
       <section data-analytics-section="Countdown" className="home-countdown" data-reveal="fade-up">
         <p className="invite-kicker">The countdown begins</p>
@@ -295,21 +287,22 @@ export default function Home({ invitationMode = 'full' }) {
         </div>
       </section>
 
-      <HomeVenueDetails
-        event={weddingEvent}
-        venuePath={invitation.schedulePath}
-        primaryLabel={invitation.showAllEvents ? 'View Timeline' : 'Venue Details'}
-        venueGroups={fullInviteVenueGroups}
-        onVenueChange={(venue, index, method) => {
-          trackAction('venue_card_changed', `Viewed ${venue.label} venue card`, {
-            venueLabel: venue.label,
-            venueName: venue.title,
-            venueIndex: index,
-            method,
-            invitationMode: invitation.mode,
-          });
-        }}
-      />
+      {invitation.showAllEvents ? (
+        <>
+          <TimelineEventsSection
+            events={invitation.events}
+            onOpenEventDetails={openEventDetails}
+            onOpenMap={(event) => trackMapOpen(event, 'home_timeline_card')}
+          />
+          <FullCalendarInviteSection events={invitation.events} onCalendarAction={trackCalendarAction} />
+        </>
+      ) : (
+        <WeddingHomeVenueSection
+          event={weddingEvent}
+          onMapOpen={trackMapOpen}
+          onCalendarAction={trackCalendarAction}
+        />
+      )}
 
       {!invitation.showAllEvents && (
         <section data-analytics-section="Bottom RSVP">
@@ -322,6 +315,14 @@ export default function Home({ invitationMode = 'full' }) {
           Manas &amp; Rupa Sree &nbsp;&middot;&nbsp; September 5, 2026
         </p>
       </footer>
+
+      {selectedEvent && (
+        <EventModal
+          event={selectedEvent}
+          onClose={() => setSelectedEvent(null)}
+          onCalendarAction={(provider, event) => trackCalendarAction(provider, event, 'single_event')}
+        />
+      )}
 
     </div>
   );

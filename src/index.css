@@ -1941,6 +1941,7 @@
 .full-invite-page .venue-detail-item span,
 .full-invite-page .timeline-event__time,
 .full-invite-page .timeline-event__tap,
+.full-invite-page .timeline-event__map,
 .full-invite-page .venue-deck-map-link,
 .full-invite-page .city2-event-tile__kicker {
   color: var(--maroon-800);
@@ -2738,6 +2739,8 @@
 
 .home-rsvp-strip {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
   justify-content: center;
   padding: 1.65rem 1rem 1.35rem;
   background: var(--ivory-0);
@@ -2783,6 +2786,30 @@
 
 .home-rsvp-strip .home-rsvp-button:hover svg {
   transform: translateX(2px);
+}
+
+.home-rsvp-strip .home-rsvp-button--secondary {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), transparent 48%),
+    linear-gradient(180deg, #fffdf7 0%, #fff3d8 100%);
+  color: var(--maroon-800);
+  border-color: rgba(196, 154, 56, 0.95);
+  box-shadow:
+    0 14px 30px rgba(93, 6, 29, 0.09),
+    0 0 0 5px rgba(196, 154, 56, 0.07);
+}
+
+.home-rsvp-strip .home-rsvp-button--secondary::before {
+  border-color: rgba(196, 154, 56, 0.24);
+}
+
+.home-rsvp-strip .home-rsvp-button--secondary:hover {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.32), transparent 48%),
+    linear-gradient(180deg, #fffaf0 0%, #ffecc0 100%);
+  box-shadow:
+    0 16px 34px rgba(93, 6, 29, 0.12),
+    0 0 0 6px rgba(196, 154, 56, 0.1);
 }
 
 .home-countdown {
@@ -3140,7 +3167,6 @@ button.home-venue-detail {
   border-radius: 12px;
   background: linear-gradient(180deg, #fffdf7, #fff6e8);
   box-shadow: var(--shadow-soft);
-  cursor: pointer;
   transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
   text-align: center;
 }
@@ -3201,14 +3227,55 @@ button.home-venue-detail {
 .timeline-event__tap {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.3rem;
-  margin-top: 0.5rem;
+  min-height: 34px;
+  padding: 0 0.2rem;
+  border: 0;
+  background: transparent;
   font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gold-500);
+  cursor: pointer;
+}
+
+.timeline-event__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 1rem;
+  margin-top: 0.62rem;
+}
+
+.timeline-event__map {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 34px;
+  font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--leaf-700);
+  text-decoration: none;
+}
+
+.timeline-event__tap:hover,
+.timeline-event__map:hover {
+  color: var(--maroon-700);
+}
+
+.timeline-event__tap:focus-visible,
+.timeline-event__map:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 3px;
+  border-radius: 999px;
 }
 
 .timeline-track.timeline-track--single {
@@ -3379,13 +3446,6 @@ button.home-venue-detail {
   text-decoration: none;
 }
 
-.event-modal__map-link {
-  display: inline-flex;
-  margin-top: 1rem;
-  text-decoration: none;
-  font-size: 0.82rem;
-}
-
 @media (min-width: 640px) {
   .event-modal__calendar-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3410,6 +3470,44 @@ button.home-venue-detail {
   font-size: 0.88rem;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.home-wedding-venue-section {
+  scroll-margin-top: 7rem;
+}
+
+.home-wedding-venue-heading {
+  width: min(720px, 100%);
+  margin: 0 auto 1.75rem;
+  text-align: center;
+}
+
+.home-wedding-venue-heading .section-title {
+  margin-bottom: 0.85rem;
+}
+
+.home-wedding-venue-heading a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.9rem;
+  color: var(--maroon-800);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.home-wedding-venue-section .venue-detail-item span {
+  color: var(--maroon-700);
+}
+
+.home-wedding-venue-section .venue-detail-item p {
+  color: var(--maroon-900);
+}
+
+.home-wedding-calendar-section {
+  padding-top: 2rem;
 }
 
 .venue-priority-section {
@@ -3507,6 +3605,10 @@ button.home-venue-detail {
 
   .home-rsvp-strip .home-rsvp-button {
     width: 20rem;
+  }
+
+  .home-rsvp-strip--paired .home-rsvp-button {
+    width: min(18rem, calc(50vw - 2rem));
   }
 
   .home-countdown {
